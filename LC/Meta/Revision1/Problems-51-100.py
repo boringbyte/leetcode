@@ -1,6 +1,8 @@
 import heapq
 import collections
-from LC.LCMetaPractice import ListNode, TreeNode
+import random
+from functools import lru_cache
+from LC.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
 
 
 def buildings_with_an_ocean_view1(heights):
@@ -316,14 +318,14 @@ def longest_substring_with_at_most_k_distinct_characters(s, k):
 
 
 def combination_sum(candidates, target):
-    def backtrack(current, path, k):
+    def backtrack(current, sofar, k):
         if current == 0:
-            result.append(path[:])
+            result.append(sofar[:])
         if current < 0 or k >= n:
             return
         for i in range(k, n):
             chosen = candidates[i]
-            backtrack(current - chosen, path + [chosen], i)
+            backtrack(current - chosen, sofar + [chosen], i)
 
     result, n = [], len(candidates)
     backtrack(target, [], 0)
@@ -421,3 +423,314 @@ class RandomPickIndex:
         pass
 
 
+def subsets(nums):
+    result, n = [], len(nums)
+
+    def backtrack(sofar, k):
+        result.append(sofar[:])
+        for i in range(k, n):
+            chosen = nums[i]
+            backtrack(sofar + [chosen], i + 1)
+    backtrack([], 0)
+    return result
+
+
+def palindrome_permutation(s):
+    counter, n = collections.Counter(s), len(s)
+    odd_count = 0
+    for key in counter.keys():
+        if counter[key] % 2 == 1:
+            odd_count += 1
+    if odd_count == 1 or odd_count % 2 == 0:
+        return True
+    else:
+        return False
+
+
+def minimum_add_to_make_parentheses_valid1(s):
+    left, right = 0, 0
+    for char in s:
+        if char == '(':
+            right += 1
+        elif right > 0:
+            right -= 1
+        else:
+            left += 1
+    return left + right
+
+
+def minimum_add_to_make_parentheses_valid2(s):
+    right, stack = 0, []
+    for char in s:
+        if char == '(':
+            stack.append(char)
+        elif stack and char == ')':
+            stack.pop()
+        else:
+            right += 1
+    return right + len(stack)
+
+
+def remove_nth_from_end1(head, n):
+    length, current = 0, head
+    while current:
+        current = current.next
+        length += 1
+
+    current = head
+    for _ in range(1, length - n):
+        current = current.next
+
+    current.next = current.next.next
+    return head
+
+
+def remove_nth_from_end2(head, n):
+    slow = fast = head
+    for _ in range(n):
+        fast = fast.next
+    if not fast:
+        return head.next
+    while fast.next:
+        fast, slow = fast.next, slow.next
+    slow.next = slow.next.next
+    return slow
+
+
+class RandomizedSet:
+    def __init__(self):
+        self.nums, self.positions = [], {}
+
+    def insert(self, val):
+        if val not in self.positions:
+            self.positions[val] = len(self.nums)
+            self.nums.append(val)
+            return True
+        return False
+
+    def remove(self, val):
+        if val in self.positions:
+            idx, last = self.positions[val], self.nums[-1]
+            self.nums[idx], self.positions[last] = last, idx
+            self.nums.pop()
+            self.positions.pop(val, 0)
+            return True
+        return False
+
+    def get_random(self):
+        return random.choice(self.nums)
+
+
+def multiply_strings(num1, num2):
+    m, n = len(num1), len(num2)
+    result = [0] * (m + n)
+    for i in range(m - 1, -1, -1):
+        for j in range(n - 1, -1, -1):
+            value = (ord(num1[i]) - ord('0')) * (ord(num2[j]) - ord('0'))
+            p1, p2 = i + j, i + j + 1
+            total = value + result[p2]
+            result[p1] += total // 10
+            result[p2] = total % 10
+    final_result = []
+    for value in result:
+        if value == 0 and len(final_result) == 0:
+            continue
+        else:
+            final_result.append(str(value))
+    return '0' if len(final_result) == 0 else ''.join(final_result)
+
+
+def add_operators(s, target):
+    result, n = [], len(s)
+
+    def backtrack(sofar, k):
+        if k == len(s):
+            result.append(sofar)
+        for i in range(k, n):
+            if i > k and s[i] == 0:  # leading zero number skipped
+                break
+            if i == 0:
+                pass
+
+
+def longest_increasing_path_matrix_dfs(matrix):
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    m, n, result = len(matrix), len(matrix[0]), 0
+
+    @lru_cache
+    def dfs(x, y):
+        local_result = 1
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < m and 0 <= ny < n and matrix[nx][ny] > matrix[x][y]:
+                local_result = max(local_result, dfs(nx, ny) + local_result)
+        return local_result
+
+    for x in range(m):
+        for y in range(n):
+            result = max(result, dfs(x, y))
+    return result
+
+
+def copy_list_with_random_pointer1(head: RandomPointerNode):
+    hashmap, prev, current = {}, None, head
+    while current:
+        if current not in hashmap:
+            hashmap[current] = RandomPointerNode(current.val, current.next, current.random)
+        if prev:
+            prev.next = hashmap[current]
+        else:
+            head = hashmap[current]
+
+        random_node = current.random
+        if random_node:
+            if random_node not in hashmap:
+                hashmap[random_node] = RandomPointerNode(random_node.val, random_node.next, random_node.random)
+            hashmap[current].random = hashmap[random_node]
+        prev, current = hashmap[current], current.next
+    return head
+
+
+class NestedIterator:
+    def __init(self, nested_list):
+        pass
+
+    def next(self):
+        pass
+
+    def has_next(self):
+        pass
+
+
+def find_peak_element(nums):
+    l, r = 0, len(nums) - 1
+    while l < r:
+        mid = l + (r - l) // 2
+        if nums[mid] > mid[mid + 1]:
+            r = mid
+        else:
+            l = mid + 1
+    return l
+
+
+def basic_calculator_2(s):
+    pass
+
+
+def add_two_numbers(l1, l2):
+    dummy = current = ListNode(0)
+    carry = 0
+    while l1 or l2 or carry:
+        if l1:
+            carry += l1.val
+            l1 = l1.next
+        if l2:
+            carry += l2.val
+            l2 = l2.next
+        carry, rem = divmod(carry, 10)
+        current.next = ListNode(rem)
+        current = current.next
+    return dummy.next
+
+
+def is_graph_bipartite(graph):
+
+    def dfs(start):
+        if loop[0]:
+            return
+        for neighbor in graph[start]:
+            if distance[neighbor] >= 0 and distance[neighbor] == distance[start]:
+                loop[0] = True
+            elif distance[neighbor] < 0:
+                distance[neighbor] = distance[start] ^ 1
+                dfs(neighbor)
+
+    n = len(graph)
+    loop, distance = [False], [-1] * n
+
+    for i in range(n):
+        if loop[0]:
+            return False
+        if distance[i] == -1:
+            distance[i] = 0
+            dfs(i)
+    return True
+
+
+def recyclable_and_low_fat_products():
+    pass  # This is sql
+
+
+def three_sum_closest(nums, target):
+    nums, n = sorted(nums), len(nums)
+    if n < 3:
+        return
+    result = sum(nums[:3])
+    for i in range(n - 2):
+        l, r = i + 1, n - 1
+        local_result = nums[i] + nums[l] + nums[r]
+        if abs(result - target) > abs(local_result - target):
+            result = local_result
+        if local_result == target:
+            return target
+        if local_result > target:
+            r -= 1
+        else:
+            l += 1
+    return result
+
+
+def maximum_swap(num):
+    s = list(str(num))
+    n = len(s)
+    for i in range(n - 1):
+        if s[i] < s[i + 1]:
+            break
+    else:
+        return num
+    max_idx, max_val = i + 1, s[i + 1]
+    for j in range(i + 1, n):
+        if max_val <= s[j]:
+            max_idx, max_val = j, s[j]
+    left_idx = i
+    for j in range(i + 1):
+        if s[j] < max_val:
+            left_idx = j
+            break
+    s[max_idx], s[left_idx] = s[left_idx], s[max_idx]
+    return int(''.join(s))
+
+
+def find_k_closest_elements(arr, k, x):
+    pass
+
+
+def binary_tree_vertical_order_traversal_bfs(root):
+    if root is None:
+        return
+    queue, hashmap = collections.deque([(root, 0)]), {}
+    while queue:
+        current, distance = queue.popleft()
+        hashmap.setdefault(distance, []).append(current.val)
+        if current.left:
+            queue.append((current.left, distance - 1))
+        if current.right:
+            queue.append((current.right, distance + 1))
+
+    for key in sorted(hashmap.keys()):
+        print(hashmap.get(key))
+
+
+def binary_tree_vertical_order_traversal_pre(root):
+    hashmap = {}
+
+    def dfs(node, distance):
+        if node is None:
+            return
+        hashmap.setdefault(distance, []).append(node.val)
+        dfs(node.left, distance - 1)
+        dfs(node.right, distance + 1)
+
+    dfs(root, 0)
+    for value in hashmap.values():
+        print(value)

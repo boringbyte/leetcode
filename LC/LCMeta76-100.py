@@ -118,7 +118,7 @@ def valid_parentheses(s):
     return len(stack) == 0
 
 
-def min_add_to_make_valid_parentheses(s):
+def minimum_add_to_make_parentheses_valid1(s):
     left, right = 0, 0
     for char in s:
         if char == '(':
@@ -130,7 +130,7 @@ def min_add_to_make_valid_parentheses(s):
     return left + right
 
 
-def min_add_to_make_valid_parentheses_stack(s):
+def minimum_add_to_make_parentheses_valid2(s):
     right, stack = 0, []
     for char in s:
         if char == '(':

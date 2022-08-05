@@ -5,6 +5,13 @@ import string
 from queue import PriorityQueue
 
 
+class RandomPointerNode:
+    def __init__(self, val, next=None, random=None):
+        self.val = val
+        self.next = next
+        self.random = random
+
+
 class ListNode:
     def __init__(self, val=0):
         self.val = val
