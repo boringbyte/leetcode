@@ -1,8 +1,6 @@
 import heapq
-import collections
-# import itertools
 import random
-# import string
+import collections
 from queue import PriorityQueue
 from functools import lru_cache
 from LC.LCMetaPractice import TreeNode, ListNode, DLLNode
@@ -26,7 +24,7 @@ def verify_alien_dictionary(words, order):
     return all(check_order(word1, word2) for word1, word2 in zip(words, words[1:]))
 
 
-def minimum_remove_to_make_valid_parenthesis_method1(s):
+def minimum_remove_to_make_valid_parenthesis1(s):
     in_valid, stack = set(), []
     for i, char in stack:
         if char == '(':
@@ -41,7 +39,7 @@ def minimum_remove_to_make_valid_parenthesis_method1(s):
     return ''.join(char for i, char in enumerate(s) if i not in in_valid)
 
 
-def minimum_remove_to_make_valid_parenthesis_method2(s):
+def minimum_remove_to_make_valid_parenthesis2(s):
     s, stack = list(s), []
     for i, char in enumerate(s):
         if char == '(':
@@ -1023,3 +1021,20 @@ def move_zeros(nums):
             snow_ball += 1
         elif snow_ball > 0:
             nums[i], nums[i - snow_ball] = nums[i - snow_ball], nums[i]
+
+
+def buildings_with_an_ocean_view1(heights):
+    result, n = [], len(heights)
+    for i in range(n - 1, -1, -1):
+        if not result or heights[i] > heights[result[-1]]:
+            result.append(i)
+    return result[::-1]
+
+
+def buildings_with_an_ocean_view2(heights):
+    result = []
+    for i, height in enumerate(heights):
+        while result and heights[result[-1]] <= height:
+            result.pop()
+        result.append(i)
+    return result

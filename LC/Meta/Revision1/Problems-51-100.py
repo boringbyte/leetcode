@@ -5,23 +5,6 @@ from functools import lru_cache
 from LC.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
 
 
-def buildings_with_an_ocean_view1(heights):
-    result, n = [], len(heights)
-    for i in range(n - 1, -1, -1):
-        if not result or heights[i] > heights[result[-1]]:
-            result.append(i)
-    return result[::-1]
-
-
-def buildings_with_an_ocean_view2(heights):
-    result = []
-    for i, height in enumerate(heights):
-        while result and heights[result[-1]] <= height:
-            result.pop()
-        result.append(i)
-    return result
-
-
 def closest_binary_search_tree_value(root, target):
     gap, result = float('inf'), float('inf')
     while root:
@@ -734,3 +717,70 @@ def binary_tree_vertical_order_traversal_pre(root):
     dfs(root, 0)
     for value in hashmap.values():
         print(value)
+
+
+def daily_temperatures(temperatures):
+    result, stack = [0] * len(temperatures), []
+    for i, temp in enumerate(temperatures):
+        while stack and temp > temperatures[stack[-1]]:
+            result[stack[-1]] = i - stack[-1]
+            stack.pop()
+        stack.append(i)
+    return result
+
+
+def remove_all_adjacent_duplicates_in_string_2(s,  k):
+    stack = []
+    for char in s:
+        if stack and stack[-1][0] == char:
+            stack[-1][1] += 1
+        else:
+            stack.append([char, 1])
+        if stack[-1][1] == k:
+            stack.pop()
+        return ''.join(char * freq for char, freq in stack)
+
+
+class MedianFinder:
+    def __init__(self):
+        self.min_heap, self.max_heap = [], []
+
+    def add_num(self, num):
+        heapq.heappush(self.max_heap, -num)
+        heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+        if len(self.min_heap) > len(self.max_heap):
+            heapq.heappush(self.max_heap, -heapq.heappop(self.min_heap))
+
+    def find_median(self):
+        if len(self.max_heap) > len(self.min_heap):
+            return -self.max_heap[0]
+        return (-self.max_heap[0] + self.min_heap[0]) / 2
+
+
+def shortest_distance_from_all_buildings():
+    pass
+
+
+def beast_time_to_buy_and_sell_stack(prices):
+    current_max, result, n = 0, 0, len(prices)
+    for i in range(1, n):
+        current_max += prices[i] - prices[i - 1]
+        if current_max < 0:
+            current_max = 0
+        result = max(current_max, result)
+    return result
+
+
+def valid_parentheses(s):
+    if len(s) % 2 == 0:
+        return False
+    hashmap, stack = {'(': ')', '[': ']', '{': '}'}, []
+    for char in s:
+        if char in hashmap:
+            stack.append(char)
+        else:
+            if stack and hashmap[stack[-1]] == char:
+                stack.pop()
+            else:
+                return False
+    return len(stack) == 0
