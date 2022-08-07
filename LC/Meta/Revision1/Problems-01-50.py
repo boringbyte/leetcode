@@ -367,7 +367,7 @@ class SparseVector:
     def dot_product(self, vec):
         if len(self.hashmap) > len(vec.hashmap):
             self, vec = vec, self
-        return sum(val * vec.hashmap[i] for i, val in self.hashmap.items() for i in vec.hashmap)
+        return sum(val * vec.hashmap[key] for key, val in self.hashmap.items() for key in vec.hashmap)
 
 
 def range_sum_of_binary_search_tree(root, low, high):
@@ -466,7 +466,7 @@ def trapping_rain_water1(heights):
     for i in range(n):
         water_level = min(max_left[i], max_right[i])
         if water_level >= heights[i]:
-            result += water_level - heights[i]
+            result += (water_level - heights[i])
     return result
 
 
@@ -527,10 +527,17 @@ def diameter_of_binary_tree(root):
 
 class RandomPickWithWeight:
     def __init__(self, w):
-        pass
+        self.w, total, total_weight = w, 0, sum(w)
+        cumulative_sum = [total := total + weight for weight in self.w]
+        self.w = [weight / total_weight for weight in cumulative_sum]
 
     def pick_index(self):
-        pass
+        r, index = random.uniform(0, 1), 0
+        while index < len(self.w):
+            if r <= self.w[index]:
+                return index
+            index += 1
+        # return bisect.bisect_left(self.w, r)
 
 
 def lowest_common_ancestor_of_binary_tree1(root, p, q):
@@ -587,7 +594,8 @@ def lowest_common_ancestor_of_binary_tree3(root, p, q):
 class Codec:
     i = 0
 
-    def serialize(self, root):
+    @staticmethod
+    def serialize(root):
         values = []
 
         def dfs(node):
@@ -614,8 +622,35 @@ class Codec:
         return dfs()
 
 
-def alien_dictionary():
-    pass
+def alien_dictionary(words):
+    in_degree, result = {char: 0 for word in words for char in word}, ''
+
+    graph = collections.defaultdict(set)
+    for word1, word2 in zip(words, words[1:]):
+        for char1, char2 in zip(word1, word2):
+            if char1 != char2:
+                if char2 not in graph[char1]:
+                    graph[char1].add(char2)
+                    in_degree[char2] += 1
+                break
+        else:
+            if len(word2) < len(word1):
+                return ''
+
+    no_incoming_edges_queue = collections.deque([ch for ch in in_degree if in_degree[ch] == 0])
+
+    while no_incoming_edges_queue:
+        vertex = no_incoming_edges_queue.popleft()
+        result += vertex
+        for char in graph[vertex]:
+            in_degree[char] -= 1
+            if in_degree[char] == 0:
+                no_incoming_edges_queue.append(char)
+
+    if len(result) < len(in_degree):
+        return ''
+
+    return result
 
 
 def word_break1(s, word_dict):
