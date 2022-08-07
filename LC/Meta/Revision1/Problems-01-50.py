@@ -202,12 +202,28 @@ class BinaryMatrix:
         pass
 
 
-def leftmost_column_with_at_least_a_one(binary_matrix):
-    # https://snowan.gitbook.io/study-notes/leetcode/30daychallenge/leftmost-column-with-at-least-a-one
+def leftmost_column_with_at_least_a_one1(binary_matrix):
+    m, n = binary_matrix.dimension()
+    result = float('inf')
+    for r in range(m):
+        l, r = 0, n
+        while l < r:
+            mid = l + (r - l) // 2
+            if binary_matrix.get(r, mid) == 0:
+                l = mid + 1
+            else:
+                r = mid
+        if l < n and binary_matrix.get(r, l) == 1:
+            result = min(result, l)
+    return result if result < float('inf') else -1
+
+
+def leftmost_column_with_at_least_a_one2(binary_matrix):
+    # https://medium.com/@srihari.athiyarath/leftmost-column-with-at-least-a-one-24184d8f4052
     m, n = binary_matrix.dimensions()
     r, c = 0, n - 1
     while r < m and c >= 0:
-        if not binary_matrix.get(r, c):
+        if binary_matrix.get(r, c) == 0:
             r += 1
         else:
             c -= 1
