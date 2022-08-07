@@ -121,12 +121,12 @@ def k_closest_points_to_origin3(points, k):
 def k_closest_points_to_origin4(points, k):
     n = len(points)
 
-    def swap(i, j):
-        points[i], points[j] = points[j], points[i]
-
     def euclidean(point):
         x, y = point
         return x * x + y * y
+
+    def swap(i, j):
+        points[i], points[j] = points[j], points[i]
 
     def partition(left, right, pivot_index):
         pivot = euclidean(points[pivot_index])
@@ -185,6 +185,7 @@ def valid_palindrome_2(s):
 
 
 def sub_array_sum_equals_k(nums, k):
+    # In this all are positive numbers only
     total, result = 0, 0
     cumulative_sum = [total := total + num for num in [0] + nums]
     count = collections.Counter(cumulative_sum)
@@ -193,16 +194,36 @@ def sub_array_sum_equals_k(nums, k):
     return result
 
 
+class BinaryMatrix:
+    def get(self, row, col):
+        pass
+
+    def dimensions(self):
+        pass
+
+
+def leftmost_column_with_at_least_a_one(binary_matrix):
+    # https://snowan.gitbook.io/study-notes/leetcode/30daychallenge/leftmost-column-with-at-least-a-one
+    m, n = binary_matrix.dimensions()
+    r, c = 0, n - 1
+    while r < m and c >= 0:
+        if not binary_matrix.get(r, c):
+            r += 1
+        else:
+            c -= 1
+    return c + 1 if c + 1 != n else -1
+
+
 def add_strings(num1, num2):
-    def s_to_d(d):
+    def string_to_digit(d):
         return ord(d) - ord('0')
 
     i, j, carry, result = len(num1) - 1, len(num2) - 1, 0, []
     while i >= 0 or j >= 0 or carry:
-        digit1 = s_to_d(num1[i]) if i > 0 else 0
-        digit2 = s_to_d(num2[j]) if j > 0 else 0
+        digit1 = string_to_digit(num1[i]) if i >= 0 else 0
+        digit2 = string_to_digit(num2[j]) if j >= 0 else 0
         carry, digit = divmod(digit1 + digit2 + carry, 10)
-        result.append(digit)
+        result.append(str(digit))
         i, j = i - 1, j - 1
     return ''.join(result[::-1])
 
@@ -218,11 +239,11 @@ def merge_intervals(intervals):
 
 
 def add_binary(a, b):
-    hashmap = {'0': 0, '1': 1}
+    digit_map = {'0': 0, '1': 1}
     i, j, carry, result = len(a) - 1, len(b) - 1, 0, []
     while i >= 0 or j >= 0 or carry:
-        digit1 = hashmap[a[i]] if i >= 0 else 0
-        digit2 = hashmap[b[j]] if j >= 0 else 0
+        digit1 = digit_map[a[i]] if i >= 0 else 0
+        digit2 = digit_map[b[j]] if j >= 0 else 0
         carry, digit = divmod(digit1 + digit2 + carry, 2)
         result.append(digit)
         i, j = i - 1, j - 1
