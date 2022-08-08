@@ -401,3 +401,4 @@ def path_sum(root, target_sum):
         if curr.left:
             stack.append((curr.left, val + curr.left.val))
     return False
+
