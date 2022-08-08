@@ -94,3 +94,21 @@ def nested_list_weight_sum(nested_list):
         return total
     return dfs(nested_list, 1)
 
+
+def permutations(nums):
+    result, n = [], len(nums)
+    visited = [0] * n
+
+    def backtrack(sofar):
+        if len(sofar) == n:
+            result.append(sofar[:])
+        else:
+            for i in range(n):
+                if visited[i] != 1:
+                    chosen, visited[i] = nums[i], 1
+                    backtrack(sofar + [chosen])
+                    visited[i] = 0
+    backtrack(sofar=[])
+    return result
+
+
