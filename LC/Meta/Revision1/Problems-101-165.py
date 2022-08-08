@@ -312,3 +312,49 @@ def reverse_integer(x):
     return 0 if result > pow(2, 31) else result * sign
 
 
+def minimum_cost_for_tickets(days, costs):
+    days_map, last_day = set(days), days[-1]
+    dp = [0] * (last_day + 1)
+
+    for day in range(1, last_day + 1):
+        if day not in days_map:
+            dp[day] = dp[day - 1]
+        else:
+            dp[day] = min(
+                dp[max(0, day - 1)] + costs[0],  # per days value
+                dp[max(0, day - 7)] + costs[1],  # per week value
+                dp[max(0, day - 30)] + costs[2]  # per year value
+            )
+    return dp[-1]
+
+
+def minimum_knight_moves():
+    pass
+
+
+def sum_root_to_leaf_numbers1(root):
+
+    def dfs(node, value):
+        if not node:
+            return 0
+        value = value * 10 + node.val
+        if not node.left and not node.right:
+            return value
+        return dfs(node.left, value) + dfs(node.right, value)
+    return dfs(root, 0)
+
+
+def sum_root_to_leaf_numbers2(root):
+    stack, result = [(root, 0)], 0
+    while stack:
+        current, value = stack.pop()
+        value = value * 10 + current.val
+        if not current.left and not current.right:
+            result += value
+        if current.right:
+            stack.append((current.right, value))
+        if current.left:
+            stack.append((current.left, value))
+    return result
+
+
