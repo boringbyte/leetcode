@@ -212,3 +212,32 @@ def generate_parentheses(n):
     backtrack('', 0, 0)
     return result
 
+
+def median_of_two_sorted_arrays(nums1, nums2):
+    pass
+
+
+def missing_ranges(nums, lower, upper):
+    result, n, previous = [], len(nums), lower - 1
+
+    def get_range(left, right):
+        if left == right:
+            return f'{left}'
+        return f'{left}->{right}'
+
+    if not nums:
+        gap = get_range(lower, upper)
+        result.append(gap)
+        return result
+
+    for num in nums:
+        if previous + 1 != num:
+            gap = get_range(previous + 1, num - 1)
+            result.append(gap)
+        previous = num
+
+    if nums[-1] < upper:
+        gap = get_range(nums[-1] + 1, upper)
+        result.append(gap)
+
+    return result
