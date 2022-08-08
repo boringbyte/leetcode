@@ -253,4 +253,62 @@ class NumMatrix:
 
     def sum_region(self, r1, c1, r2, c2):
         r1, c1, r2, c2 = r1 + 1, c1 + 1, r2 + 1, c2 + 1
-        return self.total[r2][c2] - self[r1 - 1][c1] - self.total[r1][c1 - 1] - self.total[r1 - 1][c1 - 1]
+        return self.total[r2][c2] - self[r1 - 1][c1] - self.total[r1][c1 - 1] + self.total[r1 - 1][c1 - 1]
+
+
+def populating_next_right_pointer_in_each_node1(root):
+    if root is None:
+        return root
+
+    queue = collections.deque([root])
+    while queue:
+        size = k = len(queue)
+        while k > 0:
+            current = queue.popleft()
+            if k == size:
+                current.next = None
+            else:
+                current.next = prev
+            prev = current
+
+            if current.right:
+                queue.append(current.right)
+            if current.left:
+                queue.append(current.left)
+
+            k -= 1
+    return root
+
+
+def populating_next_right_pointer_in_each_node2(root):
+    if root is None:
+        return root
+
+    queue = collections.deque([root])
+    while queue:
+        right_node = None
+        for _ in range(len(queue)):
+            current = queue.popleft()
+            current.next = right_node
+            right_node = current
+
+            if current.right:
+                queue.append(current.right)
+            if current.left:
+                queue.append(current.left)
+
+    return root
+
+
+def reverse_integer(x):
+    result, sign = 0, 1
+    if x < 0:
+        sign, x = -sign, -x
+
+    while x:
+        result = result * 10 + x % 10
+        x /= 10
+
+    return 0 if result > pow(2, 31) else result * sign
+
+
