@@ -141,3 +141,16 @@ def reverse_linked_list(head):
     return prev
 
 
+def palindrome_linked_list(head):
+    slow = fast = head
+    while fast and fast.next:
+        fast = fast.next.next
+        slow = slow.next
+
+    slow = reverse_linked_list(slow)
+    while slow:
+        if slow.val != head.val:
+            return False
+        slow = slow.next
+        head = head.next
+    return True
