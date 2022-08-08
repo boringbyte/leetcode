@@ -154,3 +154,15 @@ def palindrome_linked_list(head):
         slow = slow.next
         head = head.next
     return True
+
+
+def strobogrammatic_number(num):
+    number_map = {('0', '0'), ('1', '1'), ('6', '9'), ('8', '8'), ('9', '6')}
+    i, j = 0, len(num) - 1
+    while i <= j:
+        if (num[i], num[j]) not in number_map:
+            return False
+        i, j = i + 1, j - 1
+    return True
+
+
