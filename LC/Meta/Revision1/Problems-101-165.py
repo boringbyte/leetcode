@@ -241,3 +241,16 @@ def missing_ranges(nums, lower, upper):
         result.append(gap)
 
     return result
+
+
+class NumMatrix:
+    def __init__(self, matrix):
+        m, n = len(matrix), len(matrix[0])
+        self.total = [[0] * (n + 1) for _ in range(m + 1)]
+        for r in range(1, m + 1):
+            for c in range(1, n + 1):
+                self.total[r][c] = self[r - 1][c] + self.total[r][c - 1] - self.total[r - 1][c - 1] + matrix[r - 1][c - 1]
+
+    def sum_region(self, r1, c1, r2, c2):
+        r1, c1, r2, c2 = r1 + 1, c1 + 1, r2 + 1, c2 + 1
+        return self.total[r2][c2] - self[r1 - 1][c1] - self.total[r1][c1 - 1] - self.total[r1 - 1][c1 - 1]
