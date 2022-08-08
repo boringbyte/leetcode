@@ -5,6 +5,35 @@ from functools import lru_cache
 from LC.LCMetaPractice import ListNode, TreeNode
 
 
+def word_search(board, word):
+    found = [False]
+    m, n, k = len(board), len(board[0]), len(word)
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+    def dfs(start, x, y):
+        if found[0]:
+            return
+        if start == k:
+            found[0] = True
+            return
+        if x < 0 or x >= m or y < 0 or y >= n:
+            return
+        temp = board[x][y]
+        board[x][y] = '#'
+        if temp != word[start]:
+            return
+        for dx, dy in directions:
+            dfs(start + 1, x + dx, y + dy)
+        board[x][y] = temp
+
+    for r in range(m):
+        for c in range(n):
+            if found[0]:
+                return True
+            dfs(0, r, c)
+    return found[0]
+
+
 def valid_palindrome_3(s, k):
     if s == s[::-1]:
         return True
