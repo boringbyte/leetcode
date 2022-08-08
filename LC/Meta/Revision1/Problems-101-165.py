@@ -41,7 +41,6 @@ def meeting_rooms_2(intervals):
 
 
 def validate_binary_search_tree(root):
-
     def dfs(node, low=float('-inf'), high=float('inf')):
         if not root:
             return True
@@ -92,6 +91,7 @@ def nested_list_weight_sum(nested_list):
             else:
                 total += dfs(value, depth + 1)
         return total
+
     return dfs(nested_list, 1)
 
 
@@ -108,6 +108,7 @@ def permutations(nums):
                     chosen, visited[i] = nums[i], 1
                     backtrack(sofar + [chosen])
                     visited[i] = 0
+
     backtrack(sofar=[])
     return result
 
@@ -209,6 +210,7 @@ def generate_parentheses(n):
                 backtrack(sofar + '(', left + 1, right)
             if right < left:
                 backtrack(sofar + ')', left, right + 1)
+
     backtrack('', 0, 0)
     return result
 
@@ -249,7 +251,8 @@ class NumMatrix:
         self.total = [[0] * (n + 1) for _ in range(m + 1)]
         for r in range(1, m + 1):
             for c in range(1, n + 1):
-                self.total[r][c] = self[r - 1][c] + self.total[r][c - 1] - self.total[r - 1][c - 1] + matrix[r - 1][c - 1]
+                self.total[r][c] = self[r - 1][c] + self.total[r][c - 1] - self.total[r - 1][c - 1] + matrix[r - 1][
+                    c - 1]
 
     def sum_region(self, r1, c1, r2, c2):
         r1, c1, r2, c2 = r1 + 1, c1 + 1, r2 + 1, c2 + 1
@@ -333,7 +336,6 @@ def minimum_knight_moves():
 
 
 def sum_root_to_leaf_numbers1(root):
-
     def dfs(node, value):
         if not node:
             return 0
@@ -341,6 +343,7 @@ def sum_root_to_leaf_numbers1(root):
         if not node.left and not node.right:
             return value
         return dfs(node.left, value) + dfs(node.right, value)
+
     return dfs(root, 0)
 
 
@@ -380,3 +383,21 @@ def binary_tree_level_order_traversal(root):
     return result
 
 
+def read_n_characters_given_read4():
+    pass
+
+
+def path_sum(root, target_sum):
+    # https://leetcode.com/problems/path-sum/discuss/36486/Python-solutions-(DFS-recursively-DFS%2Bstack-BFS%2Bqueue
+    if not root:
+        return False
+    stack = [(root, root.val)]
+    while stack:
+        curr, val = stack.pop()
+        if not curr.left and not curr.right and val == target_sum:
+            return True
+        if curr.right:
+            stack.append((curr.right, val + curr.right.val))
+        if curr.left:
+            stack.append((curr.left, val + curr.left.val))
+    return False
