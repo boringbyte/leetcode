@@ -358,3 +358,25 @@ def sum_root_to_leaf_numbers2(root):
     return result
 
 
+def palindromic_substrings():
+    pass
+
+
+def binary_tree_level_order_traversal(root):
+    if not root:
+        return []
+    queue, result = collections.deque([root]), []
+
+    while queue:
+        cur_level, size = [], len(queue)
+        for _ in range(size):
+            node = queue.popleft()
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+            cur_level.append(node.val)
+        result.append(cur_level)
+    return result
+
+
