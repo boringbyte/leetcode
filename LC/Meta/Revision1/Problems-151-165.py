@@ -5,6 +5,29 @@ from functools import lru_cache
 from LC.LCMetaPractice import ListNode, TreeNode
 
 
+def maximum_average_subtree(root):
+    if not root or not root.children:
+        return None
+    result = [float('-inf'), root]
+
+    def dfs(node):
+        if not node.children:
+            return [node.val, 1]
+        current_value, current_count = node.val, 1
+        for child in node.children:
+            child_value, child_count = dfs(child)
+            current_value += child_value
+            current_count += child_count
+        current_average = current_value / float(current_count)
+
+        if current_average > result[0]:
+            result[0], result[1] = current_average, node
+        return [current_average, current_count]
+
+    dfs(root)
+    return result[0]
+
+
 def word_search(board, word):
     found = [False]
     m, n, k = len(board), len(board[0]), len(word)
