@@ -112,3 +112,22 @@ def permutations(nums):
     return result
 
 
+def course_schedule(num_courses, prerequisites):
+    graph = [[] for _ in range(num_courses)]
+    in_degree = [0] * num_courses
+    for curr, prev in prerequisites:
+        graph[prev].append(curr)
+        in_degree[curr] += 1
+
+    queue = collections.deque(v for v in range(num_courses) if in_degree[v] == 0)
+    n = len(queue)
+    while queue and n != num_courses:
+        current_course = queue.popleft()
+        for next_course in graph[current_course]:
+            in_degree[next_course] -= 1
+            if in_degree[next_course] == 0:
+                n += 1
+                queue.append(next_course)
+    return n == num_courses
+
+
