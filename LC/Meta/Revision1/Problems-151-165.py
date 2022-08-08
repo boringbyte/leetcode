@@ -5,6 +5,40 @@ from functools import lru_cache
 from LC.LCMetaPractice import ListNode, TreeNode
 
 
+def valid_palindrome_3(s, k):
+    if s == s[::-1]:
+        return True
+    n = len(s)
+    dp = [[0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if i == j - 1:
+                if s[i] == s[j]:
+                    dp[i][j] = 0
+                else:
+                    dp[i][j] = 1
+            else:
+                if s[i] == s[j]:
+                    dp[i][j] = dp[i + 1][j - 1]
+                else:
+                    dp[i][j] = min(dp[i + 1][j], dp[i][j - 1]) + 1
+    return dp[0][n - 1] <= k
+
+
+def partition_equal_subset_sum(nums):
+    n, total_sum = len(nums), sum(nums)
+
+    @lru_cache
+    def recursive(total, i=0):
+        if total == 0:
+            return True
+        if i >= n or total < 0:
+            return False
+        return recursive(total - nums[i], i + 1) or recursive(total, i + 1)
+
+    return total_sum & 1 == 0 and recursive(total_sum // 2)
+
+
 def validate_binary_tree_nodes(n, left_child, right_child):
     root, child_nodes = 0, set(left_child + right_child)
     for i in range(n):
