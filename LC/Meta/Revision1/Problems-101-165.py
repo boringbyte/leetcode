@@ -166,3 +166,49 @@ def strobogrammatic_number(num):
     return True
 
 
+def first_missing_positive(nums):
+    pass
+
+
+def construct_binary_tree_from_string(s):
+    if not s or len(s) == 0:
+        return None
+
+    def dfs(s, i):
+        start = i
+        if s[start] == '-':
+            i += 1
+        while i < len(s) and s[i].isdigit():
+            i += 1
+        node = TreeNode(int(s[start: i]))
+
+        if i < len(s) and s[i] == '(':
+            i += 1
+            node.left, i == dfs(s, i)
+            i += 1
+
+        if i < len(s) and s[i] == '(':
+            i += 1
+            node.right, i == dfs(s, i)
+            i += 1
+
+        return node, i
+
+    root, idx = dfs(s, 0)
+    return root
+
+
+def generate_parentheses(n):
+    result = []
+
+    def backtrack(sofar, left, right):
+        if len(sofar) == 2 * n:
+            result.append(sofar)
+        else:
+            if left < n:
+                backtrack(sofar + '(', left + 1, right)
+            if right < left:
+                backtrack(sofar + ')', left, right + 1)
+    backtrack('', 0, 0)
+    return result
+
