@@ -30,8 +30,26 @@ def smallest_subtree_with_all_the_deepest_nodes(root):
     return last_level[0]
 
 
-def intersection_of_three_sorted_arrays():
-    pass
+def intersection_of_three_sorted_arrays1(set1, set2, set3):
+    set1, set2, set3 = set(set1), set(set2), set(set3)
+    return list(set1.intersection(set2).intersection(set3))
+
+
+def intersection_of_three_sorted_arrays2(arr1, arr2, arr3):
+    result, i, j, k = [], 0, 0, 0
+    while i != len(arr1) and j != len(arr2) and k != len(arr3):
+        if arr1[i] == arr2[j] == arr3[k]:
+            result.append(arr1[i])
+            i, j, k = i + 1, j + 1, k + 1
+        else:
+            current = max(arr1[i], arr2[j], arr3[k])
+            while i != len(arr1) and arr1[i] < current:
+                i += 1
+            while j != len(arr2) and arr2[j] < current:
+                j += 1
+            while k != len(arr3) and arr3[k] < current:
+                k += 1
+        return k
 
 
 def stickers_to_spell_words():
