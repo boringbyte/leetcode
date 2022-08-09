@@ -5,6 +5,43 @@ from functools import lru_cache
 from LC.LCMetaPractice import ListNode, TreeNode
 
 
+def smallest_subtree_with_all_the_deepest_nodes(root):
+    # same as lowest common ancestor of the deepest leaves
+    if not root:
+        return None
+    parent, queue, last_level = {}, collections.deque([root]), []
+    while queue:
+        last_level = []
+        for _ in range(len(queue)):
+            current = queue.popleft()
+            last_level.append(current)
+            if current.left:
+                queue.append(current.left)
+                parent[current.left] = current
+            if current.right:
+                queue.append(current.right)
+                parent[current.right] = current
+
+    while len(last_level) > 1:
+        parent_nodes = set()
+        for node in last_level:
+            parent_nodes.add(parent[node])
+        last_level = list(parent_nodes)
+    return last_level[0]
+
+
+def intersection_of_three_sorted_arrays():
+    pass
+
+
+def stickers_to_spell_words():
+    pass
+
+
+def count_and_say(n):
+    pass
+
+
 def maximum_average_subtree(root):
     if not root or not root.children:
         return None
