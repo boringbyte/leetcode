@@ -1,6 +1,7 @@
 import heapq
 import random
 import collections
+import sys
 from functools import lru_cache
 from LC.LCMetaPractice import ListNode, TreeNode
 
@@ -30,9 +31,9 @@ def smallest_subtree_with_all_the_deepest_nodes(root):
     return last_level[0]
 
 
-def intersection_of_three_sorted_arrays1(set1, set2, set3):
-    set1, set2, set3 = set(set1), set(set2), set(set3)
-    return list(set1.intersection(set2).intersection(set3))
+def intersection_of_three_sorted_arrays1(arr1, arr2, arr3):
+    arr1, arr2, arr3 = set(arr1), set(arr2), set(arr3)
+    return list(arr1.intersection(arr2).intersection(arr3))
 
 
 def intersection_of_three_sorted_arrays2(arr1, arr2, arr3):
@@ -52,12 +53,42 @@ def intersection_of_three_sorted_arrays2(arr1, arr2, arr3):
         return k
 
 
-def stickers_to_spell_words():
-    pass
+def stickers_to_spell_words(stickers, target):
+    # TODO: This might be wrong
+    count, result, n, memo = collections.Counter(target), [float('inf')], len(target), collections.defaultdict(int)
+
+    def dfs(sofar, i):
+        if i == n:
+            result[0] = sofar
+        elif memo[target[i]] >= count[target[i]]:
+            dfs(sofar, i + 1)
+        elif sofar + 1 < result[0]:
+            for sticker in stickers:
+                if target[i] in sticker:
+                    for s in sticker:
+                        memo[s] += 1
+                    dfs(sofar + 1, i + 1)
+                    for s in sticker:
+                        memo[s] -= 1
+    dfs(0, 0)
+    return result[0] if result[0] < float('inf') else -1
 
 
 def count_and_say(n):
-    pass
+    def count(s):
+        c, counter, result = s[0], 1, ''
+        for char in s[1:]:
+            if char == c:
+                counter += 1
+            else:
+                result = result + str(counter) + c
+                c, counter = char, 1
+        result = result + str(counter) + c
+        return result
+
+    if n == 1:
+        return '1'
+    return count(count_and_say(n - 1))
 
 
 def maximum_average_subtree(root):
@@ -165,8 +196,31 @@ def validate_binary_tree_nodes(n, left_child, right_child):
     return len(visited) == n
 
 
+class SubTreeInfo:
+    """
+    min, max: stores the minimum and the maximum value rooted under the current node
+    `min`, `max` fields are relevant only if `isBST` flag is true
+    size: stores size of the largest BST rooted under the current node
+    isBST: true if the binary tree rooted under the current node is a BST
+    """
+    def __init__(self, min, max, size, is_bst):
+        self.min = min
+        self.max = max
+        self.size = size
+        self.is_bst = is_bst
+
+
 def largest_bst_subtree(root):
-    pass
+    if root is None:
+        return SubTreeInfo(sys.maxsize, -sys.maxsize, 0, True)
+    l, r = largest_bst_subtree(root.left), largest_bst_subtree(root.right)
+    if l.is_bst and r.is_bst and (l.max < root.data < r.min):
+        info = SubTreeInfo(min(root.data, l.min, r.min),
+                           max(root.data, l.max, r.max),
+                           l.size + 1 + r.size, True)
+    else:
+        info = SubTreeInfo(0, 0, max(l.size, r.size), False)
+    return info
 
 
 def number_of_connected_components_in_an_undirected_graph(n, edges):
