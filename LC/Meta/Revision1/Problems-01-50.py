@@ -898,10 +898,49 @@ def accounts_merge_dfs2(accounts):
 
 def remove_invalid_parenthesis(s):
     # https://leetcode.com/problems/remove-invalid-parentheses/discuss/1639879/python-backtracking-easily-derived-from-combination-backtracking-template
-    pass
+    l, r = 0, 0
+    for char in s:
+        l += (char == '(')
+        if l == 0:
+            r += (char == ')')
+        else:
+            l -= (char == ')')
+
+    def is_valid(s):
+        count = 0
+        for char in s:
+            if char == '(':
+                count += 1
+            if char == ')':
+                count -= 1
+            if count < 0:
+                return False
+        return count == 0
+
+    def dfs(sofar, i, l, r):
+        current = ''.join(sofar)
+        if l == 0 and r == 0 and is_valid(current):
+            result.append(current)
+            return
+        for j in range(i, n):
+            if s[j] not in {'(', ')'}:
+                continue
+            if j != i and s[j] == s[j - 1]:
+                continue
+            if r > 0 and s[j] == ')':
+                sofar[j] = ''
+                dfs(sofar, j + 1, l, r - 1)
+                sofar[j] = s[i]
+            elif l > 0 and s[j] == '(':
+                sofar[j] = ''
+                dfs(sofar, j + 1, l - 1, r)
+                sofar[j] = s[i]
+    n, result = len(s), []
+    dfs(list(s), 0, l, r)
+    return result
 
 
-def merge_k_lists_pq(lists):
+def merge_k_sorted_lists1(lists):
     # We are just putting the first value of each list in the pq
     dummy = current = ListNode()
     pq = PriorityQueue()
@@ -932,17 +971,18 @@ def merge(list1, list2):
     return dummy.next
 
 
-def merge_k_list_divide_conquer(lists):
+def merge_k_sorted_lists2(lists):
     if not lists:
         return None
     if len(lists) == 1:
         return lists[0]
     mid = len(lists) // 2
-    list1, list2 = merge_k_list_divide_conquer(lists[:mid]), merge_k_list_divide_conquer(lists[mid:])
+    list1, list2 = merge_k_sorted_lists2(lists[:mid]), merge_k_sorted_lists2(lists[mid:])
     return merge(list1, list2)
 
 
 def task_scheduler(tasks, n):
+    # https://leetcode.com/problems/task-scheduler/discuss/104507/Python-Straightforward-with-Explanation
     task_counts = collections.Counter(tasks)
     most_frequent_task, most_frequent_task_count = task_counts.most_common(1)[0]
     tasks_with_max_frequency = sum(task_counts[key] == most_frequent_task_count for key in task_counts.keys())
@@ -995,6 +1035,7 @@ def clone_graph(node):
 
 
 def k_th_missing_positive_number(arr, k):
+    # https://leetcode.com/problems/kth-missing-positive-number/discuss/1004535/Python-Two-solutions-O(n)-and-O(log-n)-explained
     l, r = 0, len(arr)
     while l < r:
         mid = l + (r - l) // 2
@@ -1021,22 +1062,13 @@ def exclusive_time_of_functions(n, logs):
     return result
 
 
-# def minimum_window_substring(s, t):
-#     # needed is a default dictionary with 0 default value
-#     # needed[char] -= 1, even if D is not there in t but in s, then we will add D to needed and reduce it's value
-#     # from 0 to -1
-#     needed, missing = collections.Counter(t), len(t)
-#     start = end = i = 0
-#     for j, char in enumerate(s, 1):
-#         if needed[char] > 0:
-#             missing -= 1
-#         needed[char] -= 1
-#         if missing == 0:
-#             moving_char = s[i]
-#             while i < j and needed[moving_char] < 0:
-#                 needed[moving_char] += 1
-#                 i += 1
-#             if end == 0 or
+def minimum_window_substring(s, t):
+    # https://leetcode.com/problems/minimum-window-substring/discuss/226911/Python-two-pointer-sliding-window-with-explanation
+    # https://leetcode.com/problems/minimum-window-substring/discuss/968611/Simple-Python-sliding-window-solution-with-detailed-explanation
+    # needed is a default dictionary with 0 default value
+    # needed[char] -= 1, even if D is not there in t but in s, then we will add D to needed and reduce it's value
+    # from 0 to -1
+    pass
 
 
 def vertical_order_traversal_binary_tree(root):
@@ -1063,20 +1095,23 @@ def vertical_order_traversal_binary_tree(root):
 
 
 def word_break_2(s, word_dict):
+    # https://leetcode.com/problems/word-break-ii/discuss/44311/Python-easy-to-understand-solution
+    # This solution is in the comments
     result, n, word_dict = [], len(s), set(word_dict)
 
-    def backtrack(start, path):
-        if start == n:
-            result.append(' '.join(path))
-        for end in range(start, n):
-            current_word = s[start: end+1]
+    def backtrack(i, sofar):
+        if i == n:
+            result.append(' '.join(sofar))
+        for j in range(i, n):
+            current_word = s[i: j + 1]
             if current_word in word_dict:
-                backtrack(end + 1, path + [current_word])
+                backtrack(j + 1, sofar + [current_word])
     backtrack(0, [])
     return result
 
 
 def lowest_common_ancestor_of_binary_tree_3(root, p, q):
+    # https://zhenchaogan.gitbook.io/leetcode-solution/leetcode-1650-lowest-common-ancestor-of-a-binary-tree-iii
     if root is None or root == p or root == q:
         return root
     l = lowest_common_ancestor_of_binary_tree_3(root.left, p, q)
@@ -1096,6 +1131,7 @@ def move_zeros(nums):
 
 
 def buildings_with_an_ocean_view1(heights):
+    # https://goodtecher.com/leetcode-1762-buildings-with-an-ocean-view/
     result, n = [], len(heights)
     for i in range(n - 1, -1, -1):
         if not result or heights[i] > heights[result[-1]]:
