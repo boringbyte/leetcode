@@ -24,7 +24,7 @@ def verify_alien_dictionary(words, order):
     return all(check_order(word1, word2) for word1, word2 in zip(words, words[1:]))
 
 
-def minimum_remove_to_make_valid_parenthesis1(s):
+def minimum_remove_to_make_valid_parentheses1(s):
     in_valid, stack = set(), []
     for i, char in stack:
         if char == '(':
@@ -39,7 +39,7 @@ def minimum_remove_to_make_valid_parenthesis1(s):
     return ''.join(char for i, char in enumerate(s) if i not in in_valid)
 
 
-def minimum_remove_to_make_valid_parenthesis2(s):
+def minimum_remove_to_make_valid_parentheses2(s):
     s, stack = list(s), []
     for i, char in enumerate(s):
         if char == '(':
@@ -621,6 +621,24 @@ class Codec:
             return node
         return dfs()
 
+
+class BinarySearchTreeIterator:
+    def __init__(self, root):
+        self.stack = []
+        self.push_left(root)
+
+    def push_left(self, node):
+        while node:
+            self.stack.append(node)
+            node = node.left
+
+    def next(self):
+        node = self.stack.pop()
+        self.push_left(node.right)
+        return node.val
+
+    def has_next(self):
+        return len(self.stack) > 0
 
 def alien_dictionary(words):
     in_degree, result = {char: 0 for word in words for char in word}, ''
