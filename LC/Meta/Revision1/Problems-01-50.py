@@ -203,17 +203,17 @@ class BinaryMatrix:
 
 
 def leftmost_column_with_at_least_a_one1(binary_matrix):
-    m, n = binary_matrix.dimension()
+    m, n = binary_matrix.dimensions()
     result = float('inf')
-    for r in range(m):
+    for i in range(m):
         l, r = 0, n
         while l < r:
             mid = l + (r - l) // 2
-            if binary_matrix.get(r, mid) == 0:
+            if binary_matrix.get(i, mid) == 0:
                 l = mid + 1
             else:
                 r = mid
-        if l < n and binary_matrix.get(r, l) == 1:
+        if l < n and binary_matrix.get(i, l) == 1:
             result = min(result, l)
     return result if result < float('inf') else -1
 
