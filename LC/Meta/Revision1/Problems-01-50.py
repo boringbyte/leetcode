@@ -1,5 +1,6 @@
 import heapq
 import random
+import string
 import collections
 from queue import PriorityQueue
 from functools import lru_cache
@@ -291,7 +292,25 @@ def binary_tree_maximum_path_sum(root):
     return result[0]
 
 
-def valid_palindrome(s):
+def valid_palindrome1(s):
+    def cleaned_string(s):
+        s, t, alphabets = s.lower(), '', set(string.ascii_lowercase + '0123456789')
+        for char in s:
+            if char in alphabets:
+                t += char
+        return t
+
+    s = cleaned_string(s)
+    l, r = 0, len(s) - 1
+
+    while l < r:
+        if s[l] != s[r]:
+            return False
+        l, r = l + 1, r - 1
+    return True
+
+
+def valid_palindrome2(s):
     l, r, = 0, len(s) - 1
     while l < r:
         if not s[l].isalnum():
@@ -299,7 +318,7 @@ def valid_palindrome(s):
         elif not s[r].isalnum():
             r -= 1
         else:
-            if s[l] != s[r]:
+            if s[l].lower() != s[r].lower():
                 return False
             else:
                 l, r = l + 1, r - 1
@@ -331,12 +350,14 @@ def k_th_smallest_element_in_an_array(nums, k):
         p_index = random.randint(left, right)
         p_index = partition(left, right, p_index)
         if k == p_index:
-            return nums[k]
+            return
         elif k < p_index:
-            return quick_select(left, p_index - 1)
+            quick_select(left, p_index - 1)
         else:
-            return quick_select(p_index + 1, right)
-    return quick_select(0, n - 1)
+            quick_select(p_index + 1, right)
+
+    quick_select(0, n - 1)
+    return nums[k]
 
 
 def k_th_largest_element_in_an_array(nums, k):
@@ -353,6 +374,7 @@ def k_th_largest_element_in_an_array(nums, k):
         for i in range(left, right):
             if nums[i] <= pivot:
                 swap(i, p_index)
+                p_index += 1
         swap(p_index, right)
         return p_index
 
@@ -362,13 +384,14 @@ def k_th_largest_element_in_an_array(nums, k):
         p_index = random.randint(left, right)
         p_index = partition(left, right, p_index)
         if k == p_index:
-            return nums[k]
+            return
         elif k < p_index:
-            return quick_select(left, p_index - 1)
+            quick_select(left, p_index - 1)
         else:
-            return quick_select(p_index + 1, right)
+            quick_select(p_index + 1, right)
 
-    return quick_select(0, n-1)
+    quick_select(0, n - 1)
+    return nums[k]
 
 
 class SparseVector:
