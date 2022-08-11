@@ -245,13 +245,23 @@ def add_strings(num1, num2):
     return ''.join(result[::-1])
 
 
-def merge_intervals(intervals):
+def merge_intervals1(intervals):
     intervals, result = sorted(intervals, key=lambda x: x[0]), []
     for interval in intervals:
         if not result or result[-1][-1] < interval[0]:
             result.append(interval)
         else:
             result[-1][-1] = max(result[-1][-1], interval[-1])
+    return result
+
+
+def merge_intervals2(intervals):
+    intervals, result = sorted(intervals, key=lambda x: x[0]), []
+    for start, end in intervals:
+        if not result or result[-1][-1] < start:
+            result.append([start, end])
+        else:
+            result[-1][-1] = max(result[-1][-1], end)
     return result
 
 
