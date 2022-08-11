@@ -17,9 +17,9 @@ def verify_alien_dictionary(words, order):
 
     def check_order(word1, word2):
         for char1, char2 in zip(word1, word2):
-            if order_map[char1] != order_map[char2]:
+            if char1 != char2:
                 return order_map[char1] < order_map[char2]
-        return len(word1) < len(word2)
+        return len(word1) <= len(word2)
 
     return all(check_order(word1, word2) for word1, word2 in zip(words, words[1:]))
 
@@ -140,19 +140,18 @@ def k_closest_points_to_origin4(points, k):
         return pivot_index
 
     def quick_select(left, right):
-        # if left == right:
-        #     return points[:left]
         if left < right:
             pivot_index = random.randint(left, right)
             pivot_index = partition(left, right, pivot_index)
             if k == pivot_index:
-                return points[:k]
+                return
             if k < pivot_index:
-                return quick_select(left, pivot_index - 1)
+                quick_select(left, pivot_index - 1)
             else:
-                return quick_select(pivot_index + 1, right)
+                quick_select(pivot_index + 1, right)
 
-    return quick_select(0, n-1)
+    quick_select(0, n - 1)
+    return points[:k]
 
 
 def product_of_array_except_self(nums):
@@ -181,16 +180,18 @@ def valid_palindrome_2(s):
         if s[i] != s[j]:
             return check_palindrome(s, i + 1, j) or check_palindrome(s, i, j - 1)
         i, j = i + 1, j - 1
-    return False
+    return True
 
 
 def sub_array_sum_equals_k(nums, k):
     # In this all are positive numbers only
-    total, result = 0, 0
-    cumulative_sum = [total := total + num for num in [0] + nums]
-    count = collections.Counter(cumulative_sum)
-    for total in cumulative_sum:
-        result += count[total - k]
+    # In comments of https://leetcode.com/problems/subarray-sum-equals-k/discuss/102111/Python-Simple-with-Explanation
+    total = result = 0
+    cumulative_sum = [total := total + num for num in nums]
+    count = collections.Counter({0: 1})
+    for acc in cumulative_sum:
+        result += count[acc - k]
+        count[acc] += 1
     return result
 
 
@@ -640,7 +641,9 @@ class BinarySearchTreeIterator:
     def has_next(self):
         return len(self.stack) > 0
 
+
 def alien_dictionary(words):
+    # https://medium.com/@timothyhuang514/graph-alien-dictionary-d2b104c36d8e
     in_degree, result = {char: 0 for word in words for char in word}, ''
 
     graph = collections.defaultdict(set)
