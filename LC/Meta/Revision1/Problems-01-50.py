@@ -694,12 +694,12 @@ def alien_dictionary(words):
     no_incoming_edges_queue = collections.deque([ch for ch in in_degree if in_degree[ch] == 0])
 
     while no_incoming_edges_queue:
-        vertex = no_incoming_edges_queue.popleft()
-        result += vertex
-        for char in graph[vertex]:
-            in_degree[char] -= 1
-            if in_degree[char] == 0:
-                no_incoming_edges_queue.append(char)
+        current = no_incoming_edges_queue.popleft()
+        result += current
+        for neighbor in graph[current]:
+            in_degree[neighbor] -= 1
+            if in_degree[neighbor] == 0:
+                no_incoming_edges_queue.append(neighbor)
 
     if len(result) < len(in_degree):
         return ''
@@ -820,21 +820,40 @@ def continuous_sub_array_sum(nums, k):
     return False
 
 
-def power(x, n):
+def power1(x, n):
     if abs(x) < 1e-40:
         return 0
     if n == 0:
         return 1
     if n < 0:
-        return power(1/x, -n)
-    a = power(x, n // 2)
+        return power1(1 / x, -n)
+    a = power1(x, n // 2)
     if n % 2 == 0:
         return a * a
     if n % 2 == 1:
         return a * a * x
 
 
+def power2(x, n):
+    if abs(x) < 1e-40:
+        return 0
+    if n < 0:
+        return power2(1 / x, -n)
+    elif n == 0:
+        return 1
+    else:
+        a = power2(x, n // 2)
+        if n % 2 == 0:
+            return a * a
+        else:
+            return a * a * x
+
+
 def next_permutation(nums):
+    pass
+
+
+class LRUCache:
     pass
 
 
