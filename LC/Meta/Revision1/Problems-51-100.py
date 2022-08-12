@@ -704,7 +704,17 @@ def maximum_swap(num):
 
 
 def find_k_closest_elements(arr, k, x):
-    pass
+    # https://leetcode.com/problems/find-k-closest-elements/discuss/1311191/C%2B%2BJavaPython-Binary-Search-With-Diagram-explain-Clean-and-Concise
+    n, i = len(arr), 0
+    l, r = 0, n - k
+    while l <= r:
+        mid = l + (r - l) // 2
+        if mid + k == n or x - arr[mid] <= arr[mid + k] - x:
+            i = mid
+            r = mid - 1
+        else:
+            l = mid + 1
+    return arr[i: i + k]
 
 
 def binary_tree_vertical_order_traversal_bfs(root):
