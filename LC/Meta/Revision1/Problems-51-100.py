@@ -738,6 +738,20 @@ def binary_tree_vertical_order_traversal_pre(root):
         print(value)
 
 
+def max_consecutive_ones_3(nums, k):
+    # https://leetcode.com/problems/max-consecutive-ones-iii/discuss/1304883/C%2B%2BPython-3-solutions-Easy-to-understand-Clean-and-Concise
+    n, result, l, zeros = len(nums), 0, 0, 0
+    for r in range(n):
+        if nums[r] == 0:
+            zeros += 1
+        while zeros > k:
+            if nums[l] == 0:
+                zeros -= 1
+            l += 1
+        result = max(result, r - l + 1)
+    return result
+
+
 def remove_all_adjacent_duplicates_in_string_2(s,  k):
     stack = []
     for char in s:
@@ -766,8 +780,46 @@ class MedianFinder:
         return (-self.max_heap[0] + self.min_heap[0]) / 2
 
 
-def shortest_distance_from_all_buildings():
-    pass
+def shortest_distance_from_all_buildings(grid):
+    # https://blog.csdn.net/qq_37821701/article/details/108906696
+    # https://github.com/ShiqinHuo/LeetCode-Python/blob/master/Python/shortest-distance-from-all-buildings.py
+    # Need to verify this solution
+    m, n = len(grid), len(grid[0])
+    no_buildings, result = 0, float('inf')
+
+    def bfs(x, y):
+        visited, buildings, current_steps = set(), set(), 0
+        queue = collections.deque([(x, y, 0)])
+        visited.add((i, j))
+        directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+        while queue:
+            x, y, step = queue.popleft()
+            if grid[x][y] == 1 and (i, j) not in buildings:
+                current_steps += step
+                buildings.add((i, j))
+            if len(buildings) == no_buildings:
+                break
+            if grid[x][y] != 1:
+                for dx, dy in directions:
+                    nx, ny = x + dx, y + dy
+                    if 0 <= nx < m and 0 <= ny < n and (x, y) not in visited and grid[nx][ny] != 2:
+                        queue.append((nx, ny, step + 1))
+                        visited.add((nx, ny))
+            return current_steps if len(buildings) == no_buildings else -1
+
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 1:
+                no_buildings += 1
+
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 0:
+                current_steps = bfs(i, j)
+                if current_steps != -1 and current_steps < result:
+                    result = current_steps
+    return result if result != float('inf') else -1
 
 
 def beast_time_to_buy_and_sell_stack(prices):
