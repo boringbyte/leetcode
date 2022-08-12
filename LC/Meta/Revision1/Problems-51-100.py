@@ -738,16 +738,6 @@ def binary_tree_vertical_order_traversal_pre(root):
         print(value)
 
 
-def daily_temperatures(temperatures):
-    result, stack = [0] * len(temperatures), []
-    for i, temp in enumerate(temperatures):
-        while stack and temp > temperatures[stack[-1]]:
-            result[stack[-1]] = i - stack[-1]
-            stack.pop()
-        stack.append(i)
-    return result
-
-
 def remove_all_adjacent_duplicates_in_string_2(s,  k):
     stack = []
     for char in s:
@@ -787,6 +777,17 @@ def beast_time_to_buy_and_sell_stack(prices):
         if current_max < 0:
             current_max = 0
         result = max(current_max, result)
+    return result
+
+
+def daily_temperatures(temperatures):
+    # https://leetcode.com/problems/daily-temperatures/discuss/1574808/C%2B%2BPython-3-Simple-Solutions-w-Explanation-Examples-and-Images-or-2-Monotonic-Stack-Approaches
+    result, stack = [0] * len(temperatures), []
+    for i, temp in enumerate(temperatures):
+        while stack and temp > temperatures[stack[-1]]:
+            result[stack[-1]] = i - stack[-1]
+            stack.pop()
+        stack.append(i)
     return result
 
 
