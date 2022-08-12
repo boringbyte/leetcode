@@ -6,10 +6,10 @@ from LC.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
 
 
 def closest_binary_search_tree_value(root, target):
-    gap, result = float('inf'), float('inf')
+    difference = result = float('inf')
     while root:
-        if abs(root.val - target) < gap:
-            gap = abs(root.val - target)
+        if abs(root.val - target) < difference:
+            difference = abs(root.val - target)
             result = root.val
         if root.val == target:
             break
@@ -92,7 +92,7 @@ def number_of_islands(grid):
 
     def dfs(x, y):
         if 0 <= x < m and 0 <= y < n and grid[x][y] == '1':
-            grid[x][y] == '0'
+            grid[x][y] = '0'
             for dx, dy in directions:
                 dfs(x + dx, y + dy)
 
@@ -172,6 +172,7 @@ def search_in_rotated_sorted_array():
 
 
 def largest_island(grid):
+    # https://leetcode.com/problems/making-a-large-island/discuss/1375992/C%2B%2BPython-DFS-paint-different-colors-Union-Find-Solutions-with-Picture-Clean-and-Concise
     directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
     m, n, next_color = len(grid), len(grid[0]), 2
     component_size = collections.defaultdict(int)
@@ -196,7 +197,7 @@ def largest_island(grid):
                 continue
             neighbor_colors = set()
             for dx, dy in directions:
-                nx, ny = x+dx, y+dy
+                nx, ny = x + dx, y + dy
                 if nx < 0 or nx == m or ny < 0 or ny == n or grid[nx][ny] == 0:
                     continue
                 neighbor_colors.add(grid[nx][ny])
@@ -399,11 +400,19 @@ def max_area(grid):
 
 
 class RandomPickIndex:
+    # https://leetcode.com/problems/random-pick-index/discuss/88153/Python-reservoir-sampling-solution.
     def __init__(self, nums):
-        pass
+        self.nums = nums
 
     def pick(self, target):
-        pass
+        result, count = None, 0
+        for i, num in enumerate(self.nums):
+            if num == target:
+                count += 1
+                chance = random.randint(1, count)
+                if chance == count:
+                    result = i
+        return result
 
 
 def subsets(nums):
@@ -419,6 +428,7 @@ def subsets(nums):
 
 
 def palindrome_permutation(s):
+    # https://cheonhyangzhang.gitbooks.io/leetcode-solutions/content/266-palindrome-permutation.html
     counter, n = collections.Counter(s), len(s)
     odd_count = 0
     for key in counter.keys():
@@ -526,14 +536,23 @@ def multiply_strings(num1, num2):
 def add_operators(s, target):
     result, n = [], len(s)
 
-    def backtrack(sofar, k):
+    def backtrack(sofar, k, result_sofar, prev):
         if k == len(s):
-            result.append(sofar)
+            if result_sofar == target:
+                result.append(sofar[:])
+                return
         for i in range(k, n):
-            if i > k and s[i] == 0:  # leading zero number skipped
+            if i > k and s[i] == '0':  # leading zero number skipped
                 break
+            num = int(s[k:i + 1])
             if i == 0:
-                pass
+                backtrack(i + 1, sofar + str(num), result_sofar + num, num)  # First num, pick it without adding any operator
+            else:
+                backtrack(i + 1, sofar + '+' + str(num), result_sofar + num, num)
+                backtrack(i + 1, sofar + '-' + str(num), result_sofar - num, -num)
+                backtrack(i + 1, sofar + '*' + str(num), result_sofar - prev + prev * num, prev * num)
+    backtrack('', 0, 0, 0)
+    return result
 
 
 def longest_increasing_path_matrix_dfs(matrix):
