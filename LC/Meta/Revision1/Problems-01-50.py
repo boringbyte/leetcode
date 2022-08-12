@@ -853,8 +853,58 @@ def next_permutation(nums):
     pass
 
 
-class LRUCache:
-    pass
+class LRUCache1:
+    def __init__(self, capacity):
+        self.size = capacity
+        self.cache = {}
+        self.next, self.before = {}, {}
+        self.head, self.tail = '#', '$'
+        self.connect(self.head, self.tail)
+
+    def connect(self, a, b):
+        self.next[a], self.before[b] = b, a
+
+    def delete(self, key):
+        self.connect(self.before[key], self.next[key])
+        del self.before[key], self.next[key], self.cache[key]
+
+    def append(self, k, v):
+        self.cache[k] = v
+        self.connect(self.before[self.tail], k)
+        self.connect(k, self.tail)
+        if len(self.cache) > self.size:
+            self.delete(self.next[self.head])
+
+    def get(self, key):
+        if key not in self.cache:
+            return -1
+        val = self.cache[key]
+        self.delete(key)
+        self.append(key, val)
+        return val
+
+    def put(self, key, value):
+        if key in self.cache: self.delete(key)
+        self.append(key, value)
+
+
+class LRUCache2:
+    # https://leetcode.com/problems/lru-cache/discuss/45926/Python-Dict-%2B-Double-LinkedList
+    def __init__(self, capacity):
+        self.size = capacity
+        self.cache = collections.OrderedDict()
+
+    def get(self, key):
+        if key not in self.cache: return -1
+        val = self.cache[key]
+        self.cache.move_to_end(key)
+        return val
+
+    def put(self, key, val):
+        if key in self.cache: del self.cache[key]
+        self.cache[key] = val
+        if len(self.cache) > self.size:
+            self.cache.popitem(last=False)
 
 
 def binary_search_tree_to_dll(root):
