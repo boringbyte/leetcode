@@ -63,7 +63,10 @@ def k_closest_points_to_origin1(points, k):
 def k_closest_points_to_origin2(points, k):
     # O(nlogk) --> n for loop and logk for push and pop
     # We want to maintain max heap, that's why we use -ve distance
-    heap, euclidean = [], lambda x, y: x * x + y * y
+    def euclidean(x, y):
+        return x * x + y * y
+
+    heap = []
     for i, (x, y) in enumerate(points):
         distance = euclidean(x, y)
         if len(heap) > k:
@@ -294,9 +297,9 @@ def binary_tree_maximum_path_sum(root):
 
 def valid_palindrome1(s):
     def cleaned_string(s):
-        s, t, alphabets = s.lower(), '', set(string.ascii_lowercase + '0123456789')
+        s, t, alpha_numeric = s.lower(), '', set(string.ascii_lowercase + '0123456789')
         for char in s:
-            if char in alphabets:
+            if char in alpha_numeric:
                 t += char
         return t
 
@@ -460,6 +463,7 @@ class TrieNode:
 
 
 class WordDictionary:
+    # https://leetcode.com/problems/design-add-and-search-words-data-structure/discuss/774530/Python-Trie-solution-with-dfs-explained
     def __init__(self):
         self.root = TrieNode()
 
@@ -470,18 +474,17 @@ class WordDictionary:
         node.is_word = True
 
     def search(self, word):
-        n = len(word)
 
         def dfs(node, i):
-            if i == n:
+            if i == len(word):
                 return node.is_word
             if word[i] == '.':
-                for child in node.children:
-                    if dfs(child, i + 1):
+                for w in node.children:
+                    if dfs(node.children[w], i + 1):
                         return True
             if word[i] in node.children:
-                child = node.children[word[i]]
-                return dfs(child, i + 1)
+                w = node.children[word[i]]
+                return dfs(w, i + 1)
             return False
 
         return dfs(self.root, 0)
