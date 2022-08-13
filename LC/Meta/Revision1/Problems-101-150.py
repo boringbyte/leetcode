@@ -387,6 +387,54 @@ def read_n_characters_given_read4():
     pass
 
 
+def letter_combinations_of_a_phone_number(digits):
+    hashmap = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
+    result, n = [], len(digits)
+
+    def dfs(sofar, k):
+        if k == n:
+            result.append(sofar)
+        else:
+            letters = hashmap[digits[k]]
+            for letter in letters:
+                dfs(sofar + letter, k + 1)
+
+    dfs('', 0)
+    return result if digits else []
+
+
+def merge(l, r):
+    if not l or not r:
+        return l or r
+    dummy = prev = ListNode(0)
+    while l and r:
+        if l.val < r.val:
+            prev.next = l
+            l = l.next
+        else:
+            prev.next = r
+            r = r.next
+        prev = prev.next
+    prev.next = l or r
+    return dummy.next
+
+
+def sort_list(head):
+    # https://leetcode.com/problems/sort-list/discuss/46711/Python-easy-to-understand-merge-sort-solution
+    if not head or not head.next:
+        return head
+    slow, fast = head, head.next
+    while fast and fast.next:
+        fast = fast.next.next
+        slow = slow.next
+
+    list2 = slow.next
+    slow.next = None
+    list1 = head
+    l, r = sort_list(list1), sort_list(list2)
+    return merge(l, r)
+
+
 def island_perimeter(grid):
     # https://leetcode.com/problems/island-perimeter/discuss/723842/Python-O(mn)-simple-loop-solution-explained
     m, n, result = len(grid), len(grid[0]), 0
