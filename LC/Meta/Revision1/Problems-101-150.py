@@ -387,18 +387,93 @@ def read_n_characters_given_read4():
     pass
 
 
-def path_sum(root, target_sum):
-    # https://leetcode.com/problems/path-sum/discuss/36486/Python-solutions-(DFS-recursively-DFS%2Bstack-BFS%2Bqueue
-    if not root:
-        return False
-    stack = [(root, root.val)]
-    while stack:
-        curr, val = stack.pop()
-        if not curr.left and not curr.right and val == target_sum:
-            return True
-        if curr.right:
-            stack.append((curr.right, val + curr.right.val))
-        if curr.left:
-            stack.append((curr.left, val + curr.left.val))
-    return False
+def island_perimeter(grid):
+    # https://leetcode.com/problems/island-perimeter/discuss/723842/Python-O(mn)-simple-loop-solution-explained
+    m, n, result = len(grid), len(grid[0]), 0
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    for x in range(m):
+        for y in range(n):
+            if grid[x][y] == 0:
+                continue
+            result += 4
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 1:
+                    result -= 1
+    return result
 
+
+def path_sum1(root, target_sum):
+    # https://leetcode.com/problems/path-sum-ii/discuss/1382332/C%2B%2BPython-DFS-Clean-and-Concise-Time-complexity-explained
+    result = []
+
+    def dfs(node, target_sum, path):
+        if not node:
+            return None
+        target_sum -= node.val
+        path.append(node.val)
+        if node.left is None and node.right is None:
+            if target_sum == 0:
+                result.append(path[:])
+        else:
+            dfs(node.left, target_sum, path)
+            dfs(node.right, target_sum, path)
+        path.pop()
+
+    dfs(root, target_sum, [])
+    return result
+
+
+def path_sum2(root, target_sum):
+    # replace stack with queue to make it BFS solution
+    if root is None:
+        return []
+    result, stack = [], [(root, root.val, [root.val])]
+    while stack:
+        current, total, path = stack.pop()
+        if not current.left and not current.right and total == target_sum:
+            result.append(path)
+        if current.right:
+            value = current.right.val
+            stack.append((current.right, total + value, path + [value]))
+        if current.left:
+            value = current.left.val
+            stack.append((current.left, total + value, path + [value]))
+
+
+def monotonic_array(nums):
+    increasing = decreasing = True
+    for i in range(len(nums) - 1):
+        if nums[i] > nums[i + 1]:
+            increasing = False
+        if nums[i] < nums[i + 1]:
+            decreasing = False
+    return increasing or decreasing
+
+
+def container_with_most_water(height):
+    result, l, r = 0, 0, len(height) - 1
+    while l < r:
+        result = max(result, (r - l) * min(height[l], height[r]))
+        if height[l] < height[r]:
+            l += 1
+        else:
+            r -= 1
+    return result
+
+
+def spiral_matrix(matrix):
+    # comments of https://leetcode.com/problems/spiral-matrix/discuss/1466413/Python-simulate-process-explained
+    m, n = len(matrix), len(matrix[0])
+    x, y, dx, dy = 0, 0, 1, 0
+    result = []
+    for _ in range(m * n):
+        result.append(matrix[y][x])
+        matrix[y][x] = '*'
+
+        nx, ny = x + dx, y + dy
+        if not 0 <= nx < n or not 0 <= ny < m or matrix[ny][nx] == '*':
+            dx, dy = -dy, dx
+
+        x, y = nx, ny
+    return result
