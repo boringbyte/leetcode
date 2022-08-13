@@ -187,7 +187,7 @@ def valid_palindrome_2(s):
     return True
 
 
-def sub_array_sum_equals_k(nums, k):
+def sub_array_sum_equals_k1(nums, k):
     # In this all are positive numbers only
     # In comments of https://leetcode.com/problems/subarray-sum-equals-k/discuss/102111/Python-Simple-with-Explanation
     total = result = 0
@@ -196,6 +196,16 @@ def sub_array_sum_equals_k(nums, k):
     for acc in cumulative_sum:
         result += count[acc - k]
         count[acc] += 1
+    return result
+
+
+def sub_array_sum_equals_k2(nums, k):
+    prefix_sum, prefix_sum_counts, result = 0, {0: 1}, 0
+    for _, num in enumerate(nums):
+        prefix_sum = (prefix_sum + num)
+        if prefix_sum - k in prefix_sum_counts:
+            result += prefix_sum_counts[prefix_sum - k]
+        prefix_sum_counts[prefix_sum] = prefix_sum_counts.get(prefix_sum, 0) + 1
     return result
 
 
