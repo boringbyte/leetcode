@@ -387,6 +387,146 @@ def read_n_characters_given_read4():
     pass
 
 
+def binary_tree_paths(root):
+    # https://leetcode.com/problems/binary-tree-paths/discuss/68272/Python-solutions-(dfs%2Bstack-bfs%2Bqueue-dfs-recursively).
+    if not root:
+        return []
+    result = []
+
+    def dfs(node, path):
+        if not node.left and not node.right:
+            result.append(path + str(node.val))
+        if node.left:
+            dfs(node.left, path + str(node.val) + '->')
+        if node.right:
+            dfs(node.right, path + str(node.val) + '->')
+
+    dfs(root, '')
+    return result
+
+
+def find_all_anagrams_in_a_string(s, p):
+    # https://leetcode.com/problems/find-all-anagrams-in-a-string/discuss/639309/JavaPython-Sliding-Window-Detail-explanation-Clean-and-Concise
+    count = collections.Counter(p)
+    result, l = [], 0
+    for r, char in enumerate(s):
+        count[char] -= 1
+        while count[char] < 0:
+            count[s[l]] += 1
+            l += 1
+        if r - l + 1 == len(p):
+            result.append(l)
+    return result
+
+
+def kth_smallest_element_in_a_bst(root, k):
+    stack, current = [], root
+    while True:
+        if current:
+            stack.append(current)
+            current = current.left
+        elif stack:
+            current = stack.pop()
+            k -= 1
+            if k == 0:
+                return current.val
+            current = current.right
+
+
+def robot_room_cleaner(robot):
+    # Correct
+    directions = [(0, -1), (-1, 0), (0, 1), (1, 0)]
+    visited = set()
+
+    def dfs(robot, x, y):
+        if (x, y) in visited:
+            return
+        visited.add((x, y))
+        robot.clean()
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            dfs(robot, nx, ny)
+
+
+def decode_ways(s):
+    # https://leetcode.com/problems/decode-ways/discuss/1410794/C%2B%2BPython-From-Top-down-DP-to-Bottom-up-DP-O(1)-Space-Clean-and-Concise
+    n = len(s)
+
+    @lru_cache
+    def dfs(i):
+        if i == n:
+            return 1
+        result = 0
+        if s[i] != 0:
+            result += dfs(i + 1)
+        if i + 1 < n and (s[i] == '1' or s[i] == '2' and s[i + 1] <= '6'):
+            result += dfs(i + 2)
+        return result
+    return dfs(0)
+
+
+def backspace_string_compare1(s, t):
+    # https://leetcode.com/problems/backspace-string-compare/discuss/145786/Python-tm
+    stack1, stack2 = [], []
+
+    def process(word, stack):
+        for char in word:
+            if char != '#':
+                stack.append(char)
+            else:
+                if not stack:
+                    continue
+                stack.pop()
+        return stack
+
+    l1 = process(s, stack1)
+    l2 = process(t, stack2)
+    return l1 == l2
+
+
+def get_char(word, i):
+    char, count = '', 0
+    while i >= 0 and not char:
+        if word[i] == '#':
+            count += 1
+        elif count == 0:
+            char = word[i]
+        else:
+            count -= 1
+        i -= 1
+    return char, i
+
+
+def backspace_string_compare2(s, t):
+    r1, r2 = len(s) - 1, len(t) -1
+
+    while r1 >= 0 or r2 >= 0:
+        char1, char2 = '', ''
+        if r1 >= 0:
+            char1, r1 = get_char(s, r1)
+            char2, r2 = get_char(t, r2)
+        if char1 != char2:
+            return False
+        return True
+
+
+def find_largest_value_in_each_tree_row(root):
+    if not root:
+        return []
+    result, queue = [], collections.deque([root])
+    while queue:
+        level_result, new_queue = float('-inf'), collections.deque()
+        for current in queue:
+            level_result = max(level_result, current.val)
+            if current.left:
+                new_queue.append(current.left)
+            if current.right:
+                new_queue.append(current.right)
+        queue = new_queue
+        result.append(level_result)
+    return result
+
+
 def letter_combinations_of_a_phone_number(digits):
     hashmap = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
     result, n = [], len(digits)
