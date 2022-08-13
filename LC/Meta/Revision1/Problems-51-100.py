@@ -616,7 +616,29 @@ def find_peak_element(nums):
 
 
 def basic_calculator_2(s):
-    pass
+    def update(op, value):
+        if op == '+': stack.append(value)
+        if op == '-': stack.append(-value)
+        if op == '*': stack.append(stack.pop() * value)
+        if op == '/': stack.append(int(stack.pop()) / value)
+
+    i, num, stack, sign = 0, 0, [], '+'
+
+    while i < len(s):
+        if s[i].isdigit():
+            num = num * 10 + int(s[i])
+        elif s[i] in '+-*/':
+            update(sign, num)
+            num, sign = 0, s[i]
+        elif s[i] == '(':
+            num, j = basic_calculator_2(s[i + 1:])
+            i = i + j
+        elif s[i] == ')':
+            update(sign, num)
+            return sum(stack), i + 1
+        i += 1
+    update(sign, num)
+    return sum(stack)
 
 
 def add_two_numbers(l1, l2):
