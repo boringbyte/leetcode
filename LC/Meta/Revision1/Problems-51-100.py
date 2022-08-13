@@ -182,7 +182,7 @@ def largest_island(grid):
             grid[x][y] = color
             component_size[color] += 1
             for dx, dy in directions:
-                paint(x+dx, y+dy, color)
+                paint(x + dx, y + dy, color)
 
     for i in range(m):
         for j in range(n):
@@ -336,6 +336,7 @@ def balance_a_binary_search_tree(root):
         node.left = build(l, mid - 1)
         node.right = build(mid + 1, r)
         return node
+
     return build(0, len(values) - 1)
 
 
@@ -357,19 +358,19 @@ def word_ladder_length(begin_word, end_word, word_list):
     n, hashmap = len(begin_word), collections.defaultdict(list)
     for word in word_list:
         for i in range(n):
-            hashmap[word[:i] + '*' + word[i+1:]].append(word)
+            hashmap[word[:i] + '*' + word[i + 1:]].append(word)
 
     queue, visited = collections.deque([(begin_word, 1)]), {[begin_word]}
     while queue:
         current_word, level = queue.popleft()
         for i in range(n):
-            intermediate_word = current_word[:i] + '*' + current_word[i+1:]
+            intermediate_word = current_word[:i] + '*' + current_word[i + 1:]
             for word in hashmap[intermediate_word]:
                 if word == end_word:
-                    return level+1
+                    return level + 1
                 if word not in visited:
                     visited.add(word)
-                    queue.append((word, level+1))
+                    queue.append((word, level + 1))
     return 0
 
 
@@ -423,6 +424,7 @@ def subsets(nums):
         for i in range(k, n):
             chosen = nums[i]
             backtrack(sofar + [chosen], i + 1)
+
     backtrack([], 0)
     return result
 
@@ -546,11 +548,13 @@ def add_operators(s, target):
                 break
             num = int(s[k:i + 1])
             if i == 0:
-                backtrack(i + 1, sofar + str(num), result_sofar + num, num)  # First num, pick it without adding any operator
+                backtrack(i + 1, sofar + str(num), result_sofar + num,
+                          num)  # First num, pick it without adding any operator
             else:
                 backtrack(i + 1, sofar + '+' + str(num), result_sofar + num, num)
                 backtrack(i + 1, sofar + '-' + str(num), result_sofar - num, -num)
                 backtrack(i + 1, sofar + '*' + str(num), result_sofar - prev + prev * num, prev * num)
+
     backtrack('', 0, 0, 0)
     return result
 
@@ -658,7 +662,6 @@ def add_two_numbers(l1, l2):
 
 
 def is_graph_bipartite(graph):
-
     def dfs(start):
         if loop[0]:
             return
@@ -784,7 +787,7 @@ def max_consecutive_ones_3(nums, k):
     return result
 
 
-def remove_all_adjacent_duplicates_in_string_2(s,  k):
+def remove_all_adjacent_duplicates_in_string_2(s, k):
     stack = []
     for char in s:
         if stack and stack[-1][0] == char:
