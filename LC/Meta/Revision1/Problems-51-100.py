@@ -316,8 +316,30 @@ def combination_sum(candidates, target):
     return result
 
 
-def read_n_characters_given_read4_ii_call_multiple_times():
-    pass
+def read():
+    return 0
+
+
+class ReadNCharacters:
+    # https://poopcode.com/read-n-characters-given-read4-ii-call-multiple-times-leetcode-challenge-python-solution/
+    def __init__(self):
+        self.buffer = [''] * 4
+        self.offset = 0
+        self.buffer_size = 0
+
+    def read_n_characters_given_read4_ii_call_multiple_times(self, buf, n):
+        pos, eof = 0, False
+        while not eof and pos < n:
+            if self.buffer_size == 0:
+                self.buffer_size = read(self.buffer)
+                eof = self.buffer_size < 4
+            byte = min(n - pos, self.buffer_size)
+            for i in range(byte):
+                buf[pos + i] = self.buffer[self.offset + i]
+            self.offset = (self.offset + byte) % 4
+            self.buffer_size -= byte
+            pos += byte
+        return pos
 
 
 def balance_a_binary_search_tree(root):
