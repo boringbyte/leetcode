@@ -489,12 +489,12 @@ class WordDictionary:
             if i == len(word):
                 return node.is_word
             if word[i] == '.':
-                for w in node.children:
-                    if dfs(node.children[w], i + 1):
+                for char in node.children:
+                    if dfs(node.children[char], i + 1):
                         return True
             if word[i] in node.children:
-                w = node.children[word[i]]
-                return dfs(w, i + 1)
+                char = node.children[word[i]]
+                return dfs(char, i + 1)
             return False
 
         return dfs(self.root, 0)
@@ -573,17 +573,27 @@ def diameter_of_binary_tree(root):
 
 
 class RandomPickWithWeight:
+    # https://www.youtube.com/watch?v=_pnWZe44rdo
     def __init__(self, w):
         self.w, total, total_weight = w, 0, sum(w)
         cumulative_sum = [total := total + weight for weight in self.w]
         self.w = [weight / total_weight for weight in cumulative_sum]
 
     def pick_index(self):
-        r, index = random.uniform(0, 1), 0
-        while index < len(self.w):
-            if r <= self.w[index]:
-                return index
-            index += 1
+        # r, n = random.uniform(0, 1), len(self.w)
+        # for i in range(n):
+        #     if r <= self.w[i]:
+        #         return i
+
+        N = random.uniform(0, 1)  # Similar to first bad version
+        l, r = 0, len(self.w)
+        while l < r:
+            mid = l + (r - l) // 2
+            if N <= self.w[mid]:
+                r = mid
+            else:
+                l = mid + 1
+        return l
         # return bisect.bisect_left(self.w, r)
 
 
@@ -1173,12 +1183,21 @@ def clone_graph(node):
     return visited[node]
 
 
-def k_th_missing_positive_number(arr, k):
+def k_th_missing_positive_number1(arr, k):
+    hash_set, n = set(arr), len(arr)
+    for i in range(1, k + n + 1):
+        if i not in hash_set:
+            k -= 1
+        if k == 0:
+            return i
+
+
+def k_th_missing_positive_number2(arr, k):
     # https://leetcode.com/problems/kth-missing-positive-number/discuss/1004535/Python-Two-solutions-O(n)-and-O(log-n)-explained
     l, r = 0, len(arr)
     while l < r:
         mid = l + (r - l) // 2
-        if arr[mid] - mid + 1 < k:
+        if arr[mid] - mid - 1 < k:
             l = mid + 1
         else:
             r = mid
@@ -1205,9 +1224,26 @@ def minimum_window_substring(s, t):
     # https://leetcode.com/problems/minimum-window-substring/discuss/226911/Python-two-pointer-sliding-window-with-explanation
     # https://leetcode.com/problems/minimum-window-substring/discuss/968611/Simple-Python-sliding-window-solution-with-detailed-explanation
     # needed is a default dictionary with 0 default value
-    # needed[char] -= 1, even if D is not there in t but in s, then we will add D to needed and reduce it's value
+    # needed[char] -= 1, even if D is not there in t but in s, then we will add D to needed and reduce its value
     # from 0 to -1
-    pass
+    needed = collections.Counter(t)            # hash table to store char frequency
+    missing = len(t)                           # total number of chars we care
+    start, end = 0, 0
+    i = 0
+    for j, char in enumerate(s, 1):            # index j from 1
+        if needed[char] > 0:
+            missing -= 1
+        needed[char] -= 1
+        if missing == 0:                       # match all chars
+            while i < j and needed[s[i]] < 0:  # remove chars to find the real start
+                needed[s[i]] += 1
+                i += 1
+            needed[s[i]] += 1                  # make sure the first appearing char satisfies needed[char]>0
+            missing += 1                       # we missed this first char, so add missing by 1
+            if end == 0 or j-i < end - start:  # update window
+                start, end = i, j
+            i += 1                             # update i to start+1 for next window
+    return s[start: end]
 
 
 def vertical_order_traversal_binary_tree(root):
@@ -1242,9 +1278,9 @@ def word_break_2(s, word_dict):
         if i == n:
             result.append(' '.join(sofar))
         for j in range(i, n):
-            current_word = s[i: j + 1]
-            if current_word in word_dict:
-                backtrack(j + 1, sofar + [current_word])
+            chosen = s[i: j + 1]
+            if chosen in word_dict:
+                backtrack(j + 1, sofar + [chosen])
     backtrack(0, [])
     return result
 
