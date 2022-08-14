@@ -387,6 +387,87 @@ def read_n_characters_given_read4():
     pass
 
 
+def path_sum(root, total):
+    # https://leetcode.com/problems/path-sum/discuss/36486/Python-solutions-(DFS-recursively-DFS%2Bstack-BFS%2Bqueue
+    if not root:
+        return False
+    stack = [(root, root.val)]
+    while stack:
+        current, value = stack.pop()
+        if not current.left and not current.right and value == total:
+            return True
+        if current.right:
+            stack.append((current.right, value + current.right.val))
+        if current.left:
+            stack.append((current.left, value + current.left.val))
+    return False
+
+
+def find_pivot_index(nums):
+    total, left_sum = sum(nums), 0
+    for i, num in enumerate(nums):
+        if left_sum == (total - left_sum - num):
+            return i
+        left_sum += num
+    return -1
+
+
+def intersection_of_two_arrays(nums1, nums2):
+    # https://leetcode.com/problems/intersection-of-two-arrays/discuss/82006/Four-Python-solutions-with-simple-explanation
+    result, hashmap = [], collections.Counter(nums1)
+    for num2 in nums2:
+        if num2 in hashmap and hashmap[num2] > 0:
+            result.append(num2)
+            hashmap[num2] = 0
+    return result
+
+
+def can_place_flowers(flowerbed, n):
+    # https://leetcode.com/problems/intersection-of-two-arrays/discuss/82006/Four-Python-solutions-with-simple-explanation
+    count = 0
+    flowerbed = [0] + flowerbed + [0]
+    for i in range(1, len(flowerbed) - 1):
+        if flowerbed[i - 1] == flowerbed[i] == flowerbed[i + 1] == 0:
+            flowerbed[i] = 1
+            count += 1
+    return count >= n
+
+
+def kth_smallest_element_in_a_sorted_matrix(matrix, k):
+    # https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/discuss/1322101/C%2B%2BJavaPython-MaxHeap-MinHeap-Binary-Search-Picture-Explain-Clean-and-Concise
+    pass
+
+
+def first_unique_character_in_a_string(s):
+    count = collections.Counter(s)
+    for i, ch in enumerate(s):
+        if count[ch] == 1:
+            return i
+    return -1
+
+
+def n_queens(n):
+    pass
+
+
+def contiguous_array(nums):
+    # https://leetcode.com/problems/contiguous-array/discuss/1743720/Python-Javascript-Easy-solution-with-very-clear-Explanation
+    result, hashmap, count = 0, {}, 0
+    for i, num in range(len(nums)):
+        if num == 0:
+            count -= 1
+        else:
+            count += 1
+        if count == 0:
+            result = i + 1
+        if count in hashmap:
+            result = max(result, i - hashmap[count])
+        else:
+            hashmap[count] = i
+    return result
+
+
+
 def binary_tree_paths(root):
     # https://leetcode.com/problems/binary-tree-paths/discuss/68272/Python-solutions-(dfs%2Bstack-bfs%2Bqueue-dfs-recursively).
     if not root:
