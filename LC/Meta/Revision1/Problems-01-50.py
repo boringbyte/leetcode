@@ -392,8 +392,6 @@ def k_th_largest_element_in_an_array(nums, k):
         return p_index
 
     def quick_select(left, right):
-        if left == right:
-            return nums[left]
         p_index = random.randint(left, right)
         p_index = partition(left, right, p_index)
         if k == p_index:
@@ -714,15 +712,15 @@ def alien_dictionary(words):
             if len(word2) < len(word1):
                 return ''
 
-    no_incoming_edges_queue = collections.deque([ch for ch in in_degree if in_degree[ch] == 0])
+    num_incoming_edges_queue = collections.deque([ch for ch in in_degree if in_degree[ch] == 0])
 
-    while no_incoming_edges_queue:
-        current = no_incoming_edges_queue.popleft()
+    while num_incoming_edges_queue:
+        current = num_incoming_edges_queue.popleft()
         result += current
         for neighbor in graph[current]:
             in_degree[neighbor] -= 1
             if in_degree[neighbor] == 0:
-                no_incoming_edges_queue.append(neighbor)
+                num_incoming_edges_queue.append(neighbor)
 
     if len(result) < len(in_degree):
         return ''
@@ -734,12 +732,12 @@ def word_break1(s, word_dict):
     word_dict, n = set(word_dict), len(s)
 
     @lru_cache
-    def dfs(start):
-        if start == n:
+    def dfs(k):
+        if k == n:
             return True
-        for end in range(start + 1, n + 1):
-            sub_string = s[start: end]
-            if sub_string in word_dict and dfs(end):
+        for i in range(k + 1, n + 1):
+            sub_string = s[k: i]
+            if sub_string in word_dict and dfs(i):
                 return True
         return False
     return dfs(0)
@@ -933,7 +931,7 @@ class LRUCache2:
             self.cache.popitem(last=False)
 
 
-def binary_search_tree_to_dll(root):
+def converted_binary_search_tree_to_sorted_dll(root):
     if root is None:
         return root
     dummy = prev = DLLNode(-1)
@@ -945,10 +943,11 @@ def binary_search_tree_to_dll(root):
         elif stack:
             current = stack.pop()
             node = DLLNode(current.val)
+            current = current.right
+
             prev.next = node
             node.prev = prev
             prev = node
-            current = current.right
         else:
             break
     return dummy.next
@@ -964,7 +963,7 @@ def integer_to_english_words1(num):
         if num == 0:
             return []
         if num < 20:
-            return [one_to_19[num-1]]
+            return [one_to_19[num - 1]]
         if num < 100:
             return [tens[num // 10 - 2]] + convert(num % 10)
         if num < 1000:
