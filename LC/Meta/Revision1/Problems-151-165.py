@@ -10,18 +10,18 @@ def smallest_subtree_with_all_the_deepest_nodes(root):
     # same as lowest common ancestor of the deepest leaves
     if not root:
         return None
-    parent, queue, last_level = {}, collections.deque([root]), []
+    parent, queue, last_level = {root: None}, collections.deque([root]), []
     while queue:
         last_level = []
         for _ in range(len(queue)):
-            current = queue.popleft()
-            last_level.append(current)
-            if current.left:
-                queue.append(current.left)
-                parent[current.left] = current
-            if current.right:
-                queue.append(current.right)
-                parent[current.right] = current
+            child = queue.popleft()
+            last_level.append(child)
+            if child.left:
+                queue.append(child.left)
+                parent[child.left] = child
+            if child.right:
+                queue.append(child.right)
+                parent[child.right] = child
 
     while len(last_level) > 1:
         parent_nodes = set()
@@ -211,19 +211,21 @@ class SubTreeInfo:
 
 
 def largest_bst_subtree(root):
+    # https://www.techiedelight.com/find-size-largest-bst-in-binary-tree/
     if root is None:
-        return SubTreeInfo(sys.maxsize, -sys.maxsize, 0, True)
+        return SubTreeInfo(float('inf'), -float('inf'), 0, True)
     l, r = largest_bst_subtree(root.left), largest_bst_subtree(root.right)
-    if l.is_bst and r.is_bst and (l.max < root.data < r.min):
-        info = SubTreeInfo(min(root.data, l.min, r.min),
-                           max(root.data, l.max, r.max),
-                           l.size + 1 + r.size, True)
+    if l.is_bst and r.is_bst and (l.max < root.val < r.min):
+        result = SubTreeInfo(min(root.val, l.min, r.min),
+                             max(root.val, l.max, r.max),
+                             l.size + 1 + r.size, True)
     else:
-        info = SubTreeInfo(0, 0, max(l.size, r.size), False)
-    return info
+        result = SubTreeInfo(0, 0, max(l.size, r.size), False)
+    return result
 
 
 def number_of_connected_components_in_an_undirected_graph(n, edges):
+    # https://www.goodtecher.com/leetcode-323-number-of-connected-components-in-an-undirected-graph/
     graph = collections.defaultdict(list)
     result, visited = 0, set()
 
@@ -231,9 +233,9 @@ def number_of_connected_components_in_an_undirected_graph(n, edges):
         graph[u].append(v)
         graph[v].append(u)
 
-    def dfs(vertex):
-        visited.add(vertex)
-        for neighbor in graph[vertex]:
+    def dfs(i):
+        visited.add(i)
+        for neighbor in graph[i]:
             if neighbor not in visited:
                 dfs(neighbor)
 
@@ -262,6 +264,7 @@ def odd_even_linked_list(head):
 
 
 def flatten_binary_tree_to_linked_list(root):
+    # https://leetcode.com/problems/flatten-binary-tree-to-linked-list/discuss/1208004/Extremely-Intuitive-O(1)-Space-solution-with-Simple-explanation-Python
     current = root
     while current:
         if current.left is not None:
@@ -275,9 +278,10 @@ def flatten_binary_tree_to_linked_list(root):
 
 
 def toeplitz_matrix(matrix):
+    # https://leetcode.com/problems/toeplitz-matrix/discuss/516366/Python-Follow-Up-1-with-Explanation-and-Diagrams
     m, n = len(matrix), len(matrix[0])
     for i in range(m - 1):
         for j in range(n - 1):
-            if matrix[i][j] != matrix[i - 1][j - 1]:
+            if matrix[i][j] != matrix[i + 1][j + 1]:
                 return False
     return True
