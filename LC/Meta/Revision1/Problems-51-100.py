@@ -142,18 +142,6 @@ def longest_substring_without_repeating_characters(s):
     return result
 
 
-def length_of_longest_substring_without_repeating_characters(s):
-    n, result, seen, left = len(s), 1, {}, 0
-    if n == 0:
-        return result
-    for right, char in enumerate(s):
-        if char in seen:
-            left = max(left, seen[char] + 1)
-        result = max(result, right - left + 1)
-        seen[char] = right
-    return result
-
-
 def top_k_frequent_elements(nums, k):
     counts, freq_dict, result = collections.Counter(nums), collections.defaultdict(list), []
 

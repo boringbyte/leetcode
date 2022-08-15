@@ -32,11 +32,11 @@ def meeting_rooms_2(intervals):
     n, heap = len(intervals), []
     if n <= 1:
         return n
-    for interval in sorted(intervals):
-        if heap and interval[0] >= heap[0]:
-            heapq.heappushpop(heap, interval[1])
+    for start, end in sorted(intervals):
+        if heap and heap[0] < start:
+            heapq.heappushpop(heap, end)
         else:
-            heapq.heappush(heap, interval[1])
+            heapq.heappush(heap, end)
     return len(heap)
 
 
@@ -52,6 +52,7 @@ def validate_binary_search_tree(root):
 
 
 def diagonal_traversal(matrix):
+    # Use dict and sum of i+j is same for elements on the diagonal
     m, n, result = len(matrix), len(matrix[0]), []
     diagonal_map = collections.defaultdict(list)
 
@@ -68,7 +69,9 @@ def diagonal_traversal(matrix):
     # itertools.chain(*[v if k % 2 else v[::-1] for k, v in d.items()])
 
 
-def check_completeness_of_a_binary_tree(root):
+def check_completeness_of_a_binary_tree1(root):
+    if not root:
+        return True
     queue = collections.deque([root])
     prev_node = root
     while queue:
@@ -82,7 +85,23 @@ def check_completeness_of_a_binary_tree(root):
     return True
 
 
+def check_completeness_of_a_binary_tree2(root):
+    # https://leetcode.com/problems/check-completeness-of-a-binary-tree/discuss/242287/Python-solution
+    if not root:
+        return True
+    queue, result = collections.deque([(root, 1)]), []
+    while queue:
+        current, coord = queue.popleft()
+        result.append(coord)
+        if current.left:
+            queue.append((current.left, 2 * coord))
+        if current.right:
+            queue.append((current.right, 2 * coord + 1))
+    return len(result) == result[-1]
+
+
 def nested_list_weight_sum(nested_list):
+    # https://zhenyu0519.github.io/2020/03/16/lc339/
     def dfs(current_list, depth):
         total = 0
         for value in current_list:
@@ -167,8 +186,34 @@ def strobogrammatic_number(num):
     return True
 
 
-def first_missing_positive(nums):
-    pass
+def first_missing_positive1(nums):
+    # https://leetcode.com/problems/first-missing-positive/discuss/17080/Python-O(1)-space-O(n)-time-solution-with-explanation
+    nums = [0] + nums
+    n = len(nums)
+    for i in range(n):
+        if nums[i] < 0 or nums[i] >= n:
+            nums[i] = 0
+    for i in range(n):
+        nums[nums[i] % n] += n
+    for i in range(1, n):
+        if nums[i] // n == 0:
+            return i
+    return n
+
+
+def first_missing_positive2(nums):
+    # https://leetcode.com/problems/first-missing-positive/discuss/17161/Python-O(n)-and-O(nlgn)-solutions.
+    # TLE
+    n = len(nums)
+    for i in range(n):
+        ni = nums[i] - 1
+        while 0 <= ni < n and nums[ni] != nums[i]:
+            nums[i], nums[ni] = nums[ni], nums[i]
+
+    for i in range(n):
+        if nums[i] != i + 1:
+            return i + 1
+    return n + 1
 
 
 def construct_binary_tree_from_string(s):
@@ -216,11 +261,13 @@ def generate_parentheses(n):
 
 
 def median_of_two_sorted_arrays(nums1, nums2):
+    # https://leetcode.com/problems/median-of-two-sorted-arrays/discuss/2511/Intuitive-Python-O(log-(m%2Bn))-solution-by-kth-smallest-in-the-two-sorted-arrays-252ms
     pass
 
 
 def missing_ranges(nums, lower, upper):
-    result, n, previous = [], len(nums), lower - 1
+    # https://goodtecher.com/leetcode-163-missing-ranges/
+    result, previous = [], lower - 1
 
     def get_range(left, right):
         if left == right:
@@ -246,17 +293,17 @@ def missing_ranges(nums, lower, upper):
 
 
 class NumMatrix:
+    # https://leetcode.com/problems/range-sum-query-2d-immutable/discuss/572648/C%2B%2BJavaPython-Prefix-sum-with-Picture-explain-Clean-and-Concise
     def __init__(self, matrix):
         m, n = len(matrix), len(matrix[0])
         self.total = [[0] * (n + 1) for _ in range(m + 1)]
         for r in range(1, m + 1):
             for c in range(1, n + 1):
-                self.total[r][c] = self[r - 1][c] + self.total[r][c - 1] - self.total[r - 1][c - 1] + matrix[r - 1][
-                    c - 1]
+                self.total[r][c] = self.total[r - 1][c] + self.total[r][c - 1] - self.total[r - 1][c - 1] + matrix[r - 1][c - 1]
 
     def sum_region(self, r1, c1, r2, c2):
         r1, c1, r2, c2 = r1 + 1, c1 + 1, r2 + 1, c2 + 1
-        return self.total[r2][c2] - self[r1 - 1][c1] - self.total[r1][c1 - 1] + self.total[r1 - 1][c1 - 1]
+        return self.total[r2][c2] - self.total[r1 - 1][c1] - self.total[r1][c1 - 1] + self.total[r1 - 1][c1 - 1]
 
 
 def populating_next_right_pointer_in_each_node1(root):
@@ -310,7 +357,7 @@ def reverse_integer(x):
 
     while x:
         result = result * 10 + x % 10
-        x /= 10
+        x //= 10
 
     return 0 if result > pow(2, 31) else result * sign
 
@@ -361,8 +408,14 @@ def sum_root_to_leaf_numbers2(root):
     return result
 
 
-def palindromic_substrings():
-    pass
+def palindromic_substrings(s):
+    # https://leetcode.com/problems/palindromic-substrings/discuss/105687/Python-Straightforward-with-Explanation-(Bonus-O(N)-solution)
+    n, result = len(s), 0
+    for i in range(2 * n - 1):
+        left, right = i // 2, (i + 1) // 2
+        while left >= 0 and right < n and s[left] == s[right]:
+            result, left, right = result + 1, left - 1, right + 1
+    return result
 
 
 def binary_tree_level_order_traversal(root):
@@ -435,7 +488,14 @@ def can_place_flowers(flowerbed, n):
 
 def kth_smallest_element_in_a_sorted_matrix(matrix, k):
     # https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/discuss/1322101/C%2B%2BJavaPython-MaxHeap-MinHeap-Binary-Search-Picture-Explain-Clean-and-Concise
-    pass
+    m, n = len(matrix), len(matrix[0])  # For general, matrix doesn't need to be a square
+    max_heap = []
+    for r in range(m):
+        for c in range(n):
+            heapq.heappush(max_heap, -matrix[r][c])
+            if len(max_heap) > k:
+                heapq.heappop(max_heap)
+    return -heapq.heappop(max_heap)
 
 
 def first_unique_character_in_a_string(s):
