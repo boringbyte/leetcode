@@ -507,7 +507,28 @@ def first_unique_character_in_a_string(s):
 
 
 def n_queens(n):
-    pass
+    # https://leetcode.com/problems/n-queens/discuss/826728/python-easy_to_read-wexplanation-or-backtracking
+    col, diagonal, anti_diagonal = set(), set(), set()
+    result = []
+
+    def backtrack(k, sofar):
+        if k == n:
+            result.append(sofar[:])
+
+        for c in range(n):
+            if c in col or (k + c) in diagonal or (k - c) in anti_diagonal:
+                continue
+            col.add(c)
+            diagonal.add(k + c)
+            anti_diagonal.add(k - c)
+            sofar.append('.' * c + 'Q' + '.' * (n - c - 1))
+            backtrack(c + 1, sofar)
+            col.remove(c)
+            diagonal.remove(k + c)
+            anti_diagonal.remove(k - c)
+            sofar.pop()
+    backtrack(0, [])
+    return result
 
 
 def contiguous_array(nums):
@@ -525,7 +546,6 @@ def contiguous_array(nums):
         else:
             hashmap[count] = i
     return result
-
 
 
 def binary_tree_paths(root):
@@ -576,17 +596,18 @@ def kth_smallest_element_in_a_bst(root, k):
 
 def robot_room_cleaner(robot):
     # Correct
-    directions = [(0, -1), (-1, 0), (0, 1), (1, 0)]
-    visited = set()
-
-    def dfs(robot, x, y):
-        if (x, y) in visited:
-            return
-        visited.add((x, y))
-        robot.clean()
-        for dx, dy in directions:
-            nx, ny = x + dx, y + dy
-            dfs(robot, nx, ny)
+    # directions = [(0, -1), (-1, 0), (0, 1), (1, 0)]
+    # visited = set()
+    #
+    # def dfs(robot, x, y):
+    #     if (x, y) in visited:
+    #         return
+    #     visited.add((x, y))
+    #     robot.clean()
+    #     for dx, dy in directions:
+    #         nx, ny = x + dx, y + dy
+    #         dfs(robot, nx, ny)
+    pass
 
 
 def decode_ways(s):
@@ -797,12 +818,10 @@ def spiral_matrix(matrix):
     x, y, dx, dy = 0, 0, 1, 0
     result = []
     for _ in range(m * n):
-        result.append(matrix[y][x])
-        matrix[y][x] = '*'
-
         nx, ny = x + dx, y + dy
         if not 0 <= nx < n or not 0 <= ny < m or matrix[ny][nx] == '*':
             dx, dy = -dy, dx
-
-        x, y = nx, ny
+        result.append(matrix[y][x])
+        matrix[y][x] = '*'
+        x, y = x + dx, y + dy
     return result
