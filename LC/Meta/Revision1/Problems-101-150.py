@@ -356,8 +356,9 @@ def reverse_integer(x):
         sign, x = -sign, -x
 
     while x:
-        result = result * 10 + x % 10
-        x //= 10
+        q, r = divmod(x, 10)
+        result = result * 10 + r  # x % 10
+        x = q
 
     return 0 if result > pow(2, 31) else result * sign
 

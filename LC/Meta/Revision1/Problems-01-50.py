@@ -736,8 +736,8 @@ def word_break1(s, word_dict):
         if k == n:
             return True
         for i in range(k + 1, n + 1):
-            sub_string = s[k: i]
-            if sub_string in word_dict and dfs(i):
+            chosen = s[k: i]
+            if chosen in word_dict and dfs(i):
                 return True
         return False
     return dfs(0)
@@ -920,7 +920,7 @@ class LRUCache2:
         if key not in self.cache:
             return -1
         val = self.cache[key]
-        self.cache.move_to_end(key)
+        self.cache.move_to_end(key)  # Can we use put method instead of move_to_end method
         return val
 
     def put(self, key, val):
@@ -1153,7 +1153,7 @@ def interval_list_intersections(first_list, second_list):
 
 def squares_of_a_sorted_array(nums):
     l, r, n = 0, len(nums) - 1, len(nums)
-    result, k = [None] * n, n-1
+    result, k = [None] * n, n - 1
     while l <= r:
         a, b = nums[l] ** 2, nums[r] ** 2
         if a >= b:
@@ -1196,10 +1196,10 @@ def k_th_missing_positive_number2(arr, k):
     l, r = 0, len(arr)
     while l < r:
         mid = l + (r - l) // 2
-        if arr[mid] - mid - 1 < k:
-            l = mid + 1
-        else:
+        if k <= arr[mid] - mid - 1:
             r = mid
+        else:
+            l = mid + 1
     return r + k
 
 
@@ -1273,13 +1273,13 @@ def word_break_2(s, word_dict):
     # This solution is in the comments
     result, n, word_dict = [], len(s), set(word_dict)
 
-    def backtrack(i, sofar):
-        if i == n:
+    def backtrack(k, sofar):
+        if k == n:
             result.append(' '.join(sofar))
-        for j in range(i, n):
-            chosen = s[i: j + 1]
+        for i in range(k, n):
+            chosen = s[k: i + 1]
             if chosen in word_dict:
-                backtrack(j + 1, sofar + [chosen])
+                backtrack(i + 1, sofar + [chosen])
     backtrack(0, [])
     return result
 
@@ -1314,9 +1314,9 @@ def buildings_with_an_ocean_view1(heights):
 
 
 def buildings_with_an_ocean_view2(heights):
-    result = []
+    stack = []
     for i, height in enumerate(heights):
-        while result and heights[result[-1]] <= height:
-            result.pop()
-        result.append(i)
-    return result
+        while stack and height > heights[stack[-1]]:  # or >=. Not sure
+            stack.pop()
+        stack.append(i)
+    return stack

@@ -155,8 +155,26 @@ def top_k_frequent_elements(nums, k):
     return result[:k]
 
 
-def search_in_rotated_sorted_array():
-    pass
+def search_in_rotated_sorted_array(nums, target):
+    # https://leetcode.com/problems/search-in-rotated-sorted-array/discuss/14437/Python-binary-search-solution-O(logn)-48ms
+    if not nums:
+        return -1
+    lo, hi = 0, len(nums) - 1
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if target == nums[mid]:
+            return mid
+        if nums[lo] <= nums[mid]:
+            if nums[lo] <= target <= nums[mid]:
+                hi = mid + 1
+            else:
+                lo = mid - 1
+        else:
+            if nums[lo] <= target <= nums[mid]:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+    return -1
 
 
 def largest_island(grid):
@@ -249,11 +267,11 @@ def group_shifted_strings(strings):
     if len(strings) == 0:
         return []
     groups = collections.defaultdict(list)
-    for s in strings:
+    for word in strings:
         key = []
-        for i in range(len(s) - 1):
-            key.append((26 + ord(s[i + 1]) - ord(s[i])) % 26)
-        groups[tuple(key)].append(s)
+        for i in range(len(word) - 1):
+            key.append((26 + ord(word[i + 1]) - ord(word[i])) % 26)
+        groups[tuple(key)].append(word)
     return groups.values()
 
 
@@ -277,6 +295,7 @@ def insert_into_a_sorted_circular_linked_list(head, node):
 
 
 def longest_substring_with_at_most_k_distinct_characters(s, k):
+    # https://shareablecode.com/snippets/longest-substring-with-at-most-k-distinct-characters-python-solution-leetcode-Q8vt-7cbC
     counter = collections.Counter()
     left, result = 0, 0
     for right, char in enumerate(s):
@@ -361,7 +380,8 @@ def remove_all_adjacent_duplicates_in_string(s):
     return ''.join(stack)
 
 
-def word_ladder_length(begin_word, end_word, word_list):
+def word_ladder(begin_word, end_word, word_list):
+    # https://leetcode.com/problems/word-ladder/discuss/346920/Python3-Breadth-first-search
     if end_word not in word_list or not begin_word \
             or not end_word or not word_list \
             or len(begin_word) != len(end_word):
@@ -609,14 +629,23 @@ def copy_list_with_random_pointer1(head: RandomPointerNode):
 
 
 class NestedIterator:
+    # https://leetcode.com/problems/flatten-nested-list-iterator/discuss/1156268/JS-Python-Java-C%2B%2B-or-Simple-Queue-Solution-w-Explanation
     def __init(self, nested_list):
-        pass
+        self.data = []
+        self.flatten(nested_list)
+
+    def flatten(self, lst):
+        for el in lst:
+            if el.isInteger():
+                self.data.append(el.getInteger())
+            else:
+                self.flatten(el.getList())
 
     def next(self):
-        pass
+        return self.data.pop(0)
 
     def has_next(self):
-        pass
+        return len(self.data)
 
 
 def find_peak_element(nums):
@@ -868,12 +897,21 @@ def shortest_distance_from_all_buildings(grid):
     return result if result != float('inf') else -1
 
 
-def beast_time_to_buy_and_sell_stack(prices):
+def beast_time_to_buy_and_sell1(prices):
     current_max, result, n = 0, 0, len(prices)
     for i in range(1, n):
         current_max += prices[i] - prices[i - 1]
         if current_max < 0:
             current_max = 0
+        result = max(current_max, result)
+    return result
+
+
+def beast_time_to_buy_and_sell2(prices):
+    current_max, result, n = 0, 0, len(prices)
+    for i in range(1, n):
+        current_max += prices[i] - prices[i - 1]
+        current_max = max(current_max, 0)
         result = max(current_max, result)
     return result
 

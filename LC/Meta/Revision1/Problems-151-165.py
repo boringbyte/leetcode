@@ -285,3 +285,42 @@ def toeplitz_matrix(matrix):
             if matrix[i][j] != matrix[i + 1][j + 1]:
                 return False
     return True
+
+
+def problem1():
+    # https://leetcode.com/discuss/interview-question/2048705/Meta-or-Phone-Screenor-MLE-or-Remote
+    arr = ['a', 'b', 'c', 'd', 'e']
+    l, n = 0, len(arr)
+    while l <= n - 3:
+        print(arr[l: l + 3])
+        l += 1
+
+
+def problem2():
+    # https://leetcode.com/discuss/interview-question/2048705/Meta-or-Phone-Screenor-MLE-or-Remote
+    arr = ['a', 'b', 'c', 'd', 'e']
+    l, n = 0, len(arr)
+    while l <= n - 4:
+        temp1 = arr[l: l + 4]
+        for i in range(1, 4):
+            temp = temp1[:]
+            temp.pop(i)
+            print(temp)
+        l += 1
+
+
+def valid_word_abbreviation(word, abbr):
+    # https://massivealgorithms.blogspot.com/2016/10/leetcode-408-valid-word-abbreviation.html
+    size, count, loc = len(word), 0, 0
+    for char in abbr:
+        if char.isdigit():
+            if char == '0' and count == 0:
+                return False
+            count = count * 10 + int(char)
+        else:
+            loc = loc + count
+            count = 0
+            if loc >= size or word[loc] != char:
+                return False
+            loc += 1
+    return loc + count == size
