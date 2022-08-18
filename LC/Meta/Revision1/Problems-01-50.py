@@ -202,7 +202,7 @@ def sub_array_sum_equals_k1(nums, k):
 def sub_array_sum_equals_k2(nums, k):
     prefix_sum, prefix_sum_counts, result = 0, {0: 1}, 0
     for _, num in enumerate(nums):
-        prefix_sum = (prefix_sum + num)
+        prefix_sum = prefix_sum + num
         if prefix_sum - k in prefix_sum_counts:
             result += prefix_sum_counts[prefix_sum - k]
         prefix_sum_counts[prefix_sum] = prefix_sum_counts.get(prefix_sum, 0) + 1
@@ -510,7 +510,7 @@ def trapping_rain_water1(heights):
 
     for i in range(n):
         water_level = min(max_left[i], max_right[i])
-        if water_level >= heights[i]:
+        if water_level > heights[i]:
             result += (water_level - heights[i])
     return result
 
