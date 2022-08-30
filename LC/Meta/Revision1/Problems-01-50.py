@@ -203,8 +203,9 @@ def sub_array_sum_equals_k2(nums, k):
     prefix_sum, prefix_sum_counts, result = 0, {0: 1}, 0
     for _, num in enumerate(nums):
         prefix_sum = prefix_sum + num
-        if prefix_sum - k in prefix_sum_counts:
-            result += prefix_sum_counts[prefix_sum - k]
+        diff = prefix_sum - k
+        if diff in prefix_sum_counts:
+            result += prefix_sum_counts[diff]
         prefix_sum_counts[prefix_sum] = prefix_sum_counts.get(prefix_sum, 0) + 1
     return result
 

@@ -1,3 +1,5 @@
+import string
+
 from LC.LCMetaPractice import TreeNode, ListNode, DLLNode
 
 
@@ -19,8 +21,8 @@ def add_two_numbers(l1, l2):
         if l2:
             carry += l2.val
             l2 = l2.next
-        carry, rem = divmod(carry, 10)
-        current.next = ListNode(rem)
+        carry, digit = divmod(carry, 10)
+        current.next = ListNode(digit)
         current = current.next
     return dummy.next
 
@@ -151,3 +153,14 @@ def remove_nth_node_from_end_of_list2(head, n):
 
 def valid_parentheses(s):
     pass
+
+
+def shifting_letters(s, shifts):
+    n, result = len(s), ''
+    for i in range(n - 2, -1, -1):
+        shifts[i] = (shifts[i] + shifts[i + 1]) % 26
+
+    for i, char in enumerate(s):
+        idx = (ord(char) - ord('a') + shifts[i]) % 26
+        result += chr(idx + ord('a'))
+    return result
