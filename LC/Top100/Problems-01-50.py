@@ -152,15 +152,90 @@ def remove_nth_node_from_end_of_list2(head, n):
 
 
 def valid_parentheses(s):
+    if len(s) % 2 == 1:
+        return False
+    hashmap, stack = {'(': ')', '[': ']', '{': '}'}, []
+    for char in s:
+        if char in hashmap:
+            stack.append(char)
+        else:
+            if stack and hashmap[stack[-1]] == char:
+                stack.pop()
+            else:
+                return False
+    return len(stack) == 0
+
+
+def merge_two_sorted_lists1(list1, list2):
+    dummy = current = ListNode(-1)
+    while list1 and list2:
+        if list1.val < list2.val:
+            current.next = list1
+            list1.next = list1
+        else:
+            current.next = list2
+            list2.next = list2
+        current.next = current
+    current.next = list1 or list2
+    return dummy.next
+
+
+def merge_two_sorted_lists2(list1, list2):
+    def recursive(l1, l2):
+        if not l1 or not l2:
+            return l1 or l2
+        if l1.val < l2.val:
+            l1.next = recursive(l1.next, l2)
+            return l1
+        else:
+            l2.next = recursive(l1, l2.next)
+            return l2
+
+    return recursive(list1, list2)
+
+
+def generate_parenthesis(n):
+    result = []
+
+    def backtrack(sofar, left, right):
+        if len(sofar) == 2 * n:
+            result.append(sofar)
+        else:
+            if left < n:
+                backtrack(sofar + '(', left + 1, right)
+            if right < left:
+                backtrack(sofar + ')', left, right + 1)
+    backtrack('', 0, 0)
+    return result
+
+
+def merge(list1, list2):
+    dummy = current = ListNode()
+    while list1 and list2:
+        if list1.val < list2.val:
+            current.next = list1
+            list1 = list1.next
+        else:
+            current.next = list2
+            list2 = list2.next
+        current = current.next
+    current.next = list1 or list2
+    return dummy.next
+
+
+def merge_k_sorted_lists(lists):
+    if not lists:
+        return None
+    if len(lists) == 1:
+        return lists[0]
+    mid = len(lists) // 2
+    l1, l2 = merge_k_sorted_lists(lists[:mid]), merge_k_sorted_lists(lists[mid:])
+    return merge(l1, l2)
+
+
+def next_permutation():
     pass
 
 
-def shifting_letters(s, shifts):
-    n, result = len(s), ''
-    for i in range(n - 2, -1, -1):
-        shifts[i] = (shifts[i] + shifts[i + 1]) % 26
-
-    for i, char in enumerate(s):
-        idx = (ord(char) - ord('a') + shifts[i]) % 26
-        result += chr(idx + ord('a'))
-    return result
+def search_in_rotated_sorted_array(nums):
+ pass
