@@ -385,3 +385,110 @@ def maximum_subarray2(nums):
     return result
 
 
+def jump_game1(nums):
+    # https://leetcode.com/problems/jump-game/discuss/1443541/Python-3-approaches%3A-Top-down-DP-Bottom-up-DP-Max-Pos-So-Far-Clean-and-Concise
+    n = len(nums)
+
+    @lru_cache
+    def recursive(i):
+        if i >= n - 1:
+            return True
+        for j in range(i + 1, min(i + nums[i], n - 1) + 1):
+            if recursive(j):
+                return True
+        return False
+    return recursive(0)
+
+
+def jump_game2(nums):
+    i, max_pos, n = 0, 0, len(nums)
+    while i <= max_pos:
+        max_pos = max(max_pos, i + nums[i])
+        if max_pos >= n - 1:
+            return True
+        i += 1
+    return False
+
+
+def jump_game3(nums):
+    # https://leetcode.com/problems/jump-game/discuss/596454/Python-Simple-solution-with-thinking-process-Runtime-O(n)
+    last_pos, n = len(nums) - 1, len(nums)
+    for i in range(n - 2, -1, -1):
+        if i + nums[i] >= last_pos:
+            last_pos = i
+    return last_pos == 0
+
+
+def merge_intervals(intervals):
+    result, intervals = [], sorted(intervals, key=lambda x: x[0])
+    for start, end in intervals:
+        if not result or result[-1][-1] < start:
+            result.append([start, end])
+        else:
+            result[-1][-1] = max(result[-1][-1], end)
+    return result
+
+
+def unique_paths(m, n):
+    # for more solutions
+    # https://leetcode.com/problems/unique-paths/discuss/1581998/C%2B%2BPython-5-Simple-Solutions-w-Explanation-or-Optimization-from-Brute-Force-to-DP-to-Math
+    dp = [[1] * n for _ in range(m)]
+    for i in range(1, m):
+        for j in range(1, n):
+            dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+    return dp[-1][-1]
+
+
+def minimum_path_sum(grid):
+    # https://leetcode.com/problems/minimum-path-sum/discuss/1467216/Python-Bottom-up-DP-In-place-Clean-and-Concise
+    m, n = len(grid), len(grid[0])
+    for i in range(m):
+        for j in range(n):
+            if i == 0 and j == 0:
+                pass
+            elif i == 0:
+                grid[i][j] += grid[i][j - 1]
+            elif j == 0:
+                grid[i][j] += grid[i - 1][j]
+            else:
+                grid[i][j] += min(grid[i - 1][j], grid[i][j - 1])
+    return grid[-1][-1]
+
+
+def climbing_stairs1(n):
+    # https://leetcode.com/problems/climbing-stairs/discuss/1531764/Python-%3ADetail-explanation-(3-solutions-easy-to-difficult)-%3A-Recursion-dictionary-and-DP
+    def recursive(i):
+        if i in [1, 2]:
+            return i
+        return recursive(i - 1) + recursive(i - 2)
+    return recursive(n)
+
+
+def climbing_stairs2(n):
+    dp = [0] * (n + 1)
+    dp[1], dp[2] = 1, 2
+    for i in range(3, n):
+        dp[i] = dp[i - 1] + dp[i - 2]
+    return dp[-1]
+
+
+def edit_distance(word1, word2):
+    # https://leetcode.com/problems/edit-distance/discuss/159295/Python-solutions-and-intuition
+    cache = {}
+
+    def recursive(word1, word2):
+        if not word1 and not word2:
+            return 0
+        if not word1 or not word2:
+            return len(word1) or len(word2)
+        if word1[0] == word2[0]:
+            return recursive(word1[1:], word2[1:])
+        if (word1, word2) not in cache:
+            inserted = 1 + recursive(word1, word2[1:])
+            deleted = 1 + recursive(word1[1:], word2)
+            replaced = 1 + recursive(word1[1:], word2[1:])
+            cache[(word1, word2)] = min(inserted, deleted, replaced)
+        return cache[(word1, word2)]
+    return recursive(word1, word2)
+
+
