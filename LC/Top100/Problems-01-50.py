@@ -492,3 +492,81 @@ def edit_distance(word1, word2):
     return recursive(word1, word2)
 
 
+def sort_colors(nums):
+    # https://leetcode.com/problems/sort-colors/discuss/26481/Python-O(n)-1-pass-in-place-solution-with-explanation
+    red, white, blue = 0, 0, len(nums) - 1
+
+    while white <= blue:
+        if nums[white] == 0:
+            nums[white], nums[red] = nums[red], nums[white]
+            white, red = white + 1, red + 1
+        elif nums[white] == 1:
+            white += 1
+        else:
+            nums[white], nums[blue] = nums[blue], nums[white]
+            blue -= 1
+
+
+def minimum_window_substring(s, t):
+    pass
+
+
+def subsets1(nums):
+    n, result = len(nums), []
+
+    def backtrack(sofar, k):
+        result.append(sofar[:])
+        for i in range(k, n):
+            chosen = nums[i]
+            backtrack(sofar + [chosen], i + 1)
+    backtrack(sofar=[], k=0)
+    return result
+
+
+def subsets2(nums):
+    # https://leetcode.com/problems/subsets/discuss/1598122/Python-subsets-vs.-combinations-vs.-permutations-or-Visualized
+    result, stack = [], [(0, [])]
+    while stack:
+        k, sofar = stack.pop()
+        result.append(sofar[:])
+        for i in range(k, len(nums)):
+            chosen = nums[i]
+            stack.append((i + 1, sofar + [chosen]))
+    return result
+
+
+def word_search(board, word):
+    directions, found = [(1, 0), (0, 1), (-1, 0), (0, -1)], [False]
+    m, n, k = len(board), len(board[0]), len(word)
+
+    def dfs(idx, x, y):
+        if found[0]:
+            return
+        if idx == k:
+            found[0] = True
+            return
+        if x < 0 or x >= m or y < 0 or y >= n or board[x][y] != word[idx]:
+            return
+        board[x][y], temp = '#', board[x][y]
+        for dx, dy in directions:
+            dfs(idx + 1, x + dx, y + dy)
+        board[x][y] = temp
+
+    for i in range(m):
+        for j in range(n):
+            if found[0]:
+                return True
+            dfs(0, i, j)
+    return found[0]
+
+
+def largest_rectangle_in_histogram(heights):
+    # https://leetcode.com/problems/largest-rectangle-in-histogram/discuss/995249/Python-increasing-stack-explained
+    stack, result = [], 0
+    for i, height in enumerate(heights + [0]):
+        while stack and height[stack[-1]] >= height:
+            H = heights[stack.pop()]
+            W = i if not stack else i - stack[-1] - 1
+            result = max(result, H * W)
+        stack.append(i)
+    return result
