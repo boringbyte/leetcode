@@ -1,5 +1,5 @@
-import string
-
+import collections
+from functools import lru_cache
 from LC.LCMetaPractice import TreeNode, ListNode, DLLNode
 
 
@@ -52,7 +52,7 @@ def longest_palindromic_substring(s):
     def helper(l, r):
         while l >= 0 and r < n and s[l] == s[r]:
             l, r = l - 1, r + 1
-        return s[l+1: r]
+        return s[l + 1: r]
 
     for i in range(n):
         result = max(helper(i, i), helper(i, i + 1), result, key=len)
@@ -205,6 +205,7 @@ def generate_parenthesis(n):
                 backtrack(sofar + '(', left + 1, right)
             if right < left:
                 backtrack(sofar + ')', left, right + 1)
+
     backtrack('', 0, 0)
     return result
 
@@ -237,5 +238,150 @@ def next_permutation():
     pass
 
 
-def search_in_rotated_sorted_array(nums):
-    pass
+def search_in_rotated_sorted_array(nums, target):
+    if not nums:
+        return -1
+    l, r = 0, len(nums) - 1
+    while l <= r:
+        mid = (l + r) // 2
+        if target == nums[mid]:
+            return mid
+        if nums[l] <= nums[mid]:
+            if nums[l] <= target <= nums[mid]:
+                r = mid - 1
+            else:
+                l = mid + 1
+        else:
+            if nums[mid] <= target <= nums[r]:
+                l = mid + 1
+            else:
+                r = mid - 1
+    return -1
+
+
+def combination_sum(candidates, target):
+    result, n, candidates = [], len(candidates), sorted(candidates)
+
+    def backtrack(sofar, total, k):
+        if total < 0:
+            return
+        if total == 0:
+            result.append(sofar[:])
+            return
+        for i in range(k, n):
+            chosen = candidates[i]
+            backtrack(sofar + [chosen], total - chosen, i)
+
+    backtrack([], target, 0)
+    return result
+
+
+def first_missing_positive(nums):
+    # https://leetcode.com/problems/first-missing-positive/discuss/17080/Python-O(1)-space-O(n)-time-solution-with-explanation
+    # Read dennisch comment under angelsun comment
+    nums.append(0)
+    n = len(nums)
+    for i in range(n):
+        if not 0 <= nums[i] < n:
+            nums[i] = 0
+    for i in range(n):
+        nums[nums[i] % n] += n
+    for i in range(1, n):
+        if nums[i] / n == 0:
+            return i
+    return n
+
+
+def trapping_rain_water(heights):
+    n, result = len(heights), 0
+    max_left_heights, max_right_heights = [0] * n, [0] * n
+    for i in range(1, n):
+        max_left_heights[i] = max(max_right_heights[i - 1], heights[i - 1])
+    for i in range(n - 2, -1, -1):
+        max_right_heights[i] = max(max_right_heights[i + 1], heights[i + 1])
+    for i in range(n):
+        water_level = min(max_left_heights[i], max_right_heights[i])
+        if water_level > heights[i]:
+            result += (water_level - heights[i])
+    # for i in range(1, n):
+    #     # l, r
+    #     print(i, i - 1, n - i - 1, n - i)
+    return result
+
+
+def permutations(nums):
+    # https://leetcode.com/problems/permutations/discuss/993970/Python-4-Approaches-%3A-Visuals-%2B-Time-Complexity-Analysis
+    # https://leetcode.com/problems/subsets/discuss/1598122/Python-subsets-vs.-combinations-vs.-permutations-or-Visualized
+    # pv remembering keyword
+    result, n = [], len(nums)
+    visited = [0] * n
+
+    def backtrack(sofar):
+        if len(sofar) == n:
+            result.append(sofar[:])
+        else:
+            for i in range(n):
+                if visited[i] != 1:
+                    chosen, visited[i] = nums[i], 1
+                    backtrack(sofar + [chosen])
+                    visited[i] = 0
+
+    backtrack(sofar=[])
+    return result
+
+
+def rotate_image(matrix):
+    # https://leetcode.com/problems/rotate-image/discuss/18884/Seven-Short-Solutions-(1-to-7-lines)
+    n = len(matrix)
+    for i in range(n):  # This is Transpose
+        for j in range(i):
+            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+    for row in matrix:  # This is Reverse
+        for j in range(n // 2):
+            row[j], row[~j] = row[~j], row[j]
+
+
+def print_matrix(matrix):
+    for row in matrix:
+        print(row)
+
+
+def group_anagrams1(strs):
+    hashmap = collections.defaultdict(list)
+    for word in strs:
+        key = tuple(sorted(word))
+        hashmap[key].append(word)
+    return hashmap.values()
+
+
+def group_anagrams2(strs):
+    hashmap = collections.defaultdict(list)
+    for word in strs:
+        letter_count_map = [0] * 26
+        for char in word:
+            letter_count_map[ord(char) - ord('a')] += 1
+        hashmap[tuple(letter_count_map)].append(word)
+    return hashmap.values()
+
+
+def maximum_subarray1(nums):
+    # https://leetcode.com/problems/maximum-subarray/discuss/1595195/C%2B%2BPython-7-Simple-Solutions-w-Explanation-or-Brute-Force-%2B-DP-%2B-Kadane-%2B-Divide-and-Conquer
+    n = len(nums)
+
+    @lru_cache
+    def recursive(i, pick):
+        if i >= n:
+            return 0 if pick else float('-inf')
+        return max(nums[i] + recursive(i + 1, True), 0 if pick else recursive(i + 1, False))
+
+    return recursive(0, False)
+
+
+def maximum_subarray2(nums):
+    result, local_result = float('-inf'), 0
+    for num in nums:
+        local_result = max(num, num + local_result)
+        result = max(result, local_result)
+    return result
+
+
