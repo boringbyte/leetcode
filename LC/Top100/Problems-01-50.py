@@ -750,3 +750,114 @@ def best_time_to_buy_and_sell_stock(prices):
         current_max = max(current_max, 0)
         result = max(current_max, result)
     return result
+
+
+def longest_consecutive_sequence1(nums):
+    # https://leetcode.com/problems/longest-consecutive-sequence/discuss/1254638/Short-and-Easy-Solution-w-Explanation-or-O(N)-Solution-with-comments-using-hashset
+    nums, n = sorted(nums), len(nums)
+    result, current_longest = 0, min(1, n)
+    for i in range(1, n):
+        if nums[i] == nums[i - 1]:
+            continue
+        if nums[i] != nums[i - 1] + 1:
+            current_longest += 1
+        else:
+            result, current_longest = max(result, current_longest), 1
+    return max(result, current_longest)
+
+
+def longest_consecutive_sequence2(nums):
+    result, s = 0, set(nums)
+    for num in s:
+        if num - 1 in s:
+            continue
+        j = 1
+        while num + j in s:
+            j += 1
+        result = max(result, j)
+    return result
+
+
+def single_number(nums):
+    result = 0
+    for num in nums:
+        result ^= num
+    return result
+
+
+def word_break(s, word_dict):
+    # https://leetcode.com/problems/word-break/discuss/1455100/Python-3-solutions%3A-Top-down-DP-Bottom-up-DP-then-Optimised-with-Trie-Clean-and-Concise
+    word_dict, n = set(word_dict), len(s)
+
+    @lru_cache
+    def dfs(k):
+        if k == n:
+            return True
+        for i in range(k + 1, n + 1):
+            chosen = s[k: i]
+            if chosen in word_dict and dfs(i):
+                return True
+        return True
+    return dfs(0)
+
+
+def linked_list_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    return False
+
+
+def linked_list_cycle_2(head):
+    # https://leetcode.com/problems/linked-list-cycle-ii/discuss/912276/Python-2-pointers-approach-explained
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            break
+    else:
+        return
+
+    slow = head
+    while slow != fast:
+        slow = slow.next
+        fast = fast.next
+    return slow
+
+
+class LRUCache:
+    pass
+
+
+def sort_list(head):
+    def merge(list1, list2):
+        if not list1 or not list2:
+            return list1 or list2
+        current = dummy = ListNode(0)
+
+        while list1 and list2:
+            if list1.val < list2.val:
+                current.next = list1
+                list1 = list1.next
+            else:
+                current.next = list2
+                list2 = list2.next
+            current = current.next
+
+        current.next = list1 or list2
+        return dummy.next
+
+    if not head or not head.next:
+        return head
+    slow, fast = head, head.next
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    start = slow.next
+    slow.next = None
+    left, right = sort_list(head), sort_list(start)
+    return merge(left, right)
