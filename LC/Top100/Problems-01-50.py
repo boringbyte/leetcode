@@ -570,3 +570,183 @@ def largest_rectangle_in_histogram(heights):
             result = max(result, H * W)
         stack.append(i)
     return result
+
+
+def maximal_rectangle(matrix):
+    pass
+
+
+def binary_tree_inorder_traversal1(root):
+    result = []
+
+    def dfs(node):
+        if node:
+            dfs(node.left)
+            result.append(node.val)
+            dfs(node.right)
+    dfs(root)
+    return result
+
+
+def binary_tree_inorder_traversal2(root):
+    result, stack, current = [], [], root
+    while True:
+        if current:
+            stack.append(current)
+            current = current.left
+        elif stack:
+            current = stack.pop()
+            result.append(current.val)
+            current = current.right
+        else:
+            break
+    return result
+
+
+def unique_binary_search_trees1(n):
+    # https://leetcode.com/problems/unique-binary-search-trees/discuss/1565543/C%2B%2BPython-5-Easy-Solutions-w-Explanation-or-Optimization-from-Brute-Force-to-DP-to-Catalan-O(N)
+
+    @lru_cache
+    def recursive(n):
+        if n <= 1:
+            return 1
+        return sum(recursive(i - 1) * recursive(n - i) for i in range(1, n + 1))
+
+
+def unique_binary_search_trees2(n):
+    dp = [0] * (n + 1)
+    dp[0] = dp[1] = 1
+    for i in range(2, n + 1):
+        for j in range(1, i + 1):
+            dp[i] += dp[j - 1] * dp[i - j]
+    return dp[n]
+
+
+def validate_binary_search_tree(root):
+    def dfs(node, low=float('-inf'), high=float('inf')):
+        if not root:
+            return True
+        if not low < node.val < high:
+            return False
+        return dfs(node.left, low, node.val) and dfs(node.right, node.val, high)
+
+
+def symmetric_tree1(root):
+    if not root:
+        return True
+
+    def dfs(left, right):
+        if left and right:
+            return left.val == right.val and dfs(left.left, right.right) and dfs(left.right, right.left)
+        return left == right
+
+    return dfs(root.left, root.right)
+
+
+def symmetric_tree2(root):
+    # https://leetcode.com/problems/symmetric-tree/discuss/33325/Python-short-recursive-and-iterative-solutions
+    if not root:
+        return True
+    stack = [(root.left, root.right)]
+    while stack:
+        l, r = stack.pop()
+        if not l and not r:
+            continue
+        if not l or not l:
+            return False
+        if l.val != r.val:
+            return False
+        stack.append((l.left, r.right))
+        stack.append((l.right, r.left))
+    return True
+
+
+def symmetric_tree3(root):
+    # https://leetcode.com/problems/symmetric-tree/discuss/33057/Python-iterative-way-using-a-queue
+    if not root:
+        return True
+    queue = collections.deque([(root.left, root.right)])
+    while queue:
+        l, r = queue.popleft()
+        if not l and not r:
+            continue
+        if not l or not r:
+            return False
+        if l.val != r.val:
+            return True
+        queue.append((l.left, r.right))
+        queue.append((l.right, r.left))
+    return True
+
+
+def maximum_depth_of_binary_tree1(root):
+    if not root:
+        return 0
+    l, r = maximum_depth_of_binary_tree1(root.left), maximum_depth_of_binary_tree1(root.right)
+    return max(l, r) + 1
+
+
+def maximum_depth_of_binary_tree2(root):
+    if not root:
+        return 0
+    level, queue = 0, collections.deque([root])
+    if queue:
+        level, size = level + 1, len(queue)
+        for _ in range(size):
+            current = queue.popleft()
+            if current.left:
+                queue.append(current.left)
+            if current.right:
+                queue.append(current.right)
+    return level
+
+
+def construct_binary_tree_from_preorder_and_inorder_traversal1(preorder, inorder):
+    # https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/discuss/34579/Python-short-recursive-solution.
+    if inorder:
+        index = inorder.index(preorder.pop(0))
+        node = TreeNode(inorder[index])
+        node.left = construct_binary_tree_from_preorder_and_inorder_traversal1(preorder, inorder[:index])
+        node.right = construct_binary_tree_from_preorder_and_inorder_traversal1(preorder, inorder[index + 1:])
+        return node
+
+
+def construct_binary_tree_from_preorder_and_inorder_traversal(preorder, inorder):
+    inorder_hashmap = {num: i for i, num in enumerate(inorder)}
+    preorder_iter, n = iter(preorder), len(preorder)
+
+    def recursive(start, end):
+        if start > end:
+            return None
+        node_val = next(preorder_iter)
+        node = TreeNode(node_val)
+        index = inorder_hashmap[node_val]
+        node.left = recursive(start, index - 1)
+        node.right = recursive(index + 1, end)
+        return node
+
+    return recursive(0, n - 1)
+
+
+def flatten_binary_tree_to_linked_list(root):
+    # https://leetcode.com/problems/flatten-binary-tree-to-linked-list/discuss/1208004/Extremely-Intuitive-O(1)-Space-solution-with-Simple-explanation-Python
+    current = root
+    while current:
+        if current.left:
+            p = current.left
+            while p.right:
+                p = p.right
+            p.right = current
+            current.right = current.left
+            current.left = None
+        current = current.right
+
+
+def best_time_to_buy_and_sell_stock(prices):
+    current_max, result, n = 0, 0, len(prices)
+    for i in range(1, n):
+        change_in_price = prices[i] - prices[i - 1]
+        current_max += change_in_price
+        current_max = max(current_max, 0)
+        result = max(current_max, result)
+    return result
