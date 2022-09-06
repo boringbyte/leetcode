@@ -41,7 +41,32 @@ def longest_substring_without_repeating_characters(s):
 
 def median_of_two_sorted_arrays(nums1, nums2):
     # https://leetcode.com/problems/median-of-two-sorted-arrays/discuss/2511/Intuitive-Python-O(log-(m%2Bn))-solution-by-kth-smallest-in-the-two-sorted-arrays-252ms
-    pass
+    n1, n2 = len(nums1), len(nums2)
+
+    def get_kth(nums1, nums2, start1, end1, start2, end2, k):
+        if start1 > end1:
+            return nums2[k - start1]
+        if start2 > end2:
+            return nums1[k - start2]
+        mid1, mid2 = (start1 + end1) // 2, (start2 + end2) // 2
+        mid1_val, mid2_val = nums1[mid1], nums2[mid2]
+        if mid1 + mid2 < k:
+            if mid1_val > mid2_val:
+                return get_kth(nums1, nums2, start1, end1, mid2 + 1, end2, k)
+            else:
+                return get_kth(nums1, nums2, mid1 + 1, end1, start2, end2, k)
+        else:
+            if mid1_val > mid2_val:
+                return get_kth(nums1, nums2, start1, mid1 - 1, start2, end2, k)
+            else:
+                return get_kth(nums1, nums2, start1, end1, start2, mid2 - 1, k)
+
+    if (n1 + n2) % 2 == 1:
+        return get_kth(nums1, nums2, 0, n1 - 1, 0, n2 - 1, (n1 + n2) // 2)
+    else:
+        mid1 = get_kth(nums1, nums2, 0, n1 - 1, 0, n2 - 1, (n1 + n2) // 2)
+        mid2 = get_kth(nums1, nums2, 0, n1 - 1, 0, n2 - 1, (n1 + n2) // 2 - 1)
+        return (mid1 + mid2) / 2
 
 
 def longest_palindromic_substring(s):
@@ -49,10 +74,11 @@ def longest_palindromic_substring(s):
     # in comments
     n, result = len(s), ''
 
+    @lru_cache
     def helper(l, r):
         while l >= 0 and r < n and s[l] == s[r]:
             l, r = l - 1, r + 1
-        return s[l + 1: r]
+        return s[l + 1: r]  # rth index letter is already skipped when slicing. So we just need to skip lth index
 
     for i in range(n):
         result = max(helper(i, i), helper(i, i + 1), result, key=len)
@@ -74,7 +100,7 @@ def container_with_most_water(heights):
     return result
 
 
-def three_sum(nums):
+def three_sum1(nums):
     result, negatives, positives, zeros, neg_set, pos_set = set(), [], [], [], set(), set()
     for num in nums:
         if num > 0:
@@ -108,20 +134,42 @@ def three_sum(nums):
     return list(result)
 
 
+def three_sum2(nums):
+    # comments of https://leetcode.com/problems/3sum/discuss/7392/Python-easy-to-understand-solution-(O(n*n)-time).
+    n, nums, result = len(nums), sorted(nums), []
+    for l in range(n - 2):
+        if l > 0 and nums[l] == nums[l - 1]:
+            continue
+        m, r = l + 1, n - 1
+        while m < r:
+            current_sum = nums[l] + nums[m] + nums[r]
+            if current_sum < 0:
+                m += 1
+            elif current_sum > 0:
+                r -= 1
+            else:
+                result.append([nums[l], nums[m], nums[r]])
+                while m < r and nums[m] == nums[m + 1]:
+                    m += 1
+                while m < r and nums[r] == nums[r - 1]:
+                    r -= 1
+                m, r = m + 1, r - 1
+    return result
+
+
 def letter_combinations_of_a_phone_number(digits):
-    hashmap = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs',
-               '8': 'tuv', '9': 'wxyz'}
+    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
     result, n = [], len(digits)
 
-    def dfs(sofar, start):
-        if start == n:
+    def backtrack(sofar, k):
+        if k == n:
             result.append(sofar)
         else:
-            letters = hashmap[digits[start]]
+            letters = mapping[digits[k]]
             for letter in letters:
-                dfs(sofar + letter, start + 1)
+                backtrack(sofar + letter, k + 1)
 
-    dfs(sofar='', start=0)
+    backtrack(sofar='', k=0)
     return result if digits else []
 
 
@@ -154,12 +202,12 @@ def remove_nth_node_from_end_of_list2(head, n):
 def valid_parentheses(s):
     if len(s) % 2 == 1:
         return False
-    hashmap, stack = {'(': ')', '[': ']', '{': '}'}, []
+    mapping, stack = {'(': ')', '[': ']', '{': '}'}, []
     for char in s:
-        if char in hashmap:
+        if char in mapping:
             stack.append(char)
         else:
-            if stack and hashmap[stack[-1]] == char:
+            if stack and mapping[stack[-1]] == char:
                 stack.pop()
             else:
                 return False
@@ -259,7 +307,7 @@ def search_in_rotated_sorted_array(nums, target):
     return -1
 
 
-def combination_sum(candidates, target):
+def combination_sum1(candidates, target):
     result, n, candidates = [], len(candidates), sorted(candidates)
 
     def backtrack(sofar, total, k):
@@ -271,6 +319,23 @@ def combination_sum(candidates, target):
         for i in range(k, n):
             chosen = candidates[i]
             backtrack(sofar + [chosen], total - chosen, i)
+
+    backtrack([], target, 0)
+    return result
+
+
+def combination_sum2(candidates, target):
+    result, n, candidates = [], len(candidates), sorted(candidates)
+
+    def backtrack(sofar, total, k):
+        if total < 0:
+            return
+        if total == 0:
+            result.append(sofar[:])
+        else:
+            for i in range(k, n):
+                chosen = candidates[i]
+                backtrack(sofar + [chosen], total - chosen, i)
 
     backtrack([], target, 0)
     return result
@@ -355,13 +420,13 @@ def group_anagrams1(strs):
 
 
 def group_anagrams2(strs):
-    hashmap = collections.defaultdict(list)
+    mapping = collections.defaultdict(list)
     for word in strs:
         letter_count_map = [0] * 26
         for char in word:
             letter_count_map[ord(char) - ord('a')] += 1
-        hashmap[tuple(letter_count_map)].append(word)
-    return hashmap.values()
+        mapping[tuple(letter_count_map)].append(word)
+    return mapping.values()
 
 
 def maximum_subarray1(nums):
