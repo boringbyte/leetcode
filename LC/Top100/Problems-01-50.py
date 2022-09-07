@@ -1,6 +1,6 @@
 import collections
 from functools import lru_cache
-from LC.LCMetaPractice import TreeNode, ListNode, DLLNode
+from LC.LCMetaPractice import TreeNode, ListNode
 
 
 def two_sum(nums, target):
@@ -506,6 +506,7 @@ def unique_paths(m, n):
 
 def minimum_path_sum(grid):
     # https://leetcode.com/problems/minimum-path-sum/discuss/1467216/Python-Bottom-up-DP-In-place-Clean-and-Concise
+    # https://leetcode.com/problems/minimum-path-sum/discuss/1271002/Python-Recursive-and-Dynamic-Programming-Solutions
     m, n = len(grid), len(grid[0])
     for i in range(m):
         for j in range(n):
@@ -530,15 +531,18 @@ def climbing_stairs1(n):
 
 
 def climbing_stairs2(n):
+    if n <= 3:
+        return n
     dp = [0] * (n + 1)
     dp[1], dp[2] = 1, 2
-    for i in range(3, n):
+    for i in range(3, n + 1):
         dp[i] = dp[i - 1] + dp[i - 2]
     return dp[-1]
 
 
 def edit_distance(word1, word2):
     # https://leetcode.com/problems/edit-distance/discuss/159295/Python-solutions-and-intuition
+    # https://leetcode.com/problems/edit-distance/discuss/1475220/Python-3-solutions-Top-down-DP-Bottom-up-DP-O(N)-in-Space-Clean-and-Concise
     cache = {}
 
     def recursive(word1, word2):
@@ -604,7 +608,7 @@ def word_search(board, word):
     directions, found = [(1, 0), (0, 1), (-1, 0), (0, -1)], [False]
     m, n, k = len(board), len(board[0]), len(word)
 
-    def dfs(idx, x, y):
+    def backtrack(idx, x, y):
         if found[0]:
             return
         if idx == k:
@@ -614,14 +618,14 @@ def word_search(board, word):
             return
         board[x][y], temp = '#', board[x][y]
         for dx, dy in directions:
-            dfs(idx + 1, x + dx, y + dy)
+            backtrack(idx + 1, x + dx, y + dy)
         board[x][y] = temp
 
     for i in range(m):
         for j in range(n):
             if found[0]:
                 return True
-            dfs(0, i, j)
+            backtrack(0, i, j)
     return found[0]
 
 
@@ -717,9 +721,7 @@ def symmetric_tree2(root):
         l, r = stack.pop()
         if not l and not r:
             continue
-        if not l or not l:
-            return False
-        if l.val != r.val:
+        if not l or not l or l.val != r.val:
             return False
         stack.append((l.left, r.right))
         stack.append((l.right, r.left))
@@ -735,10 +737,8 @@ def symmetric_tree3(root):
         l, r = queue.popleft()
         if not l and not r:
             continue
-        if not l or not r:
+        if not l or not l or l.val != r.val:
             return False
-        if l.val != r.val:
-            return True
         queue.append((l.left, r.right))
         queue.append((l.right, r.left))
     return True
