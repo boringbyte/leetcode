@@ -28,12 +28,13 @@ def add_two_numbers(l1, l2):
 
 
 def longest_substring_without_repeating_characters(s):
+    # https://leetcode.com/problems/longest-substring-without-repeating-characters/discuss/742926/Simple-Explanation-or-Concise-or-Thinking-Process-and-Example
     n, result, seen, left = len(s), 1, {}, 0
-    if n == 0:
-        return 0
+    if n <= 1:
+        return n
     for right, char in enumerate(s):
         if char in seen:
-            left = max(result, seen[char] + 1)
+            left = max(left, seen[char] + 1)
         result = max(result, right - left + 1)
         seen[char] = right
     return result
@@ -85,8 +86,31 @@ def longest_palindromic_substring(s):
     return result
 
 
+def regular_expression_matching_without_star(s, p):
+    if not p:
+        return not s
+    first_match = bool(s) and p[0] in {s[0], '.'}
+    return first_match and regular_expression_matching_without_star(s[1:], p[1:])
+
+
 def regular_expression_matching(s, p):
-    pass
+    ns, np, memo = len(s), len(p), {}
+
+    def recursive(i, j):
+        if (i, j) not in memo:
+            if j == np:
+                result = i == ns
+            else:
+                first_match = i < ns and p[j] in {s[i], '.'}
+                if j + 1 < np and p[j + 1] == '*':
+                    result = recursive(i, j + 2) or first_match and recursive(i + 1, j)
+                else:
+                    result = first_match and recursive(i + 1, j + 1)
+
+            memo[i, j] = result
+        return memo[i, j]
+
+    return recursive(0, 0)
 
 
 def container_with_most_water(heights):
@@ -157,7 +181,7 @@ def three_sum2(nums):
     return result
 
 
-def letter_combinations_of_a_phone_number(digits):
+def letter_combinations_of_a_phone_number1(digits):
     mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
     result, n = [], len(digits)
 
@@ -166,8 +190,25 @@ def letter_combinations_of_a_phone_number(digits):
             result.append(sofar)
         else:
             letters = mapping[digits[k]]
-            for letter in letters:
-                backtrack(sofar + letter, k + 1)
+            for chosen in letters:
+                backtrack(sofar + chosen, k + 1)
+
+    backtrack(sofar='', k=0)
+    return result if digits else []
+
+
+def letter_combinations_of_a_phone_number2(digits):
+    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
+    result, n = [], len(digits)
+
+    def backtrack(sofar, k):
+        if len(sofar) == n:
+            result.append(sofar)
+        else:
+            for i in range(k, n):
+                letters = mapping[digits[i]]
+                for chosen in letters:
+                    backtrack(sofar + chosen, i + 1)
 
     backtrack(sofar='', k=0)
     return result if digits else []
@@ -282,8 +323,23 @@ def merge_k_sorted_lists(lists):
     return merge(l1, l2)
 
 
-def next_permutation():
-    pass
+def next_permutation(nums):
+    # https://leetcode.com/problems/next-permutation/discuss/14054/Python-solution-with-comments.
+    # https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
+    i = j = len(nums) - 1
+    while i > 0 and nums[i - 1] >= nums[i]:
+        i -= 1
+    if i == 0:
+        nums = nums[::-1]
+
+    k = i - 1
+    while nums[k] >= nums[j]:
+        j -= 1
+    nums[k], nums[j] = nums[j], nums[k]
+    l, r = k + 1, len(nums) - 1
+    while l < r:
+        nums[l], nums[r] = nums[r], nums[l]
+        l, r = l + 1, r - 1
 
 
 def search_in_rotated_sorted_array(nums, target):
