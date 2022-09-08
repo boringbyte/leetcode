@@ -79,7 +79,7 @@ def longest_palindromic_substring(s):
     def helper(l, r):
         while l >= 0 and r < n and s[l] == s[r]:
             l, r = l - 1, r + 1
-        return s[l + 1: r]  # rth index letter is already skipped when slicing. So we just need to skip lth index
+        return s[l + 1: r]  # Because after the loop -> s[l] != s[r], we need to take the previous slice -> s[l+1:r]
 
     for i in range(n):
         result = max(helper(i, i), helper(i, i + 1), result, key=len)

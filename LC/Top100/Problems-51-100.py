@@ -155,3 +155,61 @@ def course_schedule(num_courses, prerequisites):
                 queue.append(next_course)
     return n == num_courses
 
+
+class TrieNode:
+    def __init__(self):
+        self.children = collections.defaultdict(TrieNode)
+        self.is_word = False
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for char in word:
+            node = node.children[char]
+        node.is_word = True
+
+    def search(self, word):
+        node = self.root
+        for char in word:
+            if char in node.children:
+                node = node.children[char]
+            else:
+                return False
+        return node.is_word
+
+    def starts_with(self, prefix):
+        node = self.root
+        for char in prefix:
+            if char in node.children:
+                node = node.children[char]
+            else:
+                return False
+        return True
+
+
+def course_schedule_2(num_courses, prerequisites):
+    # https://leetcode.com/problems/course-schedule-ii/discuss/1642354/C%2B%2BPython-Simple-Solutions-w-Explanation-or-Topological-Sort-using-BFS-and-DFS
+    graph = [[] for _ in range(num_courses)]
+    in_degree, result = [0] * num_courses, []
+
+    for current, previous in prerequisites:
+        graph[previous].append(current)
+        in_degree[current] += 1
+
+    queue = collections.deque(course for course in range(num_courses) if in_degree[course] == 0)
+
+    while queue:
+        current = queue.popleft()
+        result.append(current)
+        for next_course in graph[current]:
+            in_degree[next_course] -= 1
+            if in_degree[next_course] == 0:
+                queue.append(next_course)
+
+    return result if len(result) == num_courses else []
+
+
