@@ -340,6 +340,42 @@ def longest_increasing_subsequence(nums):
     pass
 
 
+def subarray_sum_equals_k(nums, k):
+    prefix_sum, prefix_sum_counts, result = 0, {0: 1}, 0
+    for num in nums:
+        prefix_sum = prefix_sum + num
+        diff = prefix_sum - k
+        if diff in prefix_sum_counts:
+            result += prefix_sum_counts[diff]
+        prefix_sum_counts[prefix_sum] = prefix_sum_counts.get(prefix_sum, 0) + 1
+    return result
+
+
+def shortest_unsorted_continuous_subarray(nums):
+    # https://leetcode.com/problems/shortest-unsorted-continuous-subarray/discuss/264474/Python-O(n)-2-Loops-and-O(1)-space
+    # comments
+    n = len(nums)
+    if n <= 1:
+        return 0
+
+    start, end = -1, 0
+    left, right = nums[end], nums[start]
+
+    for i in range(1, n):
+        if left > nums[i]:
+            end = i
+        else:
+            left = nums[i]
+        if right < nums[~i]:
+            start = ~i
+        else:
+            right = nums[~i]
+    if end != 0:
+        return end - (n + start) + 1
+    else:
+        return 0
+
+
 def merge_two_binary_trees1(root1, root2):
     # https://leetcode.com/problems/merge-two-binary-trees/discuss/426243/PythonRecursive-Solution-Beats-100
     if not root1 or not root2:
