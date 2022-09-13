@@ -12,7 +12,7 @@ def two_sum(nums, target):
 
 
 def add_two_numbers(l1, l2):
-    dummy = current = ListNode(0)
+    dummy = current = ListNode()
     carry = 0
     while l1 or l2 or carry:
         if l1:
@@ -73,6 +73,7 @@ def median_of_two_sorted_arrays(nums1, nums2):
 def longest_palindromic_substring(s):
     # https://leetcode.com/problems/longest-palindromic-substring/discuss/2954/Python-easy-to-understand-solution-with-comments-(from-middle-to-two-ends).
     # in comments
+    # Very similar to subset sum problem in chewy.py file
     n, result = len(s), ''
 
     @lru_cache
@@ -340,6 +341,19 @@ def next_permutation(nums):
     while l < r:
         nums[l], nums[r] = nums[r], nums[l]
         l, r = l + 1, r - 1
+
+
+def longest_valid_parenthesis(s):
+    # https://leetcode.com/problems/longest-valid-parentheses/discuss/1139990/Longest-Valid-Parentheses-or-Short-and-Easy-w-Explanation-using-stack
+    result, stack = 0, [-1]
+    for i, char in enumerate(s):
+        if char == ')':
+            stack.pop()
+            if stack:
+                result = max(result, i - stack[-1])
+                continue
+        stack.append(i)
+    return result
 
 
 def search_in_rotated_sorted_array(nums, target):
@@ -698,7 +712,16 @@ def largest_rectangle_in_histogram(heights):
 
 
 def maximal_rectangle(matrix):
-    pass
+    # https://leetcode.com/problems/maximal-rectangle/discuss/1603766/Python-O(mn)-solution-explained
+    if not matrix or not matrix[0]:
+        return 0
+    m, n, result = len(matrix), len(matrix[0]), 0
+    row = [0] * m
+    for i in range(m):
+        for j in range(n):
+            row[j] = 0 if matrix[i][j] == '0' else row[j] + 1
+    result = max(result, largest_rectangle_in_histogram(row))
+    return result
 
 
 def binary_tree_inorder_traversal1(root):
@@ -840,8 +863,8 @@ def construct_binary_tree_from_preorder_and_inorder_traversal(preorder, inorder)
         if start > end:
             return None
         node_val = next(preorder_iter)
-        node = TreeNode(node_val)
         index = inorder_hashmap[node_val]
+        node = TreeNode(node_val)
         node.left = recursive(start, index - 1)
         node.right = recursive(index + 1, end)
         return node
@@ -880,7 +903,7 @@ def longest_consecutive_sequence1(nums):
     for i in range(1, n):
         if nums[i] == nums[i - 1]:
             continue
-        if nums[i] != nums[i - 1] + 1:
+        if nums[i] == nums[i - 1] + 1:
             current_longest += 1
         else:
             result, current_longest = max(result, current_longest), 1
@@ -954,24 +977,25 @@ class LRUCache:
     pass
 
 
+def merge1(list1, list2):
+    if not list1 or not list2:
+        return list1 or list2
+    current = dummy = ListNode(0)
+
+    while list1 and list2:
+        if list1.val < list2.val:
+            current.next = list1
+            list1 = list1.next
+        else:
+            current.next = list2
+            list2 = list2.next
+        current = current.next
+
+    current.next = list1 or list2
+    return dummy.next
+
+
 def sort_list(head):
-    def merge(list1, list2):
-        if not list1 or not list2:
-            return list1 or list2
-        current = dummy = ListNode(0)
-
-        while list1 and list2:
-            if list1.val < list2.val:
-                current.next = list1
-                list1 = list1.next
-            else:
-                current.next = list2
-                list2 = list2.next
-            current = current.next
-
-        current.next = list1 or list2
-        return dummy.next
-
     if not head or not head.next:
         return head
     slow, fast = head, head.next
@@ -981,4 +1005,4 @@ def sort_list(head):
     start = slow.next
     slow.next = None
     left, right = sort_list(head), sort_list(start)
-    return merge(left, right)
+    return merge1(left, right)
