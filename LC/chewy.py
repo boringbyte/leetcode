@@ -14,14 +14,24 @@ def shifting_letters(s, shifts):
 
 
 # https://www.geeksforgeeks.org/distance-nearest-cell-1-binary-matrix/
-# https://www.geeksforgeeks.org/subset-sum-problem-dp-25/
-def is_subset_sum(nums, n, target):
-    if target == 0:
-        return True
-    if n == 0:
-        return False
-    if nums[n - 1] > target:
-        pass
+
+def is_subset_sum(nums, target):
+    # https://www.techiedelight.com/subset-sum-problem/
+    # https://www.geeksforgeeks.org/subset-sum-problem-dp-25/
+    last_idx, cache = len(nums) - 1, {}
+
+    def recursive(i, total):
+        if total == 0:
+            return True
+        if i < 0 or total < 0:
+            return False
+        key = (i, total)
+        if key not in cache:
+            include = recursive(i - 1, total - nums[i])
+            exclude = recursive(i - 1, total)
+            cache[key] = include or exclude
+        return cache[key]
+    return recursive(last_idx, target)
 
 
 def flatten_array(nums):
