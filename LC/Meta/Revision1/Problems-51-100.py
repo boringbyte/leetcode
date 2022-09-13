@@ -630,7 +630,7 @@ def copy_list_with_random_pointer1(head: RandomPointerNode):
 
 class NestedIterator:
     # https://leetcode.com/problems/flatten-nested-list-iterator/discuss/1156268/JS-Python-Java-C%2B%2B-or-Simple-Queue-Solution-w-Explanation
-    def __init(self, nested_list):
+    def __init__(self, nested_list):
         self.data = []
         self.flatten(nested_list)
 

@@ -92,6 +92,7 @@ def count_and_say(n):
 
 
 def maximum_average_subtree(root):
+    # https://leetcode.com/discuss/interview-question/349617
     if not root or not root.children:
         return None
     result = [float('-inf'), root]
@@ -111,7 +112,7 @@ def maximum_average_subtree(root):
         return [current_average, current_count]
 
     dfs(root)
-    return result[0]
+    return result[1]
 
 
 def word_search(board, word):
@@ -119,20 +120,17 @@ def word_search(board, word):
     m, n, k = len(board), len(board[0]), len(word)
     directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
-    def dfs(start, x, y):
+    def dfs(idx, x, y):
         if found[0]:
             return
-        if start == k:
+        if idx == k:
             found[0] = True
             return
-        if x < 0 or x >= m or y < 0 or y >= n:
+        if x < 0 or x >= m or y < 0 or y >= n or board[x][y] != word[idx]:
             return
-        temp = board[x][y]
-        board[x][y] = '#'
-        if temp != word[start]:
-            return
+        board[x][y], temp = '#', board[x][y]
         for dx, dy in directions:
-            dfs(start + 1, x + dx, y + dy)
+            dfs(idx + 1, x + dx, y + dy)
         board[x][y] = temp
 
     for r in range(m):
@@ -141,6 +139,29 @@ def word_search(board, word):
                 return True
             dfs(0, r, c)
     return found[0]
+
+
+def word_search2(board, word):
+    # This is a TLE solution
+    m, n, k = len(board), len(board[0]), len(word)
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+
+    def dfs(idx, x, y):
+        if idx == k:
+            return True
+        if x < 0 or x >= m or y < 0 or y >= n or board[x][y] != word[idx]:
+            return False
+        board[x][y], temp = '#', board[x][y]
+        if any(dfs(idx + 1, x + dx, y + dy) for dx, dy in directions):
+            return True
+        board[x][y] = temp
+        return False
+
+    for r in range(m):
+        for c in range(n):
+            if dfs(0, r, c):
+                return True
+    return False
 
 
 def valid_palindrome_3(s, k):
@@ -164,6 +185,7 @@ def valid_palindrome_3(s, k):
 
 
 def partition_equal_subset_sum(nums):
+    # https://leetcode.com/problems/partition-equal-subset-sum/discuss/1624939/C%2B%2BPython-5-Simple-Solutions-w-Explanation-or-Optimization-from-Brute-Force-to-DP-to-Bitmask
     n, total_sum = len(nums), sum(nums)
 
     @lru_cache
@@ -177,7 +199,8 @@ def partition_equal_subset_sum(nums):
     return total_sum & 1 == 0 and recursive(total_sum // 2)
 
 
-def validate_binary_tree_nodes(n, left_child, right_child):
+def validate_binary_tree_nodes1(n, left_child, right_child):
+    # https://leetcode.com/problems/validate-binary-tree-nodes/discuss/939381/Python%3A-clean-BFS-96-faster-TimeComplexity%3A-O(n)-Space-Complexity%3A-O(n)
     root, child_nodes = 0, set(left_child + right_child)
     for i in range(n):
         if i not in child_nodes:
@@ -194,6 +217,33 @@ def validate_binary_tree_nodes(n, left_child, right_child):
         if right_child[current] != -1:
             queue.append(right_child[current])
     return len(visited) == n
+
+
+def validate_binary_tree_nodes2(n, left_child, right_child):
+    # comment of
+    # https://leetcode.com/problems/validate-binary-tree-nodes/discuss/939381/Python%3A-clean-BFS-96-faster-TimeComplexity%3A-O(n)-Space-Complexity%3A-O(n)
+    in_degree = [0] * n
+    for l, r in zip(left_child, right_child):
+        if l > -1:
+            in_degree[l] += 1
+        if r > -1:
+            in_degree[r] += 1
+        if in_degree[l] > 1 or in_degree[r] > 1:
+            return False
+
+    queue = collections.deque(node for node, degree in enumerate(in_degree) if degree == 0)
+
+    if len(queue) > 1:
+        return False
+
+    while queue:
+        current = queue.popleft()
+        for child in left_child[current], right_child[current]:
+            if child != -1:
+                in_degree[child] -= 1
+                if in_degree[child] == 0:
+                    queue.append(child)
+    return sum(in_degree) == 0
 
 
 class SubTreeInfo:
@@ -221,7 +271,7 @@ def largest_bst_subtree(root):
                              l.size + 1 + r.size, True)
     else:
         result = SubTreeInfo(0, 0, max(l.size, r.size), False)
-    return result
+    return result.size
 
 
 def number_of_connected_components_in_an_undirected_graph(n, edges):
@@ -256,7 +306,7 @@ def odd_even_linked_list(head):
 
     while even and even.next:
         odd.next = even.next
-        odd = odd.next
+        odd = odd.next  # similar to head = head.next
         even.next = odd.next
         even = even.next
     odd.next = even_head
@@ -267,9 +317,9 @@ def flatten_binary_tree_to_linked_list(root):
     # https://leetcode.com/problems/flatten-binary-tree-to-linked-list/discuss/1208004/Extremely-Intuitive-O(1)-Space-solution-with-Simple-explanation-Python
     current = root
     while current:
-        if current.left is not None:
+        if current.left:
             p = current.left
-            while p.right is not None:
+            while p.right:
                 p = p.right
             p.right = current.right
             current.right = current.left

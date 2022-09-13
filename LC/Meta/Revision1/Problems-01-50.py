@@ -158,7 +158,7 @@ def k_closest_points_to_origin4(points, k):
     return points[:k]
 
 
-def product_of_array_except_self(nums):
+def product_of_array_except_self1(nums):
     n = len(nums)
     prefix, suffix = [1] * n, [1] * n
 
@@ -171,18 +171,29 @@ def product_of_array_except_self(nums):
     return [p * f for p, f in zip(prefix, suffix)]
 
 
+def product_of_array_except_self2(nums):
+    n = len(nums)
+    result, p, s = [1] * n, 1, 1
+    for i in range(1, n):
+        p = p * nums[i - 1]
+        result[i] = result[i] * p
+        s = s * nums[n - i]
+        result[n - i - 1] = result[n - i - 1] * s
+    return result
+
+
 def valid_palindrome_2(s):
-    def check_palindrome(s, i, j):
-        while i < j:
-            if s[i] != s[j]:
+    def check_palindrome(l, r):
+        while l < r:
+            if s[l] != s[r]:
                 return False
-            i, j = i + 1, j - 1
+            l, r = l + 1, r - 1
         return True
 
     i, j = 0, len(s) - 1
     while i < j:
         if s[i] != s[j]:
-            return check_palindrome(s, i + 1, j) or check_palindrome(s, i, j - 1)
+            return check_palindrome(i + 1, j) or check_palindrome(i, j - 1)
         i, j = i + 1, j - 1
     return True
 
@@ -195,7 +206,7 @@ def sub_array_sum_equals_k1(nums, k):
     count = collections.Counter({0: 1})
     for acc in cumulative_sum:
         result += count[acc - k]
-        count[acc] += 1
+        count[acc] += 1  # Difference between Counter and normal dict is that default values in Counter dict is 0
     return result
 
 
@@ -243,7 +254,7 @@ def leftmost_column_with_at_least_a_one2(binary_matrix):
             r += 1
         else:
             c -= 1
-    return c + 1 if c + 1 != n else -1
+    return c + 1 if c + 1 != n else -1  # if c + 1 == n means we reached last row, last column, and it's still zero
 
 
 def add_strings(num1, num2):
@@ -281,6 +292,7 @@ def merge_intervals2(intervals):
 
 
 def add_binary(a, b):
+    # https://leetcode.com/problems/add-binary/discuss/1679423/Well-Detailed-Explaination-Java-C%2B%2B-Python-oror-Easy-for-mind-to-Accept-it
     digit_map = {'0': 0, '1': 1}
     i, j, carry, result = len(a) - 1, len(b) - 1, 0, []
     while i >= 0 or j >= 0 or carry:
@@ -293,6 +305,7 @@ def add_binary(a, b):
 
 
 def binary_tree_maximum_path_sum(root):
+    # https://leetcode.com/problems/binary-tree-maximum-path-sum/discuss/603423/Python-Recursion-stack-thinking-process-diagram
     result = [float('-inf')]
 
     def dfs(node):
@@ -406,14 +419,35 @@ def k_th_largest_element_in_an_array(nums, k):
     return nums[k]
 
 
-class SparseVector:
+class SparseVector1:
+    # https://zhenchaogan.gitbook.io/leetcode-solution/leetcode-1570-dot-product-of-two-sparse-vectors
     def __init__(self, nums):
         self.hashmap = {i: val for i, val in enumerate(nums) if val}
 
     def dot_product(self, vec):
         if len(self.hashmap) > len(vec.hashmap):
             self, vec = vec, self
-        return sum(val * vec.hashmap[key] for key, val in self.hashmap.items() for key in vec.hashmap)
+        return sum(val * vec.hashmap[key] for key, val in self.hashmap.items() if key in vec.hashmap)
+
+
+class SparseVector2:
+    def __init__(self, nums):
+        self.linked_list = [[i, val] for i, val in enumerate(nums) if val]
+
+    def dot_product(self, vec):
+        if len(self.linked_list) > len(vec.linked_list):
+            self, vec = vec, self
+        result = i = j = 0
+        n1, n2 = len(self.linked_list), len(vec.linked_list)
+        while i < n1 and j < n2:
+            if self.linked_list[i][0] == vec.linked_list[j][0]:
+                result += self.linked_list[i][1] * vec.linked_list[j][1]
+                i, j = i + 1, j + 1
+            elif self.linked_list[i][0] < vec.linked_list[j][0]:
+                i += 1
+            else:
+                j += 1
+        return result
 
 
 def range_sum_of_binary_search_tree(root, low, high):
@@ -537,7 +571,7 @@ def merge_sorted_array(nums1, nums2, m, n):
             nums1[m + n - 1] = nums1[m - 1]
             m -= 1
         else:
-            nums1[m + n - 1] = nums1[n - 1]
+            nums1[m + n - 1] = nums2[n - 1]
             n -= 1
     if n > 0:
         nums1[:n] = nums2[:n]
@@ -557,7 +591,7 @@ def first_bad_version(n):
     return l
 
 
-def diameter_of_binary_tree(root):
+def diameter_of_binary_tree1(root):
     result = [0]
 
     def dfs(node):
@@ -569,6 +603,21 @@ def diameter_of_binary_tree(root):
 
     dfs(root)
     return result[0]
+
+
+def diameter_of_binary_tree2(root):
+    result, depth, stack = 0, {None: -1}, [(root, 0)]
+    while stack:
+        current, visited = stack.pop()
+        if not current:
+            continue
+        if visited == 0:
+            stack.extend([(current, 1), (current.left, 0), (current.right, 0)])
+        else:
+            l, r = depth[current.left] + 1, depth[current.right] + 1
+            depth[current] = max(l, r)
+            result = max(result, l + r)
+    return result
 
 
 class RandomPickWithWeight:
