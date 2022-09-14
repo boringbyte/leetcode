@@ -434,6 +434,33 @@ def top_k_frequent_elements2(nums, k):
     return result[:k]
 
 
+def decode_string(s):
+    pass
+
+
+def evaluate_division():
+    pass
+
+
+def queue_construction_by_height(people):
+    pass
+
+
+def partition_equal_subset_sum(nums):
+    # https://leetcode.com/problems/partition-equal-subset-sum/discuss/1624939/C%2B%2BPython-5-Simple-Solutions-w-Explanation-or-Optimization-from-Brute-Force-to-DP-to-Bitmask
+    n, total = len(nums), sum(nums)
+
+    @lru_cache
+    def recursive(total, k):
+        if total == 0:
+            return True
+        if k >= n or total < 0:
+            return False
+        return recursive(total - nums[k], k + 1) or recursive(total, k + 1)
+
+    return total & 1 == 0 and recursive(total // 2, 0)
+
+
 def subarray_sum_equals_k(nums, k):
     prefix_sum, prefix_sum_counts, result = 0, {0: 1}, 0
     for num in nums:
