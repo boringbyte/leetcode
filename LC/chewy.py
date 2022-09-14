@@ -2,6 +2,22 @@
 import collections
 
 
+def insert_in_sorted_linked_list(head, node):
+    # https://www.geeksforgeeks.org/given-a-linked-list-which-is-sorted-how-will-you-insert-in-sorted-way/
+    current = node
+    if not head:
+        node.next = None
+    elif current.val >= node.val:
+        node.next = current
+    else:
+        while current and current.val < node.val:
+            current = current.next
+        node.next = current.next
+        current.next = node
+    head = node
+    return head
+
+
 def shifting_letters(s, shifts):
     n, result = len(s), ''
     for i in range(n - 2, -1, -1):
@@ -13,7 +29,29 @@ def shifting_letters(s, shifts):
     return result
 
 
-# https://www.geeksforgeeks.org/distance-nearest-cell-1-binary-matrix/
+def distance_nearest_cell_1_binary_matrix(matrix):
+    # https://www.geeksforgeeks.org/distance-nearest-cell-1-binary-matrix/
+    # https://leetcode.com/problems/01-matrix/solution/
+    m, n, directions = len(matrix), len(matrix[0]), [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    queue = collections.deque()
+
+    for i in range(m):
+        for j in range(n):
+            if matrix[i][j] == 1:
+                queue.append((i, j))
+            else:
+                matrix[i][j] = -1
+
+    while queue:
+        x, y = queue.popleft()
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if nx < 0 or nx == m or ny < 0 or ny == n or matrix[nx][ny] != -1:
+                continue
+            matrix[nx][ny] = matrix[x][y] + 1
+            queue.append((nx, ny))
+    return matrix
+
 
 def is_subset_sum(nums, target):
     # https://www.techiedelight.com/subset-sum-problem/
