@@ -19,6 +19,7 @@ def insert_in_sorted_linked_list(head, node):
 
 
 def shifting_letters(s, shifts):
+    # https://leetcode.com/problems/shifting-letters/discuss/?currentPage=1&orderBy=most_votes&query=
     n, result = len(s), ''
     for i in range(n - 2, -1, -1):
         shifts[i] = (shifts[i] + shifts[i + 1]) % 26
