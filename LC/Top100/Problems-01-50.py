@@ -190,8 +190,8 @@ def letter_combinations_of_a_phone_number1(digits):
         if k == n:
             result.append(sofar)
         else:
-            letters = mapping[digits[k]]
-            for chosen in letters:
+            chosens = mapping[digits[k]]
+            for chosen in chosens:
                 backtrack(sofar + chosen, k + 1)
 
     backtrack(sofar='', k=0)
@@ -207,8 +207,8 @@ def letter_combinations_of_a_phone_number2(digits):
             result.append(sofar)
         else:
             for i in range(k, n):
-                letters = mapping[digits[i]]
-                for chosen in letters:
+                chosens = mapping[digits[i]]
+                for chosen in chosens:
                     backtrack(sofar + chosen, i + 1)
 
     backtrack(sofar='', k=0)
@@ -675,27 +675,28 @@ def subsets2(nums):
 
 
 def word_search(board, word):
+    # This is TLE solution
     directions, found = [(1, 0), (0, 1), (-1, 0), (0, -1)], [False]
-    m, n, k = len(board), len(board[0]), len(word)
+    m, n, p = len(board), len(board[0]), len(word)
 
-    def backtrack(idx, x, y):
+    def backtrack(x, y, k):
         if found[0]:
             return
-        if idx == k:
+        if k == p:
             found[0] = True
             return
-        if x < 0 or x >= m or y < 0 or y >= n or board[x][y] != word[idx]:
+        if x < 0 or x >= m or y < 0 or y >= n or board[x][y] != word[k]:
             return
         board[x][y], temp = '#', board[x][y]
         for dx, dy in directions:
-            backtrack(idx + 1, x + dx, y + dy)
+            backtrack(x + dx, y + dy, k + 1)
         board[x][y] = temp
 
     for i in range(m):
         for j in range(n):
             if found[0]:
                 return True
-            backtrack(0, i, j)
+            backtrack(i, j, 0)
     return found[0]
 
 

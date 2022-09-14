@@ -340,6 +340,100 @@ def longest_increasing_subsequence(nums):
     pass
 
 
+def remove_invalid_parentheses(s):
+    pass
+
+
+def best_time_to_buy_and_sell_stock_with_cooldown(prices):
+    # https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/discuss/75924/Most-consistent-ways-of-dealing-with-the-series-of-stock-problems
+    pass
+
+
+def burst_balloons(nums):
+    pass
+
+
+def coin_change1(coins, amount):
+    # https://leetcode.com/problems/coin-change/discuss/1475250/Python-4-solutions%3A-Top-down-DP-Bottom-up-DP-Space-O(amount)-Clean-and-Concise
+    n = len(coins)
+
+    @lru_cache
+    def dfs(total):
+        if total == 0:
+            return 0
+        ans = float('inf')
+        for coin in coins:
+            if total >= coin:
+                ans = min(coin, dfs(total - coin) + 1)
+        return ans
+    result = dfs(amount)
+    return result if result != float('inf') else -1
+
+
+def coin_change2(coins, amount):
+    n, coins = len(coins), sorted(coins)
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0
+
+    for amt in range(1, amount + 1):
+        for coin in coins:
+            if amt >= coin:
+                dp[amt] = min(dp[amt], dp[amt - coin] + 1)
+            else:
+                break
+    return dp[amount] if dp[amount] != float('inf') else -1
+
+
+def odd_even_linked_list(head):
+    if not head and not head.next:
+        return head
+    odd = even = even_head = head
+
+    while even and even.next:
+        odd.next = even.next
+        odd = odd.next
+        even.next = odd.next
+        even = even.next
+    odd.next = even_head
+    return head
+
+
+def house_robber_3(root):
+    pass
+
+
+def counting_bits(n):
+    # https://leetcode.com/problems/counting-bits/discuss/656849/Python-Simple-Solution-with-Clear-Explanation
+    counter = [0]
+    for i in range(1, n + 1):
+        counter.append(counter[i // 2] + i % 2)
+    return counter
+
+
+def top_k_frequent_elements1(nums, k):
+    counter_dict, heap, result = collections.Counter(nums), [], []
+    for val, priority in counter_dict.items():
+        heapq.heappush(heap, (-priority, val))
+
+    for _ in range(k):
+        _, val = heapq.heappop(heap)
+        result.append(val)
+    return result
+
+
+def top_k_frequent_elements2(nums, k):
+    counter_dict, freq_dict = collections.Counter(nums), collections.defaultdict(list)
+    for key, val in counter_dict.items():
+        freq_dict[key].append(val)
+
+    result = []
+    for times in reversed(range(len(nums) + 1)):
+        result.extend(freq_dict[times])
+        if len(result) >= k:
+            return result[:k]
+    return result[:k]
+
+
 def subarray_sum_equals_k(nums, k):
     prefix_sum, prefix_sum_counts, result = 0, {0: 1}, 0
     for num in nums:
@@ -441,13 +535,13 @@ def palindromic_substrings(s):
     # https://leetcode.com/problems/palindromic-substrings/discuss/105687/Python-Straightforward-with-Explanation-(Bonus-O(N)-solution)
     n, result = len(s), [0]
 
-    def count_palindrome(s, l, r):
+    def count_palindrome(l, r):
         while l >= 0 and r < n and s[l] == s[r]:
             result[0], l, r = result[0] + 1, l - 1, r + 1
 
     for i in range(n):
-        count_palindrome(s, i, i)
-        count_palindrome(s, i, i + 1)
+        count_palindrome(i, i)
+        count_palindrome(i, i + 1)
 
     return result[0]
 
