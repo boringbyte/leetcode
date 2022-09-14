@@ -139,3 +139,17 @@ def group_count_anagrams(words, sentences):
             if key in word_map:
                 result[i] *= word_map[key]
     return result
+
+
+def minimum_deletions_to_make_character_frequencies_unique(s):
+    # https://leetcode.com/problems/minimum-deletions-to-make-character-frequencies-unique/
+    # https://leetcode.com/problems/minimum-deletions-to-make-character-frequencies-unique/discuss/928137/Python-Best-Simple-Solution
+    counter_dict = collections.Counter(s)
+    counter_set, result = set(), 0
+
+    for key, val in counter_dict.items():
+        while key > 0 and key not in counter_set:
+            key -= 1
+            result += 1
+        counter_set.add(key)
+    return result
