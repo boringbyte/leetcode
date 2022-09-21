@@ -14,6 +14,8 @@ class GraphNode:
 
 
 def verify_alien_dictionary(words, order):
+    # Time Complexity: O(N * M) where N is number of words and M is avg number of characters in each word
+    # Space Complexity: O(1)
     order_map = {char: i for i, char in enumerate(order)}
 
     def check_order(word1, word2):
@@ -26,6 +28,8 @@ def verify_alien_dictionary(words, order):
 
 
 def minimum_remove_to_make_valid_parentheses1(s):
+    # Time Complexity: O(N)
+    # Space Complexity: O(N)
     in_valid, stack = set(), []
     for i, char in stack:
         if char == '(':
@@ -41,6 +45,8 @@ def minimum_remove_to_make_valid_parentheses1(s):
 
 
 def minimum_remove_to_make_valid_parentheses2(s):
+    # Time Complexity: O(N)
+    # Space Complexity: O(N)
     s, stack = list(s), []
     for i, char in enumerate(s):
         if char == '(':
@@ -56,7 +62,8 @@ def minimum_remove_to_make_valid_parentheses2(s):
 
 
 def k_closest_points_to_origin1(points, k):
-    # O(nlogn)
+    # Time Complexity: O(NlogN)
+    # Space Complexity:
     return sorted(points, key=lambda x, y: x * x + y * y)[:k]
 
 
@@ -179,6 +186,17 @@ def product_of_array_except_self2(nums):
         result[i] = result[i] * p
         s = s * nums[n - i]
         result[n - i - 1] = result[n - i - 1] * s
+    return result
+
+
+def product_of_array_except_self3(nums):
+    n = len(nums)
+    result, p, s = [1] * n, 1, 1
+    for i in range(1, n):
+        p = p * nums[i - 1]
+        result[i] = result[i] * p
+        s = s * nums[~i + 1]
+        result[~i] = result[~i] * s
     return result
 
 
@@ -606,6 +624,7 @@ def diameter_of_binary_tree1(root):
 
 
 def diameter_of_binary_tree2(root):
+    # https://leetcode.com/problems/diameter-of-binary-tree/discuss/133736/iterative-and-recursive-python-solutions
     result, depth, stack = 0, {None: -1}, [(root, 0)]
     while stack:
         current, visited = stack.pop()
@@ -633,11 +652,11 @@ class RandomPickWithWeight:
         #     if r <= self.w[i]:
         #         return i
 
-        N = random.uniform(0, 1)  # Similar to first bad version
+        k = random.uniform(0, 1)  # Similar to first bad version
         l, r = 0, len(self.w)
         while l < r:
             mid = l + (r - l) // 2
-            if N <= self.w[mid]:
+            if k <= self.w[mid]:
                 r = mid
             else:
                 l = mid + 1
@@ -728,6 +747,7 @@ class Codec:
 
 
 class BinarySearchTreeIterator:
+    # https://leetcode.com/problems/binary-search-tree-iterator/discuss/965584/Python-Stack-Clean-and-Concise-Time%3A-O(1)-space%3A-O(H)
     def __init__(self, root):
         self.stack = []
         self.push_left(root)

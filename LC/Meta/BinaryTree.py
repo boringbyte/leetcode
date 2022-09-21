@@ -15,8 +15,9 @@ def binary_tree_maximum_path_sum(root):
         if node is None:
             return 0
         l, r = dfs(node.left), dfs(node.right)
-        result[0] = max(result[0], l+r+node.val)
-        return max(0, l+node.val, r+node.val)
+        result[0] = max(result[0], l + r + node.val)
+        return max(0, l + node.val, r + node.val)
+
     dfs(root)
     return result[0]
 
@@ -32,6 +33,7 @@ def range_sum_binary_search_tree(root, low, high):
                 dfs(node.left)
             if high > node.val:
                 dfs(node.right)
+
     dfs(root)
     return result[0]
 
@@ -62,8 +64,9 @@ def binary_tree_right_side_view2(root):
             return
         if level not in visited_level:
             result.append(node.val)
-        dfs(node.right, level+1)
-        dfs(node.left, level+1)
+        dfs(node.right, level + 1)
+        dfs(node.left, level + 1)
+
     dfs(root, 0)
     return result
 
@@ -75,8 +78,9 @@ def diameter_of_binary_tree(root):
         if not node:
             return 0
         l, r = dfs(node.left), dfs(node.right)
-        result[0] = max(result[0], l+r)
+        result[0] = max(result[0], l + r)
         return max(l, r) + 1
+
     dfs(root)
     return result[0]
 
@@ -124,6 +128,7 @@ class Codec:
                 values.append(str(node.val))
                 dfs(node.left)
                 dfs(node.right)
+
         dfs(root)
         return ' '.join(values)
 
@@ -141,6 +146,7 @@ class Codec:
             node.left = dfs()
             node.right = dfs()
             return node
+
         return dfs()
 
 
@@ -190,7 +196,7 @@ def all_nodes_distance_k_binary_tree2(root, target, k):
             result.append(current.val)
         elif distance < k:
             for child in graph[current]:
-                queue.append((child, distance+1))
+                queue.append((child, distance + 1))
     return result
 
 
@@ -210,8 +216,8 @@ def balance_a_binary_search_tree(root):
             return None
         m = (l + r) // 2
         node = TreeNode(values[m])
-        node.left = build_binary_search_tree(l, m-1)
-        node.right = build_binary_search_tree(m+1, r)
+        node.left = build_binary_search_tree(l, m - 1)
+        node.right = build_binary_search_tree(m + 1, r)
         return node
 
-    return build_binary_search_tree(0, len(values)-1)
+    return build_binary_search_tree(0, len(values) - 1)
