@@ -70,8 +70,8 @@ def k_closest_points_to_origin1(points, k):
 def k_closest_points_to_origin2(points, k):
     # O(nlogk) --> n for loop and logk for push and pop
     # We want to maintain max heap, that's why we use -ve distance
-    def euclidean(x, y):
-        return x * x + y * y
+    def euclidean(p, q):
+        return p * p + q * q
 
     heap = []
     for i, (x, y) in enumerate(points):
@@ -95,7 +95,7 @@ def k_closest_points_to_origin3(points, k):
         5. Now update right to pivot_index - 1 if pivot or else.
 
     Partition logic
-        1. Find the pivot index between left and right mid point or some random point
+        1. Find the pivot index between left and right mid-points or some random point between left and right inclusive
         2. Set i and pivot_distance to left and euclidean in this instance
         3. Swap right and pivot index with each other
         4. Loop from left to right + 1
@@ -322,7 +322,7 @@ def add_binary(a, b):
     return ''.join(result[::-1])
 
 
-def binary_tree_maximum_path_sum(root):
+def binary_tree_maximum_path_sum1(root):
     # https://leetcode.com/problems/binary-tree-maximum-path-sum/discuss/603423/Python-Recursion-stack-thinking-process-diagram
     result = [float('-inf')]
 
@@ -335,6 +335,42 @@ def binary_tree_maximum_path_sum(root):
 
     dfs(root)
     return result[0]
+
+
+def binary_tree_maximum_path_sum2(root):
+    # https://leetcode.com/problems/binary-tree-maximum-path-sum/discuss/554458/Python-iterative-postorder-O(N)-time-O(log(N))-space
+    result, stack = float('-inf'), [(root, False)]
+    while stack:
+        current, visited = stack.pop()
+        if current:
+            l = current.left.val if current.left else float('-inf')
+            r = current.right.val if current.right else float('-inf')
+            left_path, right_path = max(l, 0), max(r, 0)
+            result = max(result, current.val + left_path + right_path)
+            current.val += max(left_path, right_path)
+        else:
+            stack.extend([(current, True), (current.right, False), (current.left, False)])
+    return result
+
+
+def binary_tree_maximum_path_sum3(root):
+    # https://leetcode.com/problems/binary-tree-maximum-path-sum/discuss/278525/Python-iterative-solution
+    result, current = float('-inf'), root
+    stack, last, d = [], None, collections.defaultdict(int)
+    while root or stack:
+        while root:
+            stack.append(root)
+            root = root.left
+        current = stack[-1]
+        if current.right and last != current.right:
+            root = current.right
+        else:
+            # Consume the node
+            current = stack.pop()
+            last = current
+            d[current] = max(d[current.left] + current.val, d[current.right] + current.val, 0)
+            result = max(result, d[current.left] + d[current.right] + current.val)
+    return result
 
 
 def valid_palindrome1(s):
