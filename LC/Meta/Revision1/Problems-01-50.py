@@ -990,7 +990,22 @@ def power2(x, n):
 
 
 def next_permutation(nums):
-    pass
+    # https://leetcode.com/problems/next-permutation/discuss/14054/Python-solution-with-comments.
+    # https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
+    i = j = len(nums) - 1
+    while i > 0 and nums[i - 1] >= nums[i]:
+        i -= 1
+    if i == 0:
+        nums = nums[::-1]
+
+    k = i - 1
+    while nums[k] >= nums[j]:
+        j -= 1
+    nums[k], nums[j] = nums[j], nums[k]
+    l, r = k + 1, len(nums) - 1
+    while l < r:
+        nums[l], nums[r] = nums[r], nums[l]
+        l, r = l + 1, r - 1
 
 
 class LRUCache1:
@@ -1143,6 +1158,7 @@ def accounts_merge_dfs(accounts):
 
 
 def accounts_merge_dfs2(accounts):
+    # https://leetcode.com/problems/accounts-merge/discuss/1601960/C%2B%2BPython-Simple-Solution-w-Images-and-Explanation-or-Building-Graph-and-DFS
     graph, visited, result = collections.defaultdict(list), set(), []
     for account in accounts:
         for i in range(2, len(account)):
@@ -1150,20 +1166,20 @@ def accounts_merge_dfs2(accounts):
             graph[account[i - 1]].append(account[i])
 
     def dfs(email):
-        visited.add(email)
         emails = [email]
         for edge in graph[email]:
             if edge not in visited:
+                visited.add(email)
                 emails.extend(dfs(edge))
         return emails
 
     for account in accounts:
         if account[1] not in visited:
-            result.append([account[0] + sorted(dfs(account[1]))])
+            result.append([account[0]] + sorted(dfs(account[1])))
     return result
 
 
-def remove_invalid_parenthesis(s):
+def remove_invalid_parenthesis1(s):
     # https://leetcode.com/problems/remove-invalid-parentheses/discuss/1639879/python-backtracking-easily-derived-from-combination-backtracking-template
     l, r = 0, 0
     for char in s:
@@ -1197,12 +1213,51 @@ def remove_invalid_parenthesis(s):
             if r > 0 and s[j] == ')':
                 sofar[j] = ''
                 dfs(sofar, j + 1, l, r - 1)
-                sofar[j] = s[i]
+                sofar[j] = s[j]
             elif l > 0 and s[j] == '(':
                 sofar[j] = ''
                 dfs(sofar, j + 1, l - 1, r)
-                sofar[j] = s[i]
+                sofar[j] = s[j]
     n, result = len(s), []
+    dfs(list(s), 0, l, r)
+    return result
+
+
+def remove_invalid_parenthesis2(s):
+    # https://leetcode.com/problems/remove-invalid-parentheses/discuss/1639879/python-backtracking-easily-derived-from-combination-backtracking-template
+    def calculate_invalid(seq):
+        left, right = 0, 0
+        for char in seq:
+            left += (char == '(')
+            if left == 0:
+                right += (char == ')')
+            else:
+                left -= (char == ')')
+        return left, right
+
+    def is_valid(seq):
+        left, right = calculate_invalid(seq)
+        return left == right == 0
+
+    def dfs(sofar, k, l, r):
+        current = ''.join(sofar)
+        if l == 0 and r == 0 and is_valid(current):
+            result.append(current)
+        else:
+            for i in range(k, n):
+                if s[i] not in {'(', ')'} or (i != k and s[i] == s[i - 1]):
+                    continue
+                if l > 0 and s[i] == '(':
+                    sofar[i] = ''
+                    dfs(sofar, i + 1, l - 1, r)
+                    sofar[i] = s[i]
+                elif r > 0 and s[i] == ')':
+                    sofar[i] = ''
+                    dfs(sofar, i + 1, l, r - 1)
+                    sofar[i] = s[i]
+
+    n, result = len(s), []
+    l, r = calculate_invalid(s)
     dfs(list(s), 0, l, r)
     return result
 
@@ -1284,6 +1339,7 @@ def squares_of_a_sorted_array(nums):
 
 
 def clone_graph(node):
+    # https://leetcode.com/problems/clone-graph/discuss/1792858/Python3-ITERATIVE-BFS-(beats-98)-'less()greater''-Explained
     if not node:
         return node
     queue = collections.deque([node])
@@ -1292,12 +1348,9 @@ def clone_graph(node):
         current_node = queue.popleft()
         for neighbor in current_node.neighbors:
             if neighbor not in visited:
-                copy_node = GraphNode(neighbor.val, [])
-                visited[neighbor] = copy_node
-                visited[current_node].neighbors.append(copy_node)
+                visited[neighbor] = GraphNode(neighbor.val, [])
                 queue.append(neighbor)
-            else:
-                visited[current_node].neighbors.append(visited[neighbor])
+            visited[current_node].neighbors.append(visited[neighbor])
     return visited[node]
 
 
@@ -1323,6 +1376,7 @@ def k_th_missing_positive_number2(arr, k):
 
 
 def exclusive_time_of_functions(n, logs):
+    # https://leetcode.com/problems/exclusive-time-of-functions/discuss/863039/Python-3-or-Clean-Simple-Stack-or-Explanation
     result, stack, prev_time = [0] * n, [], 0
     for log in logs:
         func, status, ti = log.split(':')
@@ -1392,14 +1446,15 @@ def word_break_2(s, word_dict):
     # This solution is in the comments
     result, n, word_dict = [], len(s), set(word_dict)
 
-    def backtrack(k, sofar):
+    def backtrack(sofar, k):
         if k == n:
             result.append(' '.join(sofar))
         for i in range(k, n):
             chosen = s[k: i + 1]
             if chosen in word_dict:
-                backtrack(i + 1, sofar + [chosen])
-    backtrack(0, [])
+                backtrack(sofar + [chosen], i + 1)
+
+    backtrack([], 0)
     return result
 
 
