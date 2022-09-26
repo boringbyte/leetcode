@@ -9,8 +9,9 @@ def closest_binary_search_tree_value(root, target):
     # https://shareablecode.com/snippets/closest-binary-search-tree-value-python-solution-leetcode-8wJf-DVqr
     difference = result = float('inf')
     while root:
-        if abs(root.val - target) < difference:
-            difference = abs(root.val - target)
+        new_difference = abs(root.val - target)
+        if new_difference < difference:
+            difference = new_difference
             result = root.val
         if root.val == target:
             break
@@ -22,8 +23,8 @@ def closest_binary_search_tree_value(root, target):
 
 
 def remove_linked_list_elements(head, target):
-    dummy = ListNode(-1)
-    dummy.next, prev = head, dummy
+    dummy = prev = ListNode(-1)
+    prev.next = head
     while head:
         if head.val != target:
             prev = head
@@ -310,7 +311,7 @@ def longest_substring_with_at_most_k_distinct_characters(s, k):
     return result
 
 
-def combination_sum(candidates, target):
+def combination_sum1(candidates, target):
     def backtrack(current, sofar, k):
         if current == 0:
             result.append(sofar[:])
@@ -322,6 +323,23 @@ def combination_sum(candidates, target):
 
     result, n = [], len(candidates)
     backtrack(target, [], 0)
+    return result
+
+
+def combination_sum2(candidates, target):
+    result, n = [], len(candidates)
+
+    def backtrack(sofar, total, k):
+        if total < 0:
+            return
+        if total == 0:
+            result.append(sofar[:])
+        else:
+            for i in range(k, n):
+                chosen = candidates[i]
+                backtrack(sofar + [chosen], total - chosen, i)
+
+    backtrack([], target, 0)
     return result
 
 
@@ -434,6 +452,7 @@ def max_area(grid):
 
 class RandomPickIndex:
     # https://leetcode.com/problems/random-pick-index/discuss/88153/Python-reservoir-sampling-solution.
+    # This is reservoir sampling problem
     def __init__(self, nums):
         self.nums = nums
 
@@ -475,6 +494,7 @@ def palindrome_permutation(s):
 
 
 def minimum_add_to_make_parentheses_valid1(s):
+    # Check calculate_invalid function in 01-50 problems list as well
     left, right = 0, 0
     for char in s:
         if char == '(':
@@ -549,15 +569,20 @@ class RandomizedSet:
 
 
 def multiply_strings(num1, num2):
+    # https://leetcode.com/problems/multiply-strings/discuss/17605/Easiest-JAVA-Solution-with-Graph-Explanation
+    def string_to_digit(d):
+        return ord(d) - ord('0')
+
     m, n = len(num1), len(num2)
     result = [0] * (m + n)
     for i in range(m - 1, -1, -1):
         for j in range(n - 1, -1, -1):
-            value = (ord(num1[i]) - ord('0')) * (ord(num2[j]) - ord('0'))
             p1, p2 = i + j, i + j + 1
+            value = string_to_digit(num1[i]) * string_to_digit(num2[j])
             total = value + result[p2]
-            result[p1] += total // 10
-            result[p2] = total % 10
+            carry, digit = divmod(total, 10)
+            result[p1] = result[p1] + carry
+            result[p2] = digit
     final_result = []
     for value in result:
         if value == 0 and len(final_result) == 0:
@@ -661,6 +686,7 @@ def find_peak_element(nums):
 
 
 def basic_calculator_2(s):
+    # https://leetcode.com/problems/basic-calculator-ii/discuss/658480/Python-Basic-Calculator-I-II-III-easy-solution-detailed-explanation
     def update(op, value):
         if op == '+': stack.append(value)
         if op == '-': stack.append(-value)
@@ -702,7 +728,8 @@ def add_two_numbers(l1, l2):
     return dummy.next
 
 
-def is_graph_bipartite(graph):
+def is_graph_bipartite1(graph):
+    # https://leetcode.com/problems/is-graph-bipartite/discuss/1065041/Python-Odd-loop-detection-explained
     def dfs(start):
         if loop[0]:
             return
@@ -722,6 +749,26 @@ def is_graph_bipartite(graph):
         if distance[i] == -1:
             distance[i] = 0
             dfs(i)
+    return True
+
+
+def is_bipartite2(graph):
+    # https://leetcode.com/problems/is-graph-bipartite/discuss/119514/Python-3-BFS-DFS-solutions
+    n, colors = len(graph), {}
+
+    def dfs(i, color):
+        if i in colors:
+            return colors[i] == color
+        colors[i] = color
+        for neighbor in graph[i]:
+            if not dfs(neighbor, 1 - color):
+                return False
+        return True
+
+    for i in range(n):
+        if i not in colors:
+            if not dfs(i, 0):
+                return False
     return True
 
 
@@ -749,6 +796,7 @@ def three_sum_closest(nums, target):
 
 
 def maximum_swap(num):
+    # https://leetcode.com/problems/maximum-swap/discuss/846837/Python-3-or-Greedy-Math-or-Explanations
     s = list(str(num))
     n = len(s)
     for i in range(n - 1):
@@ -829,6 +877,7 @@ def max_consecutive_ones_3(nums, k):
 
 
 def remove_all_adjacent_duplicates_in_string_2(s, k):
+    # https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/discuss/392939/PythonC%2B%2BJava-Stack-Based-Solution-Clean-and-Concise
     stack = []
     for char in s:
         if stack and stack[-1][0] == char:
@@ -841,6 +890,7 @@ def remove_all_adjacent_duplicates_in_string_2(s, k):
 
 
 class MedianFinder:
+    # https://leetcode.com/problems/find-median-from-data-stream/discuss/1330646/C%2B%2BJavaPython-MinHeap-MaxHeap-Solution-Picture-explain-Clean-and-Concise
     def __init__(self):
         self.min_heap, self.max_heap = [], []
 
@@ -929,7 +979,7 @@ def daily_temperatures(temperatures):
 
 
 def valid_parentheses(s):
-    if len(s) % 2 == 0:
+    if len(s) % 2 == 1:
         return False
     hashmap, stack = {'(': ')', '[': ']', '{': '}'}, []
     for char in s:

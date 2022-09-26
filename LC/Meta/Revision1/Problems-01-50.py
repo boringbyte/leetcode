@@ -4,13 +4,7 @@ import string
 import collections
 from queue import PriorityQueue
 from functools import lru_cache
-from LC.LCMetaPractice import TreeNode, ListNode, DLLNode
-
-
-class GraphNode:
-    def __init__(self, val=0, neighbors=None):
-        self.val = val
-        self.neighbors = neighbors if neighbors is not None else []
+from LC.LCMetaPractice import TreeNode, ListNode, DLLNode, GraphNode
 
 
 def verify_alien_dictionary(words, order):
@@ -156,7 +150,7 @@ def k_closest_points_to_origin4(points, k):
             pivot_index = partition(left, right, pivot_index)
             if k == pivot_index:
                 return
-            if k < pivot_index:
+            elif k < pivot_index:
                 quick_select(left, pivot_index - 1)
             else:
                 quick_select(pivot_index + 1, right)
@@ -339,17 +333,21 @@ def binary_tree_maximum_path_sum1(root):
 
 def binary_tree_maximum_path_sum2(root):
     # https://leetcode.com/problems/binary-tree-maximum-path-sum/discuss/554458/Python-iterative-postorder-O(N)-time-O(log(N))-space
+    # Because of this line in question -
+    # "Given the root of a binary tree, return the maximum path sum of any non-empty path.",
+    # we return float('-inf') if there are no nodes to return, so that we can at least return -ve path in case
     result, stack = float('-inf'), [(root, False)]
     while stack:
         current, visited = stack.pop()
         if current:
-            l = current.left.val if current.left else float('-inf')
-            r = current.right.val if current.right else float('-inf')
-            left_path, right_path = max(l, 0), max(r, 0)
-            result = max(result, current.val + left_path + right_path)
-            current.val += max(left_path, right_path)
-        else:
-            stack.extend([(current, True), (current.right, False), (current.left, False)])
+            if visited:
+                l = current.left.val if current.left else float('-inf')
+                r = current.right.val if current.right else float('-inf')
+                left_path, right_path = max(l, 0), max(r, 0)
+                result = max(result, current.val + left_path + right_path)
+                current.val += max(left_path, right_path)
+            else:
+                stack.extend([(current, True), (current.right, False), (current.left, False)])
     return result
 
 
