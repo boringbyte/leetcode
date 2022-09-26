@@ -6,6 +6,7 @@ from LC.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
 
 
 def closest_binary_search_tree_value(root, target):
+    # https://shareablecode.com/snippets/closest-binary-search-tree-value-python-solution-leetcode-8wJf-DVqr
     difference = result = float('inf')
     while root:
         if abs(root.val - target) < difference:

@@ -615,7 +615,7 @@ def trapping_rain_water2(heights):
             l += 1
         else:
             result += (max_right - heights[r])
-            r += 1
+            r -= 1
     return result
 
 
@@ -814,7 +814,7 @@ def alien_dictionary(words):
                     graph[char1].add(char2)
                     in_degree[char2] += 1
                 break
-        else:
+        else:  # Check that second word isn't a prefix of first word.
             if len(word2) < len(word1):
                 return ''
 
@@ -853,11 +853,11 @@ def word_break2(s, word_dict):
     queue, visited, n, word_dict = collections.deque([0]), set(), len(s), set(word_dict)
     visited.add(0)
     while len(queue) > 0:
-        current = queue.popleft()
-        for i in range(current + 1, n + 1):
+        k = queue.popleft()
+        for i in range(k + 1, n + 1):
             if i in visited:
                 continue
-            if s[current: i] in word_dict:
+            if s[k: i] in word_dict:
                 if i == n:
                     return True
                 queue.append(i)
@@ -920,6 +920,7 @@ def find_first_and_last_position_sorted_array1(nums, target):
 
 
 def find_first_and_last_position_sorted_array2(nums, target):
+    # https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/discuss/14707/9-11-lines-O(log-n)
     def search(l, r):
         if nums[l] == target == nums[r]:
             return [l, r]
@@ -932,8 +933,20 @@ def find_first_and_last_position_sorted_array2(nums, target):
 
 
 def divide_two_integers(dividend, divisor):
-    # dividend = (quotient) * divisor + remainder
-    pass
+    # https://leetcode.com/problems/divide-two-integers/discuss/427345/Python-24ms-beats-99-with-and-wo-bitwise-operators
+    # dividend = quotient * divisor + remainder
+    is_neg = (dividend < 0) != (divisor < 0)
+    dividend, divisor = abs(dividend), abs(divisor)
+    quotient, total = 0, divisor
+    while total <= dividend:
+        current_quotient = 1
+        while total + total <= dividend:
+            total += total
+            current_quotient += current_quotient
+        dividend -= total
+        total = divisor
+        quotient += current_quotient
+    return min(2147483647, max(-quotient if is_neg else quotient, -2147483648))
 
 
 def continuous_sub_array_sum(nums, k):
@@ -1420,9 +1433,10 @@ def buildings_with_an_ocean_view1(heights):
 
 
 def buildings_with_an_ocean_view2(heights):
+    # Write solution if ocean is to the left of the buildings.
     stack = []
     for i, height in enumerate(heights):
-        while stack and height > heights[stack[-1]]:  # or >=. Not sure
+        while stack and height >= heights[stack[-1]]:
             stack.pop()
         stack.append(i)
     return stack
