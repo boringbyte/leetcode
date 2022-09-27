@@ -115,7 +115,7 @@ def maximum_average_subtree(root):
     return result[1]
 
 
-def word_search(board, word):
+def word_search1(board, word):
     found = [False]
     m, n, k = len(board), len(board[0]), len(word)
     directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
@@ -196,7 +196,7 @@ def partition_equal_subset_sum(nums):
             return False
         return recursive(total - nums[i], i + 1) or recursive(total, i + 1)
 
-    return total_sum & 1 == 0 and recursive(total_sum // 2)
+    return total_sum % 2 == 0 and recursive(total_sum // 2)
 
 
 def validate_binary_tree_nodes1(n, left_child, right_child):
@@ -266,12 +266,12 @@ def largest_bst_subtree(root):
         return SubTreeInfo(float('inf'), -float('inf'), 0, True)
     l, r = largest_bst_subtree(root.left), largest_bst_subtree(root.right)
     if l.is_bst and r.is_bst and (l.max < root.val < r.min):
-        result = SubTreeInfo(min(root.val, l.min, r.min),
-                             max(root.val, l.max, r.max),
-                             l.size + 1 + r.size, True)
+        current = SubTreeInfo(min(root.val, l.min, r.min),
+                              max(root.val, l.max, r.max),
+                              l.size + 1 + r.size, True)
     else:
-        result = SubTreeInfo(0, 0, max(l.size, r.size), False)
-    return result.size
+        current = SubTreeInfo(0, 0, max(l.size, r.size), False)
+    return current.size
 
 
 def number_of_connected_components_in_an_undirected_graph(n, edges):

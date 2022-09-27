@@ -1,8 +1,7 @@
 import heapq
 import collections
-import random
 from functools import lru_cache
-from LC.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
+from LC.LCMetaPractice import ListNode, TreeNode
 
 
 def longest_common_prefix1(strs):
@@ -17,7 +16,7 @@ def longest_common_prefix1(strs):
     return ''.join(prefix)
 
 
-def longest_common_prefix2(strs):
+def longest_common_prefix2(strs: list[str]):
     if not strs:
         return ''
     shortest = min(strs, key=len)
@@ -29,11 +28,12 @@ def longest_common_prefix2(strs):
 
 
 def meeting_rooms_2(intervals):
+    # https://zhenyu0519.github.io/2020/07/13/lc253/#sample-io
     n, heap = len(intervals), []
     if n <= 1:
         return n
     for start, end in sorted(intervals):
-        if heap and heap[0] < start:
+        if heap and start >= heap[0]:
             heapq.heappushpop(heap, end)
         else:
             heapq.heappush(heap, end)
@@ -41,6 +41,7 @@ def meeting_rooms_2(intervals):
 
 
 def validate_binary_search_tree(root):
+    # In comments of https://leetcode.com/problems/validate-binary-search-tree/discuss/32178/Clean-Python-Solution
     def dfs(node, low=float('-inf'), high=float('inf')):
         if not root:
             return True
@@ -70,6 +71,7 @@ def diagonal_traversal(matrix):
 
 
 def check_completeness_of_a_binary_tree1(root):
+    # https://leetcode.com/problems/check-completeness-of-a-binary-tree/discuss/533798/Python-O(n)-by-level-order-traversal.-90%2B-w-Diagram
     if not root:
         return True
     queue = collections.deque([root])
@@ -115,6 +117,7 @@ def nested_list_weight_sum(nested_list):
 
 
 def permutations(nums):
+    # pvr logic
     result, n = [], len(nums)
     visited = [0] * n
 
@@ -162,6 +165,7 @@ def reverse_linked_list(head):
 
 
 def palindrome_linked_list(head):
+    # https://leetcode.com/problems/palindrome-linked-list/discuss/1137696/Short-and-Easy-w-Explanation-or-T-%3A-O(N)-S-%3A-O(1)-Solution-using-Fast-and-Slow
     slow = fast = head
     while fast and fast.next:
         fast = fast.next.next
@@ -177,6 +181,7 @@ def palindrome_linked_list(head):
 
 
 def strobogrammatic_number(num):
+    # https://www.tutorialcup.com/leetcode-solutions/strobogrammatic-number-leetcode-solution.htm
     number_map = {('0', '0'), ('1', '1'), ('6', '9'), ('8', '8'), ('9', '6')}
     i, j = 0, len(num) - 1
     while i <= j:
@@ -217,6 +222,7 @@ def first_missing_positive2(nums):
 
 
 def construct_binary_tree_from_string(s):
+    # https://linlaw0229.github.io/2021/09/16/536-Construct-Binary-Tree-from-String/
     if not s or len(s) == 0:
         return None
 
@@ -230,12 +236,12 @@ def construct_binary_tree_from_string(s):
 
         if i < len(s) and s[i] == '(':
             i += 1
-            node.left, i == dfs(s, i)
+            node.left, i = dfs(s, i)
             i += 1
 
         if i < len(s) and s[i] == '(':
             i += 1
-            node.right, i == dfs(s, i)
+            node.right, i = dfs(s, i)
             i += 1
 
         return node, i
@@ -307,30 +313,7 @@ class NumMatrix:
 
 
 def populating_next_right_pointer_in_each_node1(root):
-    if root is None:
-        return root
-
-    queue = collections.deque([root])
-    while queue:
-        size = k = len(queue)
-        while k > 0:
-            current = queue.popleft()
-            if k == size:
-                current.next = None
-            else:
-                current.next = prev
-            prev = current
-
-            if current.right:
-                queue.append(current.right)
-            if current.left:
-                queue.append(current.left)
-
-            k -= 1
-    return root
-
-
-def populating_next_right_pointer_in_each_node2(root):
+    # https://leetcode.com/problems/populating-next-right-pointers-in-each-node/discuss/1654181/C%2B%2BPythonJava-Simple-Solution-w-Images-and-Explanation-or-BFS-%2B-DFS-%2B-O(1)-Optimized-BFS
     if root is None:
         return root
 
@@ -341,16 +324,26 @@ def populating_next_right_pointer_in_each_node2(root):
             current = queue.popleft()
             current.next = right_node
             right_node = current
-
             if current.right:
-                queue.append(current.right)
-            if current.left:
-                queue.append(current.left)
+                queue.extend([current.right, current.left])
+    return root
 
+
+def populating_next_right_pointer_in_each_node2(root):
+    if not root:
+        return None
+    left, right, nxt = root.left, root.right, root.next
+    if left:
+        left.next = right
+        if nxt:
+            right.next = nxt.left
+            populating_next_right_pointer_in_each_node2(left)
+            populating_next_right_pointer_in_each_node2(right)
     return root
 
 
 def reverse_integer(x):
+    # https://leetcode.com/problems/reverse-integer/discuss/4527/A-Python-solution-O(n)-58ms
     result, sign = 0, 1
     if x < 0:
         sign, x = -sign, -x

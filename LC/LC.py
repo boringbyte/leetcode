@@ -1,4 +1,17 @@
 from LCMetaPractice import TreeNode
+import random
+
+
+def question_selector(start, end):
+    choices = list(range(start, end))
+
+    def selector():
+        print(random.choice(choices))
+    return selector
+
+
+s = question_selector(2, 101)
+s()
 
 
 class MaxSubArraySum:
