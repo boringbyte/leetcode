@@ -296,7 +296,7 @@ def merge_intervals1(intervals):
 def merge_intervals2(intervals):
     intervals, result = sorted(intervals, key=lambda x: x[0]), []
     for start, end in intervals:
-        if not result or result[-1][-1] < start:
+        if not result or start > result[-1][-1]:
             result.append([start, end])
         else:
             result[-1][-1] = max(result[-1][-1], end)
@@ -947,6 +947,26 @@ def divide_two_integers(dividend, divisor):
     return min(2147483647, max(-quotient if is_neg else quotient, -2147483648))
 
 
+def divide_two_integers2(dividend, divisor):
+    # https://leetcode.com/problems/divide-two-integers/discuss/887275/Python-2-solutions-Recursion-and-Non-Recursion-Clean-and-Concise-O(log(N)2)
+    # dividend = quotient * divisor + remainder
+    is_neg = (dividend < 0) != (divisor < 0)
+    dividend, divisor = abs(dividend), abs(divisor)
+
+    def recursive(dd, dv):
+        if dd <= dv:
+            return 0
+        mul, total = 1, dv
+        while dv + dv <= dd:
+            dv += dv
+            mul += mul
+        return mul + recursive(dd - total, dv)
+
+    result = recursive(dividend, divisor)
+
+    return min(2147483647, max(-result if is_neg else result, -2147483648))
+
+
 def continuous_sub_array_sum(nums, k):
     prefix_sum, prefix_sum_indices = 0, {0: -1}
     for i, num in enumerate(nums):
@@ -973,6 +993,7 @@ def power1(x, n):
 
 
 def power2(x, n):
+    # https://leetcode.com/problems/powx-n/discuss/738830/Python-recursive-O(log-n)-solution-explained
     if abs(x) < 1e-40:
         return 0
     if n < 0:
@@ -987,7 +1008,7 @@ def power2(x, n):
             return a * a * x
 
 
-def next_permutation(nums):
+def next_permutation1(nums):
     # https://leetcode.com/problems/next-permutation/discuss/14054/Python-solution-with-comments.
     # https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
     i = j = len(nums) - 1
@@ -1003,6 +1024,27 @@ def next_permutation(nums):
     l, r = k + 1, len(nums) - 1
     while l < r:
         nums[l], nums[r] = nums[r], nums[l]
+        l, r = l + 1, r - 1
+
+
+def next_permutation2(nums):
+    def swap(a, b):
+        nums[a], nums[b] = nums[b], nums[a]
+
+    i = j = len(nums) - 1
+    while i > 0 and nums[i - 1] >= nums[i]:
+        i -= 1
+    if i == 0:
+        nums = nums[::-1]
+
+    pivot = i - 1
+    while nums[pivot] >= nums[j]:
+        j -= 1
+    swap(pivot, j)
+
+    l, r = pivot + 1, len(nums) - 1
+    while l < r:
+        swap(l, r)
         l, r = l + 1, r - 1
 
 
@@ -1069,14 +1111,14 @@ def converted_binary_search_tree_to_sorted_dll(root):
     dummy = prev = DLLNode(-1)
     stack, current = [], root
     while True:
-        if current is not None:
+        if current:
             stack.append(current)
             current = current.left
         elif stack:
             current = stack.pop()
-            node = DLLNode(current.val)
             current = current.right
 
+            node = DLLNode(current.val)
             prev.next = node
             node.prev = prev
             prev = node
