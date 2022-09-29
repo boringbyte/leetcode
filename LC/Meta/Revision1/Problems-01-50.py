@@ -345,7 +345,7 @@ def binary_tree_maximum_path_sum2(root):
                 r = current.right.val if current.right else float('-inf')
                 left_path, right_path = max(l, 0), max(r, 0)
                 result = max(result, current.val + left_path + right_path)
-                current.val += max(left_path, right_path)
+                current.val = max(left_path + current.val, right_path + current.val)
             else:
                 stack.extend([(current, True), (current.right, False), (current.left, False)])
     return result
@@ -633,7 +633,7 @@ def first_bad_version(n):
     def is_bad_version(x):
         return x == 0
 
-    l, r = 1, n
+    l, r = 0, n
     while l < r:
         mid = l + (r - l) // 2
         if is_bad_version(mid):
@@ -826,10 +826,7 @@ def alien_dictionary(words):
             if in_degree[neighbor] == 0:
                 num_incoming_edges_queue.append(neighbor)
 
-    if len(result) < len(in_degree):
-        return ''
-
-    return result
+    return '' if len(result) < len(in_degree) else result
 
 
 def word_break1(s, word_dict):
@@ -848,6 +845,22 @@ def word_break1(s, word_dict):
 
 
 def word_break2(s, word_dict):
+    # This solution is based on word break II problem
+    word_dict, n = set(word_dict), len(s)
+
+    @lru_cache
+    def dfs(k):
+        if k == n:
+            return True
+        for i in range(k, n):
+            chosen = s[k: i + 1]
+            if chosen in word_dict and dfs(i + 1):
+                return True
+        return False
+    return dfs(0)
+
+
+def word_break3(s, word_dict):
     queue, visited, n, word_dict = collections.deque([0]), set(), len(s), set(word_dict)
     visited.add(0)
     while len(queue) > 0:
@@ -863,7 +876,7 @@ def word_break2(s, word_dict):
     return False
 
 
-def word_break3(s, word_dict):
+def word_break4(s, word_dict):
     word_dict, n = set(word_dict), len(s)
     dp = [False] * (n + 1)
     dp[n] = True
@@ -876,7 +889,7 @@ def word_break3(s, word_dict):
     return dp[0]
 
 
-def word_break4(s, word_dict):
+def word_break5(s, word_dict):
     queue, visited = collections.deque([s]), set()
     while queue:
         s = queue.popleft()
@@ -956,11 +969,11 @@ def divide_two_integers2(dividend, divisor):
     def recursive(dd, dv):
         if dd <= dv:
             return 0
-        mul, total = 1, dv
+        mul, dv_bkp = 1, dv
         while dv + dv <= dd:
             dv += dv
             mul += mul
-        return mul + recursive(dd - total, dv)
+        return mul + recursive(dd - dv, dv_bkp)
 
     result = recursive(dividend, divisor)
 
@@ -968,6 +981,7 @@ def divide_two_integers2(dividend, divisor):
 
 
 def continuous_sub_array_sum(nums, k):
+    # https://leetcode.com/problems/continuous-subarray-sum/discuss/338417/Python-Solution-with-explanation
     prefix_sum, prefix_sum_indices = 0, {0: -1}
     for i, num in enumerate(nums):
         prefix_sum = (prefix_sum + num) % k
