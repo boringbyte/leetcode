@@ -1452,23 +1452,22 @@ def minimum_window_substring(s, t):
     # needed is a default dictionary with 0 default value
     # needed[char] -= 1, even if D is not there in t but in s, then we will add D to needed and reduce its value
     # from 0 to -1
-    needed = collections.Counter(t)            # hash table to store char frequency
-    missing = len(t)                           # total number of chars we care
-    start, end = 0, 0
-    i = 0
-    for j, char in enumerate(s, 1):            # index j from 1
+    needed = collections.Counter(t)                     # hash table to store char frequency
+    missing = len(t)                                    # total number of chars we care
+    start = end = left = 0
+    for right, char in enumerate(s, 1):                 # index right from 1
         if needed[char] > 0:
             missing -= 1
         needed[char] -= 1
-        if missing == 0:                       # match all chars
-            while i < j and needed[s[i]] < 0:  # remove chars to find the real start
-                needed[s[i]] += 1
-                i += 1
-            needed[s[i]] += 1                  # make sure the first appearing char satisfies needed[char]>0
-            missing += 1                       # we missed this first char, so add missing by 1
-            if end == 0 or j-i < end - start:  # update window
-                start, end = i, j
-            i += 1                             # update i to start+1 for next window
+        if missing == 0:                                # match all chars
+            while left < right and needed[s[left]] < 0: # remove chars to find the real start
+                needed[s[left]] += 1
+                left += 1
+            needed[s[left]] += 1                        # make sure the first appearing char satisfies needed[char]>0
+            missing += 1                                # we missed this first char, so add missing by 1
+            if end == 0 or right - left < end - start:    # update window
+                start, end = left, right
+            left += 1                                   # update left to start+1 for next window
     return s[start: end]
 
 

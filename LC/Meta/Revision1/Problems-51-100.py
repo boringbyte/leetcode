@@ -23,6 +23,7 @@ def closest_binary_search_tree_value(root, target):
 
 
 def remove_linked_list_elements(head, target):
+    # https://leetcode.com/problems/remove-linked-list-elements/discuss/1572892/C%2B%2BPython-Clean-and-Simple-Solution-w-Explanation-and-Illustration-or-Iterative-and-Recursive
     dummy = prev = ListNode(-1)
     prev.next = head
     while head:
@@ -172,7 +173,7 @@ def search_in_rotated_sorted_array(nums, target):
             else:
                 lo = mid - 1
         else:
-            if nums[lo] <= target <= nums[mid]:
+            if nums[mid] <= target <= nums[hi]:
                 lo = mid + 1
             else:
                 hi = mid - 1
@@ -487,10 +488,7 @@ def palindrome_permutation(s):
     for key in counter.keys():
         if counter[key] % 2 == 1:
             odd_count += 1
-    if odd_count == 1 or odd_count % 2 == 0:
-        return True
-    else:
-        return False
+    return True if odd_count == 1 or odd_count % 2 == 0 else False
 
 
 def minimum_add_to_make_parentheses_valid1(s):
