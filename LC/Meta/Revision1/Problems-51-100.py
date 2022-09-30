@@ -795,7 +795,7 @@ def three_sum_closest(nums, target):
 
 def maximum_swap(num):
     # https://leetcode.com/problems/maximum-swap/discuss/846837/Python-3-or-Greedy-Math-or-Explanations
-    s = list(str(num))
+    s = list(str(num))  # num = 2736, result = 7236
     n = len(s)
     for i in range(n - 1):
         if s[i] < s[i + 1]:
@@ -876,7 +876,7 @@ def max_consecutive_ones_3(nums, k):
 
 def remove_all_adjacent_duplicates_in_string_2(s, k):
     # https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/discuss/392939/PythonC%2B%2BJava-Stack-Based-Solution-Clean-and-Concise
-    stack = []
+    stack = []  # stack holds [char, count]
     for char in s:
         if stack and stack[-1][0] == char:
             stack[-1][1] += 1
@@ -947,29 +947,30 @@ def shortest_distance_from_all_buildings(grid):
 
 
 def beast_time_to_buy_and_sell1(prices):
-    current_max, result, n = 0, 0, len(prices)
+    current_sum, result, n = 0, 0, len(prices)
     for i in range(1, n):
-        current_max += prices[i] - prices[i - 1]
-        if current_max < 0:
-            current_max = 0
-        result = max(current_max, result)
+        current_sum += prices[i] - prices[i - 1]
+        if current_sum < 0:
+            current_sum = 0
+        result = max(current_sum, result)
     return result
 
 
 def beast_time_to_buy_and_sell2(prices):
-    current_max, result, n = 0, 0, len(prices)
+    # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/discuss/263197/Python-2-solutions%3A-Min-So-Far-Kadane's-Algorithm-with-Picture-O(1)-in-Space
+    current_sum, result, n = 0, 0, len(prices)
     for i in range(1, n):
-        current_max += prices[i] - prices[i - 1]
-        current_max = max(current_max, 0)
-        result = max(current_max, result)
+        current_sum += prices[i] - prices[i - 1]
+        current_sum = max(current_sum, 0)
+        result = max(current_sum, result)
     return result
 
 
 def daily_temperatures(temperatures):
     # https://leetcode.com/problems/daily-temperatures/discuss/1574808/C%2B%2BPython-3-Simple-Solutions-w-Explanation-Examples-and-Images-or-2-Monotonic-Stack-Approaches
     result, stack = [0] * len(temperatures), []
-    for i, temp in enumerate(temperatures):
-        while stack and temp > temperatures[stack[-1]]:
+    for i, temperature in enumerate(temperatures):
+        while stack and temperature > temperatures[stack[-1]]:
             result[stack[-1]] = i - stack[-1]
             stack.pop()
         stack.append(i)
