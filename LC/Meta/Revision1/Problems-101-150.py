@@ -208,11 +208,10 @@ def first_missing_positive1(nums):
 
 def first_missing_positive2(nums):
     # https://leetcode.com/problems/first-missing-positive/discuss/17161/Python-O(n)-and-O(nlgn)-solutions.
-    # TLE
     n = len(nums)
     for i in range(n):
-        ni = nums[i] - 1
-        while 0 <= ni < n and nums[ni] != nums[i]:
+        while 0 <= nums[i] - 1 < n and nums[nums[i] - 1] != nums[i]:
+            ni = nums[i] - 1
             nums[i], nums[ni] = nums[ni], nums[i]
 
     for i in range(n):
@@ -377,6 +376,7 @@ def minimum_knight_moves():
 
 
 def sum_root_to_leaf_numbers1(root):
+    # https://leetcode.com/problems/sum-root-to-leaf-numbers/discuss/1556417/C%2B%2BPython-Recursive-and-Iterative-DFS-%2B-BFS-%2B-Morris-Traversal-O(1)-or-Beats-100
     def dfs(node, value):
         if not node:
             return 0
@@ -402,7 +402,7 @@ def sum_root_to_leaf_numbers2(root):
     return result
 
 
-def palindromic_substrings(s):
+def palindromic_substrings1(s):
     # https://leetcode.com/problems/palindromic-substrings/discuss/105687/Python-Straightforward-with-Explanation-(Bonus-O(N)-solution)
     n, result = len(s), 0
     for i in range(2 * n - 1):
@@ -410,6 +410,20 @@ def palindromic_substrings(s):
         while left >= 0 and right < n and s[left] == s[right]:
             result, left, right = result + 1, left - 1, right + 1
     return result
+
+
+def palindromic_substrings2(s):
+    n, result = len(s), [0]
+
+    def count_palindrome(s, l, r):
+        while l >= 0 and r < n and s[l] == s[r]:
+            result[0], l, r = result[0] + 1, l - 1, r + 1
+
+    for i in range(n):
+        count_palindrome(s, i, i)
+        count_palindrome(s, i, i + 1)
+
+    return result[0]
 
 
 def binary_tree_level_order_traversal(root):
@@ -470,7 +484,6 @@ def intersection_of_two_arrays(nums1, nums2):
 
 
 def can_place_flowers(flowerbed, n):
-    # https://leetcode.com/problems/intersection-of-two-arrays/discuss/82006/Four-Python-solutions-with-simple-explanation
     count = 0
     flowerbed = [0] + flowerbed + [0]
     for i in range(1, len(flowerbed) - 1):

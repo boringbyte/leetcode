@@ -1,13 +1,10 @@
-import heapq
-import random
 import collections
-import sys
 from functools import lru_cache
-from LC.LCMetaPractice import ListNode, TreeNode
 
 
 def smallest_subtree_with_all_the_deepest_nodes(root):
     # same as lowest common ancestor of the deepest leaves
+    # https://leetcode.com/problems/lowest-common-ancestor-of-deepest-leaves/discuss/479076/Python-Recursive-and-Iterative-Solution
     if not root:
         return None
     parent, queue, last_level = {root: None}, collections.deque([root]), []
@@ -75,6 +72,7 @@ def stickers_to_spell_words(stickers, target):
 
 
 def count_and_say(n):
+    # https://leetcode.com/problems/count-and-say/discuss/201832/It's-a-good-question-let-me-explain-it.
     def count(s):
         c, counter, result = s[0], 1, ''
         for char in s[1:]:

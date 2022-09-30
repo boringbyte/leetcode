@@ -208,7 +208,8 @@ def largest_island(grid):
             neighbor_colors = set()
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
-                if nx < 0 or nx == m or ny < 0 or ny == n or grid[nx][ny] == 0:  # We are concerned about grids with colors only to make a large island
+                if nx < 0 or nx == m or ny < 0 or ny == n or grid[nx][ny] == 0:
+                    # We are concerned about grids with colors only to make a large island
                     continue
                 neighbor_colors.add(grid[nx][ny])
             size_formed = 1  # Start with 1, which is matrix[r][c] when turning from 0 into 1

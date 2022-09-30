@@ -578,8 +578,8 @@ class WordDictionary:
                     if dfs(node.children[char], i + 1):
                         return True
             if word[i] in node.children:
-                char = node.children[word[i]]
-                return dfs(char, i + 1)
+                node = node.children[word[i]]
+                return dfs(node, i + 1)
             return False
 
         return dfs(self.root, 0)
@@ -687,7 +687,7 @@ class RandomPickWithWeight:
         #         return i
 
         k = random.uniform(0, 1)  # Similar to first bad version
-        l, r = 0, len(self.w)
+        l, r = 0, len(self.w)  # self.w now holds cumulative weights / total_weight
         while l < r:
             mid = l + (r - l) // 2
             if k <= self.w[mid]:
@@ -813,18 +813,18 @@ def alien_dictionary(words):
                     in_degree[char2] += 1
                 break
         else:  # Check that second word isn't a prefix of first word.
-            if len(word2) < len(word1):
+            if len(word1) > len(word2):
                 return ''
 
-    num_incoming_edges_queue = collections.deque([ch for ch in in_degree if in_degree[ch] == 0])
+    queue = collections.deque([ch for ch in in_degree if in_degree[ch] == 0])
 
-    while num_incoming_edges_queue:
-        current = num_incoming_edges_queue.popleft()
+    while queue:
+        current = queue.popleft()
         result += current
         for neighbor in graph[current]:
             in_degree[neighbor] -= 1
             if in_degree[neighbor] == 0:
-                num_incoming_edges_queue.append(neighbor)
+                queue.append(neighbor)
 
     return '' if len(result) < len(in_degree) else result
 
@@ -969,11 +969,11 @@ def divide_two_integers2(dividend, divisor):
     def recursive(dd, dv):
         if dd <= dv:
             return 0
-        mul, dv_bkp = 1, dv
+        mul = 1
         while dv + dv <= dd:
             dv += dv
             mul += mul
-        return mul + recursive(dd - dv, dv_bkp)
+        return mul + recursive(dd - dv, divisor)
 
     result = recursive(dividend, divisor)
 
@@ -1460,12 +1460,12 @@ def minimum_window_substring(s, t):
             missing -= 1
         needed[char] -= 1
         if missing == 0:                                # match all chars
-            while left < right and needed[s[left]] < 0: # remove chars to find the real start
+            while left < right and needed[s[left]] < 0:  # remove chars to find the real start
                 needed[s[left]] += 1
                 left += 1
             needed[s[left]] += 1                        # make sure the first appearing char satisfies needed[char]>0
             missing += 1                                # we missed this first char, so add missing by 1
-            if end == 0 or right - left < end - start:    # update window
+            if end == 0 or right - left < end - start:  # update window
                 start, end = left, right
             left += 1                                   # update left to start+1 for next window
     return s[start: end]
