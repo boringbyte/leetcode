@@ -938,11 +938,11 @@ def word_break(s, word_dict):
     def dfs(k):
         if k == n:
             return True
-        for i in range(k + 1, n + 1):
-            chosen = s[k: i]
-            if chosen in word_dict and dfs(i):
+        for i in range(k, n):
+            chosen = s[k: i + 1]
+            if chosen in word_dict and dfs(i + 1):
                 return True
-        return True
+        return False
     return dfs(0)
 
 
@@ -978,7 +978,7 @@ class LRUCache:
     pass
 
 
-def merge1(list1, list2):
+def merge_list(list1, list2):
     if not list1 or not list2:
         return list1 or list2
     current = dummy = ListNode(0)
@@ -1006,4 +1006,4 @@ def sort_list(head):
     start = slow.next
     slow.next = None
     left, right = sort_list(head), sort_list(start)
-    return merge1(left, right)
+    return merge_list(left, right)
