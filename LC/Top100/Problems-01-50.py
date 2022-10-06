@@ -525,11 +525,11 @@ def jump_game1(nums):
     n = len(nums)
 
     @lru_cache
-    def recursive(i):
-        if i >= n - 1:
+    def recursive(k):
+        if k >= n - 1:
             return True
-        for j in range(i + 1, min(i + nums[i], n - 1) + 1):
-            if recursive(j):
+        for i in range(k + 1, min(k + nums[k], n - 1) + 1):
+            if recursive(i):
                 return True
         return False
     return recursive(0)
@@ -557,7 +557,7 @@ def jump_game3(nums):
 def merge_intervals(intervals):
     result, intervals = [], sorted(intervals, key=lambda x: x[0])
     for start, end in intervals:
-        if not result or result[-1][-1] < start:
+        if not result or start > result[-1][-1]:
             result.append([start, end])
         else:
             result[-1][-1] = max(result[-1][-1], end)
@@ -593,6 +593,8 @@ def minimum_path_sum(grid):
 
 def climbing_stairs1(n):
     # https://leetcode.com/problems/climbing-stairs/discuss/1531764/Python-%3ADetail-explanation-(3-solutions-easy-to-difficult)-%3A-Recursion-dictionary-and-DP
+
+    @lru_cache
     def recursive(i):
         if i in [1, 2]:
             return i
@@ -664,11 +666,11 @@ def subsets1(nums):
 
 def subsets2(nums):
     # https://leetcode.com/problems/subsets/discuss/1598122/Python-subsets-vs.-combinations-vs.-permutations-or-Visualized
-    result, stack = [], [(0, [])]
+    result, stack, n = [], [(0, [])], len(nums)
     while stack:
         k, sofar = stack.pop()
         result.append(sofar[:])
-        for i in range(k, len(nums)):
+        for i in range(k, n):
             chosen = nums[i]
             stack.append((i + 1, sofar + [chosen]))
     return result
@@ -704,7 +706,7 @@ def largest_rectangle_in_histogram(heights):
     # https://leetcode.com/problems/largest-rectangle-in-histogram/discuss/995249/Python-increasing-stack-explained
     stack, result = [], 0
     for i, height in enumerate(heights + [0]):
-        while stack and height[stack[-1]] >= height:
+        while stack and height < height[stack[-1]]:
             H = heights[stack.pop()]
             W = i if not stack else i - stack[-1] - 1
             result = max(result, H * W)
@@ -881,7 +883,7 @@ def flatten_binary_tree_to_linked_list(root):
             p = current.left
             while p.right:
                 p = p.right
-            p.right = current
+            p.right = current.right
             current.right = current.left
             current.left = None
         current = current.right

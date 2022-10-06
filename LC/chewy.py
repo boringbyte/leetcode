@@ -1,12 +1,13 @@
 # Simple linked list related problem with a small twist
 import collections
+import typing
 
 
 def insert_in_sorted_linked_list(head, node):
     # https://www.geeksforgeeks.org/given-a-linked-list-which-is-sorted-how-will-you-insert-in-sorted-way/
-    current = node
-    if not head:
-        node.next = None
+    current = head
+    if not current:
+        node.next = current
     elif current.val >= node.val:
         node.next = current
     else:
@@ -19,7 +20,7 @@ def insert_in_sorted_linked_list(head, node):
 
 
 def shifting_letters(s, shifts):
-    # https://leetcode.com/problems/shifting-letters/discuss/?currentPage=1&orderBy=most_votes&query=
+    # https://leetcode.com/problems/shifting-letters/discuss/1451697/C%2B%2BPython-Calculate-the-number-of-shifts-on-each-position-Clean-and-Concise
     n, result = len(s), ''
     for i in range(n - 2, -1, -1):
         shifts[i] = (shifts[i] + shifts[i + 1]) % 26
@@ -104,23 +105,23 @@ def check_anagrams2(word1, word2):
     return char_map(word1) == char_map(word2)
 
 
-def robot_exit_maze(maze: list[list], entrance: list):
+def robot_exit_maze(maze: list[list], entrance: typing.Annotated[tuple[int, int], 2]):
     # Write a program to help a robot find the exit to a maze.
     # https://leetcode.com/problems/nearest-exit-from-entrance-in-maze/
     m, n = len(maze), len(maze[0])
     directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-    queue = collections.deque([(*entrance, 0)])
+    queue = collections.deque([(entrance, 0)])
     maze[entrance[0]][entrance[1]] = '+'
 
     while queue:
-        x, y, steps = queue.popleft()
-        if (x == 0 or x == m - 1 or y == 0 or y == n - 1) and [x, y] != entrance:
+        (x, y), steps = queue.popleft()
+        if (x == 0 or x == m - 1 or y == 0 or y == n - 1) and (x, y) != entrance:
             return steps
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
             if 0 <= nx < m and 0 <= ny < n and maze[nx][ny] == '.':
                 maze[nx][ny] = '+'
-                queue.append((nx, ny, steps+1))
+                queue.append(((nx, ny), steps + 1))
     return -1
 
 
