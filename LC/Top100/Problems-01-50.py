@@ -77,13 +77,13 @@ def longest_palindromic_substring(s):
     n, result = len(s), ''
 
     @lru_cache
-    def helper(l, r):
+    def check_palindrome(l, r):
         while l >= 0 and r < n and s[l] == s[r]:
             l, r = l - 1, r + 1
         return s[l + 1: r]  # Because after the loop -> s[l] != s[r], we need to take the previous slice -> s[l+1:r]
 
     for i in range(n):
-        result = max(helper(i, i), helper(i, i + 1), result, key=len)
+        result = max(check_palindrome(i, i), check_palindrome(i, i + 1), result, key=len)
     return result
 
 
@@ -190,8 +190,8 @@ def letter_combinations_of_a_phone_number1(digits):
         if k == n:
             result.append(sofar)
         else:
-            chosens = mapping[digits[k]]
-            for chosen in chosens:
+            choosing = mapping[digits[k]]
+            for chosen in choosing:
                 backtrack(sofar + chosen, k + 1)
 
     backtrack(sofar='', k=0)
@@ -207,8 +207,8 @@ def letter_combinations_of_a_phone_number2(digits):
             result.append(sofar)
         else:
             for i in range(k, n):
-                chosens = mapping[digits[i]]
-                for chosen in chosens:
+                choosing = mapping[digits[i]]
+                for chosen in choosing:
                     backtrack(sofar + chosen, i + 1)
 
     backtrack(sofar='', k=0)
@@ -284,7 +284,7 @@ def merge_two_sorted_lists2(list1, list2):
     return recursive(list1, list2)
 
 
-def generate_parenthesis(n):
+def generate_parentheses(n):
     result = []
 
     def backtrack(sofar, left, right):
@@ -343,7 +343,7 @@ def next_permutation(nums):
         l, r = l + 1, r - 1
 
 
-def longest_valid_parenthesis(s):
+def longest_valid_parentheses(s):
     # https://leetcode.com/problems/longest-valid-parentheses/discuss/1139990/Longest-Valid-Parentheses-or-Short-and-Easy-w-Explanation-using-stack
     result, stack = 0, [-1]
     for i, char in enumerate(s):
