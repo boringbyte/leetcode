@@ -1,3 +1,4 @@
+import bisect
 import collections
 import heapq
 import random
@@ -17,7 +18,7 @@ def maximum_product_subarray(nums):
 
 class MinStack:
     def __init__(self):
-        self.stack = []
+        self.stack = []  # stores [value, min_value]
 
     def push(self, val):
         min_val = self.get_min()
@@ -337,11 +338,55 @@ def perfect_squares(n):
 
 
 def longest_increasing_subsequence(nums):
-    pass
+    # https://leetcode.com/problems/longest-increasing-subsequence/discuss/1326552/Optimization-From-Brute-Force-to-Dynamic-Programming-Explained!
+    # https://leetcode.com/problems/longest-increasing-subsequence/discuss/667975/Python-3-Lines-dp-with-binary-search-explained
+    dp = []
+    for num in nums:
+        idx = bisect.bisect(dp, num)
+        if idx == len(dp):
+            dp.append(num)
+        else:
+            dp[idx] = num
+    return len(dp)
 
 
 def remove_invalid_parentheses(s):
-    pass
+    # https://leetcode.com/problems/remove-invalid-parentheses/discuss/1639879/python-backtracking-easily-derived-from-combination-backtracking-template
+    def calculate_invalid(seq):
+        left = right = 0
+        for char in seq:
+            left += (char == '(')
+            if left == 0:
+                right += (char == ')')
+            else:
+                left -= (char == ')')
+        return left, right
+
+    def is_valid(seq):
+        left, right = calculate_invalid(seq)
+        return left == right == 0
+
+    def dfs(sofar, k, l, r):
+        current = ''.join(sofar)
+        if l == 0 and r == 0 and is_valid(current):
+            result.append(current)
+        else:
+            for i in range(k, n):
+                if s[i] not in {'(', ')'} or (i != k and s[i] == s[i - 1]):
+                    continue
+                if l > 0 and s[i] == '(':
+                    sofar[i] = ''
+                    dfs(sofar, i + 1, l - 1, r)
+                    sofar[i] = s[i]
+                elif r > 0 and s[i] == ')':
+                    sofar[i] = ''
+                    dfs(sofar, i + 1, l, r - 1)
+                    sofar[i] = s[i]
+
+    n, result = len(s), []
+    l, r = calculate_invalid(s)
+    dfs(list(s), 0, l, r)
+    return result
 
 
 def best_time_to_buy_and_sell_stock_with_cooldown(prices):
@@ -355,8 +400,6 @@ def burst_balloons(nums):
 
 def coin_change1(coins, amount):
     # https://leetcode.com/problems/coin-change/discuss/1475250/Python-4-solutions%3A-Top-down-DP-Bottom-up-DP-Space-O(amount)-Clean-and-Concise
-    n = len(coins)
-
     @lru_cache
     def dfs(total):
         if total == 0:
@@ -364,7 +407,7 @@ def coin_change1(coins, amount):
         ans = float('inf')
         for coin in coins:
             if total >= coin:
-                ans = min(coin, dfs(total - coin) + 1)
+                ans = min(ans, dfs(total - coin) + 1)
         return ans
     result = dfs(amount)
     return result if result != float('inf') else -1
@@ -582,4 +625,4 @@ def daily_temperatures(temperatures):
             result[last_index] = i - last_index
             stack.pop()
         stack.append(i)
-    return result
+        return result

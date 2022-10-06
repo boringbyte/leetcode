@@ -95,11 +95,11 @@ def check_anagrams1(word1, word2):
 def check_anagrams2(word1, word2):
 
     def char_map(word):
-        map = [0] * 26
+        order_map = [0] * 26
         mapping = {char: ord(char) - ord('a') for char in word}
         for char in word:
-            map[mapping[char]] += 1
-        return ''.join([str(char) for char in map])
+            order_map[mapping[char]] += 1
+        return ''.join([str(char) for char in order_map])
 
     return char_map(word1) == char_map(word2)
 
