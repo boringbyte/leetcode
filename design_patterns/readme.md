@@ -21,6 +21,13 @@
     - Also known as Virtual Constructor
     - If we are using if else for creating classes, then we can replace that with this pattern.
   - Abstract Factory
+    - Useful for creating families of related or dependent objects without specifying their concrete classes
+    - Close cousin of Factory pattern
+    - Factory creates one product
+    - Abstract Factory creates families of products
+    - Defers creation of objects to concrete subclasses
+    - Also known as Kit pattern
+    - Remember matrix of classes ((GM, Ford) * (Economy, Sport, Luxury))
   - Builder
   - Prototype
   - Singleton
