@@ -29,6 +29,13 @@
     - Also known as Kit pattern
     - Remember matrix of classes ((GM, Ford) * (Economy, Sport, Luxury))
   - Builder
+    - As a creational pattern it is useful for creating objects.
+    - Separates construction of complex objects from its representation.
+    - Builder does this by encapsulating the construction of the object, object the principle encapsulate what varies.
+    - Allows multistep construction process
+    - Implementations can vary over a period of time and builder can accommodate such changes
+    - Client only sees the abstraction
+    - Useful if there are too many arguments in the __init__ method
   - Prototype
   - Singleton
 - Structural Patterns:
