@@ -37,6 +37,13 @@
     - Client only sees the abstraction
     - Useful if there are too many arguments in the __init__ method
   - Prototype
+    - This pattern provide alternative to abstract factory pattern and can also be used in conjunction with it.
+    - It uses a given instance as a prototype
+    - Creates a clone of the prototype
+    - Clone can have different attributes
+    - Reduce number of classes since we don't class of every variation.
+    - It has one prototype interface with clone method
+    - There are concrete prototypes which return a copy of itself.
   - Singleton
 - Structural Patterns:
   - Adapter
