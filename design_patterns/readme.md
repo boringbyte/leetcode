@@ -45,6 +45,10 @@
     - It has one prototype interface with clone method
     - There are concrete prototypes which return a copy of itself.
   - Singleton
+    - Don't create more than 1 instance for a class
+    - Ensure a class has only one instance
+    - Singleton provide a global point of access
+    - Class responsible for its one instance
 - Structural Patterns:
   - Adapter
   - Bridge
