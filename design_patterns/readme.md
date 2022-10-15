@@ -60,6 +60,7 @@
       - Class adapters: Inheritance
     - Favor composition over inheritance
   - Bridge
+    - 
   - Composite
   - Decorator
   - Facade
