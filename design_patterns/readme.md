@@ -51,6 +51,14 @@
     - Class responsible for its one instance
 - Structural Patterns:
   - Adapter
+    - This pattern is used to make one API look like another one that has different methods and signatures.
+    - Similar to power adapters used when traveling from one country to another country.
+    - Don't repeat yourself (DRY) principle
+    - Converts interface of a class into another that clients expect.
+    - There are two types of adapters:
+      - Object adapters: Composition
+      - Class adapters: Inheritance
+    - Favor composition over inheritance
   - Bridge
   - Composite
   - Decorator
