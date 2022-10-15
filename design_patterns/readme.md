@@ -60,8 +60,14 @@
       - Class adapters: Inheritance
     - Favor composition over inheritance
   - Bridge
-    - 
+    - -
   - Composite
+    - Part of a tree is mini tree. Also called as part-whole hierarchies.
+    - A part resembles the whole tree. Composite pattern handles hierarchies.
+    - Uniform code for the whole or the part of the tree.
+    - Compose objects into tree structures
+    - Represent part-whole hierarchies
+    - Clients can handle individual objects and collections of objects using the same code
   - Decorator
   - Facade
   - Flyweight
