@@ -69,6 +69,14 @@
     - Represent part-whole hierarchies
     - Clients can handle individual objects and collections of objects using the same code
   - Decorator
+    - Handles explosion of classes problem similar to prototype pattern.
+    - Adds additional responsibilities at runtime instead of compile time.
+    - Use decorators when:
+      - You want to add new functionality to existing objects.
+      - Better than having many subclasses.
+      - Better than having many properties.
+      - Consider using Factory or Builder pattern.
+      - Consider using Prototype pattern
   - Facade
   - Flyweight
   - Proxy
