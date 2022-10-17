@@ -92,7 +92,13 @@
     - Uses single shared object to hold the data.
     - Centralizes state data for many objects. Reduces required object instances.
     - Single instances are no longer independent. All instances controlled the same.
+    - Often used with other patterns like: Composite, State, Strategy
   - Proxy
+    - Types of proxy
+      - Remote proxy: A remote proxy provides a local representation of an object at a different address.
+      - Virtual proxy: Creates expensive objects on demand.
+      - Protection proxy: Controls the access to the object.
+      - Smart reference proxy: Can perform additional actions when accessed.
 - Behavioral Patterns:
   - Strategy
   - Command
@@ -104,4 +110,5 @@
   - Memento
   - Null
   - Template
+  - Iterator
   - Interpreter
