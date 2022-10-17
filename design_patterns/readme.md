@@ -78,7 +78,20 @@
       - Consider using Factory or Builder pattern.
       - Consider using Prototype pattern
   - Facade
+    - Puts a new face on something like an API.
+    - It comes handy when you have a complex API or a collection of APIs
+    - It comes handy when you have several APIs which slightly do different things.
+    - It provided unified interface to a set of interfaces and the set of interfaces don't have to be similar
+    - This pattern provides a higher level interface
+    - Makes the set of interfaces easier to use.
+    - Example has five interfaces:
+      - connect, cursor, execute, commit and close
+    - Implementing facade will result in just one.
   - Flyweight
+    - Can be used when your application has many small objects that consume the whole storage and slows down the entire system.
+    - Uses single shared object to hold the data.
+    - Centralizes state data for many objects. Reduces required object instances.
+    - Single instances are no longer independent. All instances controlled the same.
   - Proxy
 - Behavioral Patterns:
   - Strategy
