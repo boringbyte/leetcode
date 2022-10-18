@@ -111,7 +111,12 @@
     - Parameterize objects and it can have different signatures.
     - Provides a way for Queues and log operations for DB requests.
   - State
-    - 
+    - A state pattern is used to describe the states of the objects.
+    - A shopping can be in any number of states i.e; Empty, Containing some items, At checkout, Paid for
+    - Transitions: Adding and removing items, Checking out, Paying for your purchases.
+    - Programs operate in some context like shopping cart.
+    - Instead of putting the transactions methods in the context object, we put them in the state classes.
+    - Transactions are delegated to the state objects and clients interface with the context.
   - Observer
   - Visitor
   - Chain of Responsibility
