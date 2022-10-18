@@ -101,13 +101,17 @@
       - Smart reference proxy: Can perform additional actions when accessed.
 - Behavioral Patterns:
   - Strategy
-    - Most used pattern, and it is used to control the behavior of an object as it is a behavioral pattern.
+    - Most used pattern, and it is used to control the behavior or operation of an object as it is a behavioral pattern.
     - Family of algorithms, encapsulate each one and make them interchangeable.
     - Takes in common inputs and algorithms vary independently, and it is also known as policy pattern.
     - Other variations of strategy are using functions as strategies since functions are first class objects in python.
     - Strategies as lambdas.
   - Command
+    - Encapsulate a request as an object.
+    - Parameterize objects and it can have different signatures.
+    - Provides a way for Queues and log operations for DB requests.
   - State
+    - 
   - Observer
   - Visitor
   - Chain of Responsibility
