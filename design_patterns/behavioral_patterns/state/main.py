@@ -35,5 +35,9 @@ if __name__ == '__main__':
     4. State objects can be shared
     5. Flexible transition definitions
     6. Can create states at transition time.
+    When is this State Pattern applicable?
+        -- When object's behavior depends on state
+        -- Remove long if/elif/else statements
+        -- Similar in some ways to Strategy, but there is no state related behavior there.
     """
     main()

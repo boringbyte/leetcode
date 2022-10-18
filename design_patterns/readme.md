@@ -111,13 +111,19 @@
     - Parameterize objects and it can have different signatures.
     - Provides a way for Queues and log operations for DB requests.
   - State
-    - A state pattern is used to describe the states of the objects.
+    - State pattern is used to describe the states of the objects.
     - A shopping can be in any number of states i.e; Empty, Containing some items, At checkout, Paid for
     - Transitions: Adding and removing items, Checking out, Paying for your purchases.
     - Programs operate in some context like shopping cart.
     - Instead of putting the transactions methods in the context object, we put them in the state classes.
     - Transactions are delegated to the state objects and clients interface with the context.
   - Observer
+    - One-to-many relationship between a set of objects.
+    - When the state of one changes its dependents are notified.
+    - Also known as Dependents pattern or Publish-subscribe pattern.
+    - Subject notifies observer if there is a change in the state
+    - Observer then can get or set state of the subject.
+    - Observes should be properly detached when they aren't required anymore.
   - Visitor
   - Chain of Responsibility
   - Mediator
