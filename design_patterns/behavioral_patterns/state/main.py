@@ -28,4 +28,12 @@ def main():
 
 
 if __name__ == '__main__':
+    """
+    1. Encapsulates state-specific behavior
+    2. Distributes behavior across state classes
+    3. Makes sate transitions explicit
+    4. State objects can be shared
+    5. Flexible transition definitions
+    6. Can create states at transition time.
+    """
     main()
