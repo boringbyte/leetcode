@@ -125,6 +125,11 @@
     - Observer then can get or set state of the subject.
     - Observes should be properly detached when they aren't required anymore.
   - Visitor
+    - It is used as a way to add new flexibility to an object structure when ever we want without modifying the class.
+    - It does this by building new abstraction for new functionality and at the same time we can keep the new capabilities separate.
+    - This approach can break encapsulation.
+    - Accept method is required in the other classes which are not visitor to accept the visitor.
+    - Class decorators can replace visitors in python.
   - Chain of Responsibility
   - Mediator
   - Memento
