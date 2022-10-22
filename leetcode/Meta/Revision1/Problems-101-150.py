@@ -1,7 +1,7 @@
 import heapq
 import collections
 from functools import lru_cache
-from LC.LCMetaPractice import ListNode, TreeNode
+from leetcode.LCMetaPractice import ListNode, TreeNode
 
 
 def longest_common_prefix1(strs):

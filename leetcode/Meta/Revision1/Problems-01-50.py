@@ -4,7 +4,7 @@ import string
 import collections
 from queue import PriorityQueue
 from functools import lru_cache
-from LC.LCMetaPractice import TreeNode, ListNode, DLLNode, GraphNode
+from leetcode.LCMetaPractice import TreeNode, ListNode, DLLNode, GraphNode
 
 
 def verify_alien_dictionary(words, order):

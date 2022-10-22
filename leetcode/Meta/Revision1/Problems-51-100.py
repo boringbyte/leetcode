@@ -2,7 +2,7 @@ import heapq
 import collections
 import random
 from functools import lru_cache
-from LC.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
+from leetcode.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
 
 
 def closest_binary_search_tree_value(root, target):

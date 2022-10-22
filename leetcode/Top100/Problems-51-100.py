@@ -3,7 +3,7 @@ import collections
 import heapq
 import random
 from functools import lru_cache
-from LC.LCMetaPractice import TreeNode
+from leetcode.LCMetaPractice import TreeNode
 
 
 def maximum_product_subarray(nums):

@@ -1,6 +1,6 @@
 import collections
 from functools import lru_cache
-from LC.LCMetaPractice import TreeNode, ListNode
+from leetcode.LCMetaPractice import TreeNode, ListNode
 
 
 def two_sum(nums, target):
