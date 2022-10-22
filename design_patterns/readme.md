@@ -141,9 +141,22 @@
       - Objects have many interdependencies.
       - Hard to reuse objects with many reference to others.
       - Customize behavior without subclassing.
-    -
+    - Benefits
+      - Reduces need for subclassing
+      - Increases reusability by decoupling
+      - Simplifies maintenance
+      - Colleagues can vary independently
+    - Drawbacks
+      - Can become overly complex.
+      - Centralizes control
+      - May make the entire thing a monolith
   - Memento
+    - Used to save the state of an object or take checkpoints to fall back when error occurs.
+    - Snapshot of game state at point in time.
+    - Restore the game to a previous snapshot.
+    - Maintain encapsulation.
+    - Also called as Token pattern.
   - Null
   - Template
   - Iterator
-  - InterpreterS
+  - Interpreter
