@@ -157,6 +157,10 @@
     - Maintain encapsulation.
     - Also called as Token pattern.
   - Null
+    - Provides a default object to clients
+    - Avoids null references
+    - Client need not test for a valid object
+    - Creational patterns can benefit.
   - Template
   - Iterator
   - Interpreter
