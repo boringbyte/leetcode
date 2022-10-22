@@ -44,3 +44,5 @@ Pytest is a testing framework.
   - Post condition like clean up, close etc. it is placed after yield.
   - User global variables inside test functions to access variables created inside fixture.
 - MonkeyPatch is another important topic to study.
+- pytest-xdist library is used to parallelize tests.
+  - pytest test_fixtures -n 3
