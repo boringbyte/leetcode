@@ -35,7 +35,7 @@
     - Allows multistep construction process
     - Implementations can vary over a period of time and builder can accommodate such changes
     - Client only sees the abstraction
-    - Useful if there are too many arguments in the __init__ method
+    - Useful if there are too many arguments in the \__init__ method
   - Prototype
     - This pattern provide alternative to abstract factory pattern and can also be used in conjunction with it.
     - It uses a given instance as a prototype
@@ -171,4 +171,37 @@
     - These steps are in Template method.
     - Reduces code duplication (DRY)
   - Iterator
+    - Iterating over a collection means returning item one by one.
+    - Collection exposes method for iteration
+    - Hide implementation.
+    - There are many ways to do this.
+    - Collection could be a list, set, dictionary, tree or anything.
+    - Sequence iterator implements \__get_item__()
+    - Callable object implements \__iter__() and \__next__()
+    - Collections module also provides Iterable, Iterator and Sequence protocol.
+    - Use generator expressions
+      - (x for x in iterable)
+      - (f(x) for x in iterable)
+      - (f(x) for x in iterable if <condition>)
   - Interpreter
+    - Domain Specific Languages
+      - SQL
+      - CSS
+      - HTML
+      - JSON
+      - PHP
+    - Benefits:
+      - Easy to extend the grammar
+      - Easy to implement
+      - East to change expression processing
+    - Drawbacks
+      - Complex grammars need maintenance
+    - Interpreter is good for simple languages
+    - Use when simplicity is important.
+    - Idea for scripting languages
+    - Related Patterns:
+      - Composite
+      - Flyweight
+      - Visitor
+      - Iterator
+  
