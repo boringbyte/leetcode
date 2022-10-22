@@ -137,8 +137,13 @@
     - Let multiple handlers see each request
     - Use of chain of handlers
   - Mediator
+    - Use when
+      - Objects have many interdependencies.
+      - Hard to reuse objects with many reference to others.
+      - Customize behavior without subclassing.
+    -
   - Memento
   - Null
   - Template
   - Iterator
-  - Interpreter
+  - InterpreterS
