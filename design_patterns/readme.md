@@ -162,5 +162,13 @@
     - Client need not test for a valid object
     - Creational patterns can benefit.
   - Template
+    - Provides a common template to complete a task using different methods.
+    - Defines the skeleton of an algorithm
+      - Abstract methods: Which must be implemented by any subclass.
+      - Concrete methods: Which are common enough and can be overridden if necessary.
+      - Hooks: Hook methods do nothing but may be overridden by subclasses if they need to do something specific.
+    - Algorithm step order is preserved.
+    - These steps are in Template method.
+    - Reduces code duplication (DRY)
   - Iterator
   - Interpreter
