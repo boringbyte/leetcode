@@ -7,7 +7,7 @@
 - L - Liskov substitution:
   - Subclasses should be stand in for their parents without breaking anything.
 - I - Interface segregation:
-  - A specific interfaces are better than having one do-all interface.
+  - Specific interfaces are better than having one do-all interface.
 - D - Dependency inversion:
   - We should program towards abstraction, but not implementations. Implementations can vary but not abstractions.
 
@@ -60,7 +60,7 @@
       - Class adapters: Inheritance
     - Favor composition over inheritance
   - Bridge
-    - -
+    - Bridge is used to decouple an abstraction from its implementation so that the two can vary independently.
   - Composite
     - Part of a tree is mini tree. Also called as part-whole hierarchies.
     - A part resembles the whole tree. Composite pattern handles hierarchies.
@@ -131,6 +131,11 @@
     - Accept method is required in the other classes which are not visitor to accept the visitor.
     - Class decorators can replace visitors in python.
   - Chain of Responsibility
+    - This pattern is used to process a set of incoming requests in an organized way.
+    - This is common in GUI applications.
+    - Decouple requests from handlers
+    - Let multiple handlers see each request
+    - Use of chain of handlers
   - Mediator
   - Memento
   - Null

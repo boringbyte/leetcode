@@ -20,7 +20,7 @@ def main():
 if __name__ == '__main__':
     """
     Problem Statement: Lets say, we were asked to create student and corporate discounts of 90% and 80% respectively.
-    1. We can solve this problem creating MonthlyStudent, AnnualStudent, MonthlyCorporate and AnnualCorporate classes
+    1. We can solve this problem by creating MonthlyStudent, AnnualStudent, MonthlyCorporate and AnnualCorporate classes
        which subclass from Monthly and Annual subclasses.
     Issues with above statement:
     1. Class Explosion if we need to add more type of discounts or subscriptions.

@@ -7,7 +7,7 @@ class NullCar(AbstractAuto):
         self._carname = carname
 
     def start(self):
-        print(f'Unknown car "{self._carname}".')
+        print(f'Unknown car "{self._carname}" started')
 
     def stop(self):
-       pass
+        print(f'Unknown car "{self._carname}" stopped')
