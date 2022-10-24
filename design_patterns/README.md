@@ -61,6 +61,16 @@
     - Favor composition over inheritance
   - Bridge
     - Bridge is used to decouple an abstraction from its implementation so that the two can vary independently.
+    - Example is when we decouple subscription from discount, we can implement these two independently and then classes grow linearly instead of growing exponentially.
+    - This pattern helps in mitigating class explosion problem when you need to create different combination of classes with slight modifications.
+    - This is just composition in simple terms.
+    - When you see exponential class growth, we can use this pattern.
+    - When you see a lot of duplicate code due to classes sharing similar code.
+    - Also called as Handle or Body pattern.
+    - Other approaches to achieve same results:
+      - Prototype
+      - Builder
+      - Abstract Factory
   - Composite
     - Part of a tree is mini tree. Also called as part-whole hierarchies.
     - A part resembles the whole tree. Composite pattern handles hierarchies.
