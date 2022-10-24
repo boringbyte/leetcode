@@ -1,4 +1,4 @@
-from collections import Iterable
+from collections.abc import Iterable
 from functools import reduce
 from datetime import date
 from abs_composite import AbstractComposite
@@ -7,7 +7,8 @@ from abs_composite import AbstractComposite
 class Tree(Iterable, AbstractComposite):
 
     def __init__(self, members):
-        self._members = members  # member can be either Person or another composite tree
+        self._members = members  # member can be either Person or another composite tree. Actual Family class is
+        # replaced with Tree class
 
     def __iter__(self):
         return iter(self._members)

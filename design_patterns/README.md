@@ -72,12 +72,25 @@
       - Builder
       - Abstract Factory
   - Composite
-    - Part of a tree is mini tree. Also called as part-whole hierarchies.
+    - Part of a tree is mini tree. Also called these trees as part-whole hierarchies.
     - A part resembles the whole tree. Composite pattern handles hierarchies.
     - Uniform code for the whole or the part of the tree.
     - Compose objects into tree structures
     - Represent part-whole hierarchies
     - Clients can handle individual objects and collections of objects using the same code
+    - All operations are declared in the abstract complement with default implementation for both leaves and composites.
+    - Composite pattern provides:
+      - Single interface to tree structure.
+      - Uniform access to subtrees and leaf nodes.
+      - Simplified client code.
+      - No need to do run time type checking.
+      - Easy to add new kinds of components that share similar interface without changing client code.
+    - When to use?
+      - When your data fits a tree-like structure
+      - Client code can treat data uniformly.
+      - Children can maintain parent references.
+      - Possible to share components.
+      - Can make your design too general by violating Single Responsibility Principle.
   - Decorator
     - Handles explosion of classes problem similar to prototype pattern.
     - Adds additional responsibilities at runtime instead of compile time.
