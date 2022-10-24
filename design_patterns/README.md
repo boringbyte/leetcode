@@ -104,7 +104,7 @@
     - Puts a new face on something like an API.
     - It comes handy when you have a complex API or a collection of APIs
     - It comes handy when you have several APIs which slightly do different things.
-    - It provided unified interface to a set of interfaces and the set of interfaces don't have to be similar
+    - It provides unified interface to a set of interfaces and the set of interfaces don't have to be similar
     - This pattern provides a higher level interface
     - Makes the set of interfaces easier to use.
     - Example has five interfaces:

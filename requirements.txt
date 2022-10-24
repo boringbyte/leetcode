@@ -3,3 +3,4 @@ pytest
 numpy
 pytest-html
 pytest-xdist
+pyodbc
