@@ -6,6 +6,14 @@ from ups_strategy import UPSStrategy
 
 
 if __name__ == '__main__':
+    """
+        1. Encapsulates algorithms
+        2. Several techniques available
+            - Class per algorithm
+            - Function definitions
+            - Lambda expressions
+        3. Sequences of if/elif/else are a red flag
+    """
     order = Order()
     strategy = FedExStrategy()
     cost_calculator = ShippingCost(strategy)

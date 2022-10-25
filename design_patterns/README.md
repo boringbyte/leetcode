@@ -129,10 +129,12 @@
     - Takes in common inputs and algorithms vary independently, and it is also known as policy pattern.
     - Other variations of strategy are using functions as strategies since functions are first class objects in python.
     - Strategies as lambdas.
+    - Also called as Policy pattern.
   - Command
     - Encapsulate a request as an object.
-    - Parameterize objects and it can have different signatures.
+    - Parameterize objects, and it can have different signatures in contrast to the Strategy pattern where signatures are expected to be same
     - Provides a way for Queues and log operations for DB requests.
+    - Also known as Action Pattern or Transaction Pattern.
   - State
     - State pattern is used to describe the states of the objects.
     - A shopping can be in any number of states i.e; Empty, Containing some items, At checkout, Paid for
