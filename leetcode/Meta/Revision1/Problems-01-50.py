@@ -70,7 +70,7 @@ def k_closest_points_to_origin2(points, k):
     heap = []
     for i, (x, y) in enumerate(points):
         distance = euclidean(x, y)
-        if len(heap) > k:
+        if len(heap) >= k:
             heapq.heappushpop(heap, (-distance, i))
         else:
             heapq.heappush(heap, (-distance, i))
