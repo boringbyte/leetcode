@@ -25,7 +25,7 @@ def minimum_remove_to_make_valid_parentheses1(s):
     # Time Complexity: O(N)
     # Space Complexity: O(N)
     in_valid, stack = set(), []
-    for i, char in stack:
+    for i, char in enumerate(s):
         if char == '(':
             stack.append(i)
         elif char == ')':
