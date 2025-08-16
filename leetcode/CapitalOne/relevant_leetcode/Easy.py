@@ -14,11 +14,11 @@ class TreeNode:
 
 def best_time_to_buy_and_sell_stock(prices):
     # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/solutions/5501275/video-keep-minimum-price-solution/
-    buy_price = prices[0]
-    profit = 0
+    buy_price, profit = prices[0], 0
 
     for price in prices[1:]:
-        buy_price = min(buy_price, price)
+        if price < buy_price:
+            buy_price = price
         profit = max(profit, price - buy_price)
     return profit
 
@@ -27,7 +27,7 @@ def valid_parenthesis(s):
     if len(s) % 2 == 1:
         return False
 
-    stack, hashmap = [], {'{', '}', '(', ')', '[', ']'}
+    stack, hashmap = [], {'{': '}', '(': ')', '[': ']'}
 
     for char in s:
         if char in hashmap:
@@ -79,7 +79,7 @@ def palindrome_number(x):
 
     div = 1
     while x // div >= 10:
-        div *= 10   # Gets the number such that for 1221 we get div as 1000
+        div *= 10   # Gets a number such that for 1221 we get div as 1000
 
     while x:
         left, rem = divmod(x, div)
@@ -149,6 +149,7 @@ def is_prefix_and_suffix(str1, str2):
     if n1 > n2:
         return False
     return str2[:n1] == str1 and str2[-n1:] == str1
+
 
 def count_prefix_and_suffix_pairs_1(words):
     n, result = len(words), 0
