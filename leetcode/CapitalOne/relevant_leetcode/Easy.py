@@ -14,13 +14,14 @@ class TreeNode:
 
 def best_time_to_buy_and_sell_stock(prices):
     # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/solutions/5501275/video-keep-minimum-price-solution/
-    buy_price, profit = prices[0], 0
+    buy_price, max_profit = prices[0], 0
 
     for price in prices[1:]:
         if price < buy_price:
             buy_price = price
-        profit = max(profit, price - buy_price)
-    return profit
+        current_profit = price - buy_price
+        max_profit = max(max_profit, current_profit)
+    return max_profit
 
 
 def valid_parenthesis(s):
@@ -89,7 +90,7 @@ def palindrome_number(x):
             return False
 
         x = rem % 10  # Remove right digit as left was already removed
-        div //= 100   # As two digits are getting removed, we are using 100 here
+        div //= 100   # As two digits are being removed, we are using 100 here
 
     return True
 
@@ -145,11 +146,11 @@ def count_operations_to_obtain_zero(num1, num2):
 
 
 def count_prefix_and_suffix_pairs_1(words):
-    def is_prefix_and_suffix(str1, str2):
-        n1, n2 = len(str1), len(str2)
+    def is_prefix_and_suffix(word1, word2):
+        n1, n2 = len(word1), len(word2)
         if n1 > n2:
             return False
-        return str2[:n1] == str1 and str2[-n1:] == str1
+        return word2[:n1] == word1 and word2[-n1:] == word1
 
     n, result = len(words), 0
     for i in range(n):
