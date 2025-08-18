@@ -77,12 +77,12 @@ def rotate_image(matrix):
     n = len(matrix)
     top, bottom = 0, n - 1
 
-    while top < bottom:
+    while top < bottom:  # This is for inverting the rows along the horizontal axis
         matrix[top], matrix[bottom] = matrix[bottom], matrix[top]
         top += 1
         bottom -= 1
 
-    for row in range(n):
+    for row in range(n):  # This is for transposing along the diagonal
         for col in range(row + 1, n):
             matrix[row][col], matrix[col][row] = matrix[col][row], matrix[row][col]
 

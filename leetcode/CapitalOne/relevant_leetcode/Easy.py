@@ -144,14 +144,13 @@ def count_operations_to_obtain_zero(num1, num2):
     return result
 
 
-def is_prefix_and_suffix(str1, str2):
-    n1, n2 = len(str1), len(str2)
-    if n1 > n2:
-        return False
-    return str2[:n1] == str1 and str2[-n1:] == str1
-
-
 def count_prefix_and_suffix_pairs_1(words):
+    def is_prefix_and_suffix(str1, str2):
+        n1, n2 = len(str1), len(str2)
+        if n1 > n2:
+            return False
+        return str2[:n1] == str1 and str2[-n1:] == str1
+
     n, result = len(words), 0
     for i in range(n):
         for j in range(i + 1, n):
