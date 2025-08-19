@@ -206,23 +206,187 @@ def length_of_longest_common_prefix(arr1, arr2):
 
 def longest_cont_subarray_with_abs_diff(nums, limit):
     # https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/solutions/609771/java-c-python-deques-o-n
-    pass
+    max_deque = collections.deque()
+    min_deque = collections.deque()
+    i = 0
+    for num in nums:
+        while max_deque and num > max_deque[-1]:
+            max_deque.pop()
+        while min_deque and num < min_deque[-1]:
+            min_deque.pop()
+        max_deque.append(num)
+        min_deque.append(num)
+        if max_deque[0] - min_deque[0] > limit:
+            if max_deque[0] == nums[i]:
+                max_deque.popleft()
+            if min_deque[0] == nums[i]:
+                min_deque.popleft()
+            i += 1
+    return len(nums) - i
 
 
 def non_overlapping_intervals(intervals):
-    overlap, result = float('-inf'), 0
-    intervals = sorted(intervals, key=lambda x: x[0])
-    for start, end in intervals:
-        if start >= overlap:
-            overlap = end
+    # https://leetcode.com/problems/non-overlapping-intervals/submissions/1741423184
+    intervals = sorted(intervals, key=lambda x: x[1])
+    final_end, result = intervals[0][1], 0
+    for start, end in intervals[1:]:
+        if start >= final_end:
+            final_end = end
         else:
             result += 1
     return result
 
 
-def biggest_3_rhombus_sums_in_grid(grid):
+class Bank:
+
+    def __init__(self, balance: list[int]):
+        self.balance = balance
+
+    def transfer(self, account1: int, account2: int, money: int) -> bool:
+        if self.withdraw(account1, money):
+            if self.deposit(account2, money):
+                return True
+            self.deposit(account1, money)
+        return False
+
+    def deposit(self, account: int, money: int) -> bool:
+        if 1 <= account <= len(self.balance):
+            self.balance[account - 1] += money
+            return True
+        return False
+
+    def withdraw(self, account: int, money: int) -> bool:
+        if 1 <= account <= len(self.balance) and self.balance[account - 1] >= money:
+            self.balance[account - 1] -= money
+            return True
+        return False
+
+
+def candy_crush(board: list[list[int]]) -> list[list[int]]:
+    # https://algo.monster/liteproblems/723
+    # Dimensions of the board
+    num_rows, num_cols = len(board), len(board[0])
+
+    # Flag to indicate if we should continue crushing candies
+    should_crush = True
+
+    # Keep crushing candies until no more moves can be made
+    while should_crush:
+        should_crush = False  # Reset the flag for each iteration
+
+        # Mark the candies to be crushed horizontally
+        for row in range(num_rows):
+            for col in range(num_cols - 2):
+                candy_value = abs(board[row][col])
+
+                # Check if three consecutive candies have the same value
+                if candy_value != 0 and candy_value == abs(board[row][col + 1]) == abs(board[row][col + 2]):
+                    should_crush = True  # We will need another pass after crushing
+
+                    # Mark the candies for crushing by negating their value
+                    board[row][col] = board[row][col + 1] = board[row][col + 2] = -candy_value
+
+        # Mark the candies to be crushed vertically
+        for col in range(num_cols):
+            for row in range(num_rows - 2):
+                candy_value = abs(board[row][col])
+
+                # Check if three consecutive candies vertically have the same value
+                if candy_value != 0 and candy_value == abs(board[row + 1][col]) == abs(board[row + 2][col]):
+                    should_crush = True  # We will need another pass after crushing
+
+                    # Mark the candies for crushing
+                    board[row][col] = board[row + 1][col] = board[row + 2][col] = -candy_value
+
+        # Drop the candies to fill the empty spaces caused by crushing
+        if should_crush:
+            for col in range(num_cols):
+                # Pointer to where the next non-crushed candy will fall
+                write_row = num_rows - 1
+                for row in range(num_rows - 1, -1, -1):
+
+                    # If the candy is not marked for crushing, bring it down
+                    if board[row][col] > 0:
+                        board[write_row][col] = board[row][col]
+                        write_row -= 1
+
+                # Fill the remaining spaces at the top with zeros
+                while write_row >= 0:
+                    board[write_row][col] = 0
+                    write_row -= 1
+
+    # Return the modified board after all possible crushes are completed
+    return board
+
+
+class TrieNode:
+    # https://algo.monster/liteproblems/1166
+    def __init__(self, value: int = -1):
+        self.children = {}  # Initialize an empty dictionary for children
+        self.value = value  # Store the value associated with the node
+
+    def insert(self, path: str, value: int) -> bool:
+        """
+        Insert a path with its value into the trie.
+        If path already exists or the parent doesn't exist, return False. Otherwise, insert and return True.
+        """
+        node = self
+        # Split the path by '/' and iterate over the parts, excluding the first empty string and the last part
+        parts = path.split("/")[1:-1]
+        for part in parts:
+            if part not in node.children:
+                # If a part of the path doesn't exist, insertion is not possible
+                return False
+            node = node.children[part]
+
+        if parts[-1] in node.children:
+            # If the last part of the path already exists, insertion is not possible
+            return False
+
+        # Otherwise, create the node for the new path and assign the value
+        node.children[parts[-1]] = TrieNode(value)
+        return True
+
+    def search(self, path: str) -> int:
+        """
+        Search for a path and return its associated value.
+        If the path doesn't exist, return -1.
+        """
+        node = self
+        # Split the path by '/' and iterate over the parts, excluding the first empty string
+        for part in path.split("/")[1:]:
+            if part not in node.children:
+                # If a part of the path doesn't exist, the search is unsuccessful
+                return -1
+            node = node.children[part]
+        return node.value  # Return the value of the final node
+
+
+class FileSystem:
+    def __init__(self):
+        self.root = TrieNode()  # Initialize the file system with a root trie node
+
+    def createPath(self, path: str, value: int) -> bool:
+        """
+        Public method to create a path with its value in the file system.
+        Returns True if the path was successfully created, False otherwise.
+        """
+        return self.root.insert(path, value)
+
+
+    def get(self, path: str) -> int:
+        """
+        Public method to get the value of a path in the file system.
+        Returns the value if the path exists, -1 otherwise.
+        """
+        return self.root.search(path)
+
+
+def rotating_the_box(box_grid):
     pass
 
+def biggest_3_rhombus_sums_in_grid(grid):
+    pass
 
 
 def k_diff_pairs_in_array(nums, k):
