@@ -1,5 +1,4 @@
 import collections
-import math
 import heapq
 
 class ListNode:
@@ -131,22 +130,29 @@ def word_search(board, word):
 
 def best_time_to_buy_and_sell_stock_2(prices):
     # https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/solutions/5816678/video-sell-a-stock-immediately
-    profit = 0
+    total_profit = 0
 
     for i in range(1, len(prices)):
-        buy_price = prices[i - 1]
-        sell_price = prices[i]
+        buy_price, sell_price = prices[i - 1], prices[i]
         if sell_price > buy_price:
-            profit += sell_price - buy_price
-    return profit
+            total_profit += sell_price - buy_price
+    return total_profit
 
 
 def coin_change(coins, amount):
-    pass
+    dp = [float('inf')] * (amount + 1)
+    dp[0] = 0  # base case
+
+    for x in range(1, amount + 1):
+        for coin in coins:
+            if x - coin >= 0:
+                dp[x] = min(dp[x], 1 + dp[x - coin])
+
+    return dp[amount] if dp[amount] != float('inf') else -1
 
 
 def rotate_array(nums, k):
-
+    # https://leetcode.com/problems/rotate-array/solutions/1730142/java-c-python-a-very-very-well-detailed-explanation
     def reverse(nums, l, r):
         while l < r:
             nums[l], nums[r] = nums[r], nums[l]
@@ -154,10 +160,10 @@ def rotate_array(nums, k):
             r -= 1
 
     n = len(nums)
-    if n == k:
+    if n == k:  # If the length of the array and the k are same then we don't need to rotate
         return
 
-    k = k % n
+    k = k % n  # If the k > n, it creates a k such that it falls between 0 and n
 
     reverse(nums, 0, n - 1)
     reverse(nums, 0, k - 1)
@@ -203,10 +209,6 @@ def longest_cont_subarray_with_abs_diff(nums, limit):
     pass
 
 
-def biggest_3_rhombus_sums_in_grid(grid):
-    pass
-
-
 def non_overlapping_intervals(intervals):
     overlap, result = float('-inf'), 0
     intervals = sorted(intervals, key=lambda x: x[0])
@@ -218,14 +220,17 @@ def non_overlapping_intervals(intervals):
     return result
 
 
+def biggest_3_rhombus_sums_in_grid(grid):
+    pass
+
+
+
 def k_diff_pairs_in_array(nums, k):
     # https://leetcode.com/problems/k-diff-pairs-in-an-array/solutions/100135/java-python-easy-understood-solution
     result, counter = 0, collections.Counter(nums)
 
     for key in counter:
-        if k > 0 and key + k in counter:
-            result += 1
-        elif k == 0 and counter[key] > 1:
+        if (k == 0 and counter[key] > 1) or (k > 0 and key + k in counter):
             result += 1
     return result
 
@@ -235,7 +240,7 @@ def counting_alternating_subarrays(nums):
     dp = [1] * n
 
     for i in range(1, n):
-        if nums[i - 1] != nums[i]:
+        if nums[i] != nums[i - 1]:
             dp[i] = dp[i - 1] + 1
 
     return sum(dp)
@@ -244,32 +249,41 @@ def counting_alternating_subarrays(nums):
 def four_divisors(nums):
     """
     A number with exactly 4 divisors must be:
-        - The cube of a prime (p³ → divisors = {1, p, p², p³}).
+        - The cube of a prime (p³ → divisors = {1, p, p², p³}).  # This is not exactly necessary as the below condition covers.
         - The product of two distinct primes (p * q → divisors = {1, p, q, pq}).
     """
 
     def is_prime(num):
-        if num < 2:
+        if num < 2 or num % 2 == 0:
             return False
-        if num % 2 == 0:
-            return False
-        r = int(math.sqrt(num))
-        for i in range(3, r + 1, 2):
+        for i in range(3, int(num ** 0.5) + 1, 2):
             if num % i == 0:
                 return False
         return True
 
+    def is_prime2(num):
+        if num < 2 or num % 2 == 0 or num % 3 == 0:
+            return False
+        if num in (2, 3):
+            return True
+        r = int(num ** 0.5)
+        for i in range(5, r + 1, 6):
+            if num % i == 0 or num % (i + 2) == 0:
+                return False
+        return True
+
+
     result = 0
 
     for num in nums:
-        root = round(num ** (1/3))
+        cube_root = round(num ** (1/3))
 
-        # Verify exactly: root**3 == num (avoids float error) and is_prime(root).
-        if root ** 3 == num and is_prime(root):
-            result += 1 + root + root ** 2 + root ** 3
+        # Verify exactly: cube_root ** 3 == num (avoids float error) and is_prime(cube_root).
+        if cube_root ** 3 == num and is_prime(cube_root):
+            result += 1 + cube_root + cube_root ** 2 + cube_root ** 3
         else:
             divs = set()
-            for d in range(1, int(math.sqrt(num)) + 1):
+            for d in range(1, int(num ** 0.5) + 1):
                 if num % d == 0:
                     divs.add(d)
                     divs.add(num // d)
