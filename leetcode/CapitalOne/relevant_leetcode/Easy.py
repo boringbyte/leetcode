@@ -28,7 +28,7 @@ def valid_parenthesis(s):
     if len(s) % 2 == 1:
         return False
 
-    stack, hashmap = [], {'{': '}', '(': ')', '[': ']'}
+    stack, hashmap = [], {'(': ')', '[': ']', '{': '}'}
 
     for char in s:
         if char in hashmap:
@@ -105,9 +105,9 @@ def add_strings(num1, num2):
     while i >= 0 or j >= 0 or carry:
         digit1 = digit2 = 0
         if i >= 0:
-            digit1 = string_to_digit(num1[i])
+            digit1 = int(num1[i])
         if j >= 0:
-            digit2 = string_to_digit(num2[j])
+            digit2 = int(num2[j])
         carry, digit = divmod(digit1 + digit2 + carry, 10)
         result.append(str(digit))
         i, j = i - 1, j - 1
