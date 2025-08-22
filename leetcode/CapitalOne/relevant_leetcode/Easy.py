@@ -150,7 +150,7 @@ def count_prefix_and_suffix_pairs_1(words):
         n1, n2 = len(word1), len(word2)
         if n1 > n2:
             return False
-        return word2[:n1] == word1 and word2[-n1:] == word1
+        return word1 == word2[:n1] and word1 == word2[-n1:]
 
     n, result = len(words), 0
     for i in range(n):

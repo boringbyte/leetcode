@@ -2,6 +2,7 @@ from functools import lru_cache
 from collections import defaultdict
 
 
+
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
@@ -15,23 +16,41 @@ class TrieNode:
 
 
 def text_justification(words, max_width):
-    result, line, width = [], [], 0
+    result, line, num_of_chars = [], [], 0
 
     for word in words:
-        if width + len(word) + len(line) > max_width:
-            for i in range(max_width - width):
-                line[i % (len(line) - 1 or 1)] += ' '
-                result, line, width = result + [''.join(line)], [], 0
-            line += [word]
-            width += len(word)
+        # Check if adding this word + minimal spaces would overflow
+        # num_of_chars measures the length of words already present in the line list
+        # len(word) measures the length of word if it is added to the current list
+        # len(line) is for number of spaces
+        if num_of_chars + len(word) + len(line) > max_width:
+            # Finalize current line by distributing spaces
+            # max_width - number of actual characters without any spaces
+            spaces_to_add = max_width - num_of_chars
+            # If there are multiple words, gaps = len(line) - 1.
+            # If there’s only one word in the line, len(line) - 1 is 0, so we use or 1 to avoid division by zero; this puts all spaces after the only word (i.e., left-justified).
+            gaps = len(line) - 1 or 1
+            for i in range(spaces_to_add):
+                # This adds spaces to the end of the end of each word in the list expect the last word
+                line[i % gaps] += ' '
+            result.append(''.join(line))
+            # Reset for the next line
+            line, num_of_chars = [], 0
 
-    return result + [' '.join(line).ljust(max_width)]
+        # Add the word to the (new or continuing) line
+        line.append(word)
+        num_of_chars += len(word)
+
+    # Last line: left-justify
+    result.append(' '.join(line).ljust(max_width))
+    return result
 
 
 def reverse_nodes_in_k_group(head, k):
     # https://labuladong.gitbook.io/algo-en/iv.-high-frequency-interview-problem/reverse-nodes-in-k-group
     # https://leetcode.com/problems/reverse-nodes-in-k-group/solutions/4335870/easy-solution
 
+    # Check if we have k nodes available
     count = 0
     current = head
     while current and count < k:
@@ -41,32 +60,48 @@ def reverse_nodes_in_k_group(head, k):
     if count < k:
         return head
 
-    prev, curr = None, head
+    # Reverse the first k nodes
+    prev_node, current_node = None, head
     for _ in range(k):
-        nxt = curr.next
-        curr.next = prev
-        prev = curr
-        curr = nxt
+        next_node = current_node.next  # save the next node
+        current_node.next = prev_node  # reverse pointer
+        prev_node = current_node  # move prev forward
+        current_node = next_node  # move curr forward
 
     # Recursively reverse the remaining groups
-    head.next = reverse_nodes_in_k_group(curr, k)
-    return prev
+    head.next = reverse_nodes_in_k_group(current_node, k)
+    # Return new head of this group
+    return prev_node
 
 
 def largest_rectangle_in_histogram(heights):
     # https://leetcode.com/problems/largest-rectangle-in-histogram/solutions/1727641/python3-monotonic-stack-t-t-explained
 
-    stack, result = [], 0
-    for height in heights + [-1]:
+    stack, result = [], 0  # Stack contains both the width and height and The stack maintains increasing heights.
+    for height in heights + [-1]:  # The -1 ensures the stack gets completely emptied at the end (all rectangles get processed).
         width = 0
-        while stack and stack[-1][1] >= height:
+        while stack and stack[-1][1] >= height: # If the current height is smaller than or equal to the height on top of the stack
             w, h = stack.pop()
             width += w
             result = max(result, width * h)
 
-        stack.append((width + 1, height))
+        stack.append((width + 1, height)) # This bar itself contributes width 1.
 
     return result
+
+
+class TrieNode2:
+    def __init__(self):
+        self.children = defaultdict(TrieNode2)
+        self.word = None   # store the complete word at the end node
+
+
+def word_search_2(board, words):
+    pass
+
+
+def block_placement_queries(queries):
+    pass
 
 
 def split_message_based_on_limit(message, limit):
@@ -104,9 +139,9 @@ def count_prefix_and_suffix_pairs_2(words):
     result = 0
 
     for word in words:
-        node = root
         reversed_word = word[::-1]
 
+        node = root
         for i in range(len(word)):
             key = (word[i], reversed_word[i])
             node = node.children[key]

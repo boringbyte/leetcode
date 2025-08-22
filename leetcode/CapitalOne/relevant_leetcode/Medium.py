@@ -76,7 +76,7 @@ def rotate_image(matrix):
     n = len(matrix)
     top, bottom = 0, n - 1
 
-    while top < bottom:  # This is for inverting the rows along the horizontal axis
+    while top <= bottom:  # This is for inverting the rows along the horizontal axis
         matrix[top], matrix[bottom] = matrix[bottom], matrix[top]
         top += 1
         bottom -= 1
@@ -90,10 +90,11 @@ def rotate_image(matrix):
 
 def meeting_rooms_2(intervals):
     # https://walkccc.me/LeetCode/problems/253/#__tabbed_1_3
+    # https://medium.com/@edward.zhou/leetcode-253-meeting-rooms-ii-explained-python3-solution-3f8869612df
     if not intervals:
         return 0
 
-    heap, n = [], len(intervals)
+    heap = []
     intervals = sorted(intervals, key=lambda x: x[0])
     heapq.heappush(heap, intervals[0][1])
 
@@ -106,7 +107,7 @@ def meeting_rooms_2(intervals):
 
 
 def word_search(board, word):
-    directions, visited = [(1, 0), (0, 1), (-1, 0), (0, -1)], set()
+    directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
     m, n, k = len(board), len(board[0]), len(word)
 
     def dfs(x, y, idx):
@@ -124,7 +125,8 @@ def word_search(board, word):
 
     for i in range(m):
         for j in range(n):
-            dfs(i, j, 0)
+            if dfs(i, j, 0):
+                return True
     return False
 
 
@@ -143,10 +145,11 @@ def coin_change(coins, amount):
     dp = [float('inf')] * (amount + 1)
     dp[0] = 0  # base case
 
-    for x in range(1, amount + 1):
+    for current_amount in range(1, amount + 1):
         for coin in coins:
-            if x - coin >= 0:
-                dp[x] = min(dp[x], 1 + dp[x - coin])
+            remaining_amount = current_amount - coin
+            if remaining_amount >= 0:
+                dp[current_amount] = min(dp[current_amount], 1 + dp[remaining_amount])
 
     return dp[amount] if dp[amount] != float('inf') else -1
 
@@ -204,7 +207,7 @@ def length_of_longest_common_prefix(arr1, arr2):
     return result
 
 
-def longest_cont_subarray_with_abs_diff(nums, limit):
+def longest_cont_subarray_with_abs_diff_le_limit(nums, limit):
     # https://leetcode.com/problems/longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit/solutions/609771/java-c-python-deques-o-n
     max_deque = collections.deque()
     min_deque = collections.deque()
@@ -234,6 +237,16 @@ def non_overlapping_intervals(intervals):
             final_end = end
         else:
             result += 1
+    return result
+
+
+def merge(intervals):
+    intervals, result = sorted(intervals, key=lambda x: x[0]), []
+    for start, end in intervals:
+        if not result or start > result[-1][-1]:
+            result.append([start, end])
+        else:
+            result[-1][-1] = max(result[-1][-1], end)
     return result
 
 
@@ -277,26 +290,20 @@ def candy_crush(board: list[list[int]]) -> list[list[int]]:
         # Mark the candies to be crushed horizontally
         for row in range(num_rows):
             for col in range(num_cols - 2):
-                candy_value = abs(board[row][col])
-
                 # Check if three consecutive candies have the same value
-                if candy_value != 0 and candy_value == abs(board[row][col + 1]) == abs(board[row][col + 2]):
+                if abs(board[row][col]) != 0 and abs(board[row][col]) == abs(board[row][col + 1]) == abs(board[row][col + 2]):
                     should_crush = True  # We will need another pass after crushing
-
                     # Mark the candies for crushing by negating their value
-                    board[row][col] = board[row][col + 1] = board[row][col + 2] = -candy_value
+                    board[row][col] = board[row][col + 1] = board[row][col + 2] = -abs(board[row][col])
 
         # Mark the candies to be crushed vertically
         for col in range(num_cols):
             for row in range(num_rows - 2):
-                candy_value = abs(board[row][col])
-
                 # Check if three consecutive candies vertically have the same value
-                if candy_value != 0 and candy_value == abs(board[row + 1][col]) == abs(board[row + 2][col]):
+                if abs(board[row][col]) != 0 and abs(board[row][col]) == abs(board[row + 1][col]) == abs(board[row + 2][col]):
                     should_crush = True  # We will need another pass after crushing
-
-                    # Mark the candies for crushing
-                    board[row][col] = board[row + 1][col] = board[row + 2][col] = -candy_value
+                    # Mark the candies for crushing by negating their value
+                    board[row][col] = board[row + 1][col] = board[row + 2][col] = -abs(board[row][col])
 
         # Drop the candies to fill the empty spaces caused by crushing
         if should_crush:
@@ -304,7 +311,6 @@ def candy_crush(board: list[list[int]]) -> list[list[int]]:
                 # Pointer to where the next non-crushed candy will fall
                 write_row = num_rows - 1
                 for row in range(num_rows - 1, -1, -1):
-
                     # If the candy is not marked for crushing, bring it down
                     if board[row][col] > 0:
                         board[write_row][col] = board[row][col]
@@ -319,74 +325,171 @@ def candy_crush(board: list[list[int]]) -> list[list[int]]:
     return board
 
 
-class TrieNode:
-    # https://algo.monster/liteproblems/1166
-    def __init__(self, value: int = -1):
-        self.children = {}  # Initialize an empty dictionary for children
-        self.value = value  # Store the value associated with the node
+class FileSystem:
+    # https://leetcode.ca/all/1166.html
 
-    def insert(self, path: str, value: int) -> bool:
-        """
-        Insert a path with its value into the trie.
-        If path already exists or the parent doesn't exist, return False. Otherwise, insert and return True.
-        """
-        node = self
-        # Split the path by '/' and iterate over the parts, excluding the first empty string and the last part
-        parts = path.split("/")[1:-1]
-        for part in parts:
-            if part not in node.children:
-                # If a part of the path doesn't exist, insertion is not possible
-                return False
-            node = node.children[part]
+    def __init__(self):
+        # Store path → value mapping
+        self.paths = {}
 
-        if parts[-1] in node.children:
-            # If the last part of the path already exists, insertion is not possible
+    def create_path(self, path: str, value: int) -> bool:
+        # If path already exists, can't create
+        if path in self.paths:
             return False
 
-        # Otherwise, create the node for the new path and assign the value
-        node.children[parts[-1]] = TrieNode(value)
+        # Extract parent path
+        parent = path[:path.rfind("/")]
+        # If parent is not root and not already created → invalid
+        if parent != "" and parent not in self.paths:
+            return False
+
+        # Otherwise, create the new path
+        self.paths[path] = value
         return True
 
-    def search(self, path: str) -> int:
-        """
-        Search for a path and return its associated value.
-        If the path doesn't exist, return -1.
-        """
-        node = self
-        # Split the path by '/' and iterate over the parts, excluding the first empty string
-        for part in path.split("/")[1:]:
-            if part not in node.children:
-                # If a part of the path doesn't exist, the search is unsuccessful
-                return -1
-            node = node.children[part]
-        return node.value  # Return the value of the final node
-
-
-class FileSystem:
-    def __init__(self):
-        self.root = TrieNode()  # Initialize the file system with a root trie node
-
-    def createPath(self, path: str, value: int) -> bool:
-        """
-        Public method to create a path with its value in the file system.
-        Returns True if the path was successfully created, False otherwise.
-        """
-        return self.root.insert(path, value)
-
-
     def get(self, path: str) -> int:
-        """
-        Public method to get the value of a path in the file system.
-        Returns the value if the path exists, -1 otherwise.
-        """
-        return self.root.search(path)
+        return self.paths.get(path, -1)
 
 
 def rotating_the_box(box_grid):
-    pass
+    # # -> Stone, . -> Empty Space, # * -> Obstacle
+    m, n = len(box_grid), len(box_grid[0])
+
+    # Step 1: Apply gravity to each row
+    for row in box_grid:
+        # Start from the rightmost position
+        empty = n - 1
+        for col in range(n - 1, -1, -1):
+            if row[col] == '*':  # Obstacle: reset empty position
+                empty = col - 1
+            elif row[col] == '#':  # Stone: move it to the farthest right possible
+                row[col], row[empty] = '.', '#'
+                empty -= 1
+        # '.' remains as is
+
+    # Step 2: Rotate the matrix 90° clockwise
+    rotated = [[None] * m for _ in range(n)]
+    for i in range(m):
+        for j in range(n):
+            rotated[j][m - 1 - i] = box_grid[i][j]
+
+    return rotated
+
+
+def minimum_operations_to_write_letter_y_on_grid(grid):
+    n = len(grid)
+    center = n // 2
+
+    # Step 1: Identify Y cells
+    y_cells = set()
+    for r in range(center + 1):
+        y_cells.add((r, r))             # left diagonal
+        y_cells.add((r, n - 1 - r))     # right diagonal
+    for r in range(center, n):
+        y_cells.add((r, center))        # vertical line down
+
+    # Step 2: Count frequencies
+    count_y = [0] * 3
+    count_other = [0] * 3
+    for r in range(n):
+        for c in range(n):
+            v = grid[r][c]
+            if (r, c) in y_cells:
+                count_y[v] += 1
+            else:
+                count_other[v] += 1
+
+    total_y = sum(count_y)
+    total_other = sum(count_other)
+
+    # Step 3: Try all valid (a, b)
+    result = float("inf")
+    for a in range(3):
+        for b in range(3):
+            if a == b:
+                continue
+            ops_y = total_y - count_y[a]
+            ops_other = total_other - count_other[b]
+            result = min(result, ops_y + ops_other)
+
+    return result
+
+
+def number_of_black_blocks(m, n, coordinates):
+    count = collections.defaultdict(int)  # (block_x, block_y) -> black count
+    directions = [(-1, -1), (-1, 0), (0, -1), (0, 0)]  # These are different from normal directions
+
+    for x, y in coordinates:
+        for dx, dy in directions:
+            if 0 <= x + dx < m - 1 and 0 <= y + dy < n - 1:
+                count[(x + dx, y + dy)] += 1
+
+    result = [0] * 5
+    total_blocks = (m - 1) * (n - 1)
+
+    for v in count.values():
+        result[v] += 1
+
+    result[0] = total_blocks - sum(result[1:])
+    return result
+
 
 def biggest_3_rhombus_sums_in_grid(grid):
-    pass
+    l = []  # stores the sums
+    n = len(grid)  # number of rows
+    m = len(grid[0])  # number of cols
+
+    # iterate over every tile
+    for i in range(n):
+        for j in range(m):
+            # top tile point of rhombus
+            ans = grid[i][j]
+            l.append(grid[i][j])  # valid rhombus sum (one point)
+
+            # distance var to store distance from j to both ends of rhombus
+            # (used to increase size of rhombus)
+            distance = 1
+
+            # make sure the tile is within grid bounds
+            while i + distance < n and j - distance >= 0 and j + distance < m:
+                # iterate over all possible rhombus sizes using the distance var
+
+                a = i + distance  # next row
+                b = j + distance  # col to the right
+                c = j - distance  # col to the left
+
+                # right tile point of rhombus: grid[a][b]
+                # left tile point of rhombus: grid[a][c]
+                ans += grid[a][b] + grid[a][c]
+
+                # a dummy variable to store the present sum of the sides
+                # (left and right tile point)
+                dummy = 0
+                while True:
+                    # iterate to find the bottom point of rhombus
+
+                    c += 1  # left tile point moves toward the right
+                    b -= 1  # right tile point moves toward the left
+                    a += 1  # moves to the bottom (next row)
+
+                    if c == m or b == 0 or a == n:
+                        break  # reached bounds
+
+                    # left and right cols met at "middle"
+                    if c == b:  # found the bottom tile point of rhombus
+                        # add bottom tile sum to sides (left and right) sum
+                        dummy += grid[a][b]
+                        l.append(ans + dummy)  # appending the obtained sum
+                        break
+
+                    dummy += grid[a][b] + grid[a][c]  # adding both sides sum to dummy
+
+                distance += 1
+
+    l = list(set(l))  # remove duplicates
+    l.sort(reverse=True)
+    # return first 3 largest sums
+    return l[:3]
 
 
 def k_diff_pairs_in_array(nums, k):
@@ -426,33 +529,123 @@ def four_divisors(nums):
         return True
 
     def is_prime2(num):
-        if num < 2 or num % 2 == 0 or num % 3 == 0:
-            return False
         if num in (2, 3):
             return True
+        if num < 2 or num % 2 == 0 or num % 3 == 0:
+            return False
         r = int(num ** 0.5)
         for i in range(5, r + 1, 6):
             if num % i == 0 or num % (i + 2) == 0:
                 return False
         return True
 
+    result = 0
+    for num in nums:
+        # cube_root = round(num ** (1/3))
+        #
+        # # Verify exactly: cube_root ** 3 == num (avoids float error) and is_prime(cube_root).
+        # if cube_root ** 3 == num and is_prime(cube_root):
+        #     result += 1 + cube_root + cube_root ** 2 + cube_root ** 3
+        # else:
+        divs = set()
+        for div in range(1, int(num ** 0.5) + 1):
+            if num % div == 0:
+                divs.add(div)
+                divs.add(num // div)
+            if len(divs) > 4:
+                break
+        if len(divs) == 4:
+            result += sum(divs)
+    return result
 
+
+def color_the_array(n, queries):
+    # https://leetcode.com/problems/number-of-adjacent-elements-with-the-same-color/
+    colors = [0] * n
+    result = []
+    count = 0  # current number of adjacent pairs with same color
+
+    for index, new_color in queries:
+        # Decrement count for pairs broken by changing colors[index]
+        if index > 0 and colors[index] != 0 and colors[index] == colors[index-1]:
+            count -= 1
+        if index < n-1 and colors[index] != 0 and colors[index] == colors[index+1]:
+            count -= 1
+
+        # Update the color
+        colors[index] = new_color
+
+        # Increment count for pairs formed by new color
+        if index > 0 and colors[index] == colors[index-1]:
+            count += 1
+        if index < n-1 and colors[index] == colors[index+1]:
+            count += 1
+
+        result.append(count)
+
+    return result
+
+
+class LRUCache:
+    # https://leetcode.com/problems/lru-cache
+    def __init__(self, capacity: int):
+        self.cache = collections.OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key: int) -> int:
+        if key not in self.cache:
+            return -1
+        # Move key to the end (mark as most recently used)
+        value = self.cache.pop(key)
+        self.cache[key] = value
+        return value
+
+    def put(self, key: int, value: int) -> None:
+        if key in self.cache:
+            # Remove old entry
+            self.cache.pop(key)
+        elif len(self.cache) >= self.capacity:
+            # Remove least recently used item (first item in OrderedDict)
+            self.cache.popitem(last=False)
+        # Insert new value as most recent
+        self.cache[key] = value
+
+
+def num_of_sub_arrays_that_match_pattern_1(nums, pattern):
+    # https://leetcode.com/problems/number-of-subarrays-that-match-a-pattern-i
+    m = len(nums)
+    n = len(pattern)
     result = 0
 
-    for num in nums:
-        cube_root = round(num ** (1/3))
+    for i in range(m - n):
+        match = True
+        for k in range(n):
+            if pattern[k] == 1 and nums[i + k + 1] <= nums[i + k]:
+                match = False
+                break
+            elif pattern[k] == 0 and nums[i + k + 1] != nums[i + k]:
+                match = False
+                break
+            elif pattern[k] == -1 and nums[i + k + 1] >= nums[i + k]:
+                match = False
+                break
+        if match:
+            result += 1
 
-        # Verify exactly: cube_root ** 3 == num (avoids float error) and is_prime(cube_root).
-        if cube_root ** 3 == num and is_prime(cube_root):
-            result += 1 + cube_root + cube_root ** 2 + cube_root ** 3
-        else:
-            divs = set()
-            for d in range(1, int(num ** 0.5) + 1):
-                if num % d == 0:
-                    divs.add(d)
-                    divs.add(num // d)
-                if len(divs) > 4:
-                    break
-            if len(divs) == 4:
-                result += sum(divs)
     return result
+
+
+def odd_event_list(head: ListNode | None) -> ListNode | None:
+    # https://leetcode.com/problems/odd-even-linked-list/description/
+    if not head or not head.next:
+        return head
+
+    odd, even, even_head = head, head.next, head.next
+
+    while even and even.next:
+        odd.next = even.next
+        odd = odd.next
+        even.next = odd.next
+        even = even.next
+    odd.next = even_head
+    return head
