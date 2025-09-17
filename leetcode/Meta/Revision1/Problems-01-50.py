@@ -1539,12 +1539,3 @@ def buildings_with_an_ocean_view1(heights):
             result.append(i)
     return result[::-1]
 
-
-def buildings_with_an_ocean_view2(heights):
-    # Write solution if ocean is to the left of the buildings.
-    stack = []
-    for i, height in enumerate(heights):
-        while stack and height >= heights[stack[-1]]:
-            stack.pop()
-        stack.append(i)
-    return stack

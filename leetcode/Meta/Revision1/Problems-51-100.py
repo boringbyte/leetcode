@@ -847,18 +847,24 @@ def binary_tree_vertical_order_traversal_bfs(root):
 
 
 def binary_tree_vertical_order_traversal_pre(root):
-    hashmap = {}
+    if root is None:
+        return
+    result = []
+    column_dict = collections.defaultdict(list)
 
-    def dfs(node, distance):
-        if node is None:
+    def dfs(node, depth, column):
+        if not node:
             return
-        hashmap.setdefault(distance, []).append(node.val)
-        dfs(node.left, distance - 1)
-        dfs(node.right, distance + 1)
+        column_dict[column].append((depth, node.val))
+        dfs(node.left, depth + 1, column - 1)
+        dfs(node.right, depth + 1, column + 1)
 
-    dfs(root, 0)
-    for value in hashmap.values():
-        print(value)
+    dfs(root, 0, 0)
+    for column in sorted(column_dict.keys()):
+        depth_value_tuples = column_dict[column]
+        depth_value_tuples.sort(key=lambda x: x[0])
+        result.append([val for depth, val in depth_value_tuples])
+    return result
 
 
 def max_consecutive_ones_3(nums, k):
