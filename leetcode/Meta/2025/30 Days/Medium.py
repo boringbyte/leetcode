@@ -2,7 +2,7 @@ import bisect
 import random
 import heapq
 from collections import OrderedDict, defaultdict, deque, Counter
-from leetcode.LCMetaPractice import ListNode, TreeNode, RandomPointerNode
+from leetcode.LCMetaPractice import ListNode, TreeNode, RandomPointerNode, GraphNode
 
 
 def simplify_path(path):
@@ -926,3 +926,309 @@ def sum_root_to_leaf_numbers_2(root):
         if current.right:
             stack.append((current.right, value))
     return result
+
+
+def max_consecutive_ones_iii(nums, k):
+    # https://leetcode.com/problems/max-consecutive-ones-iii
+    n, result, left, zeros = len(nums), 0, 0, 0
+    for right in range(n):
+        # Step 1: Include nums[right]
+        if nums[right] == 0:
+            zeros += 1
+
+        # Step 2: Shrink if invalid
+        while zeros > k:
+            if nums[left] == 0:
+                zeros -= 1
+            left += 1
+
+        # Step 3: Update answer
+        result = max(result, right - left + 1)
+    return result
+
+
+def interval_list_intersections(first_list, second_list):
+    # https://leetcode.com/problems/interval-list-intersections
+
+    # Make sure that lists are sorted
+    i, j = 0, 0
+    n1, n2 = len(first_list), len(second_list)
+    result = []
+
+    while i < n1 and i < n2:
+        # Step 1: Find the overlap between first_list[i] and second_list[j]
+        start = max(first_list[i][0], second_list[j][0])
+        end = min(first_list[i][1], second_list[j][1])
+
+        # Step 2: If they overlap, add to result
+        if start <= end:
+            result.append([start, end])
+
+        # Step 3: Move the pointer with the smaller endpoint
+        # because that interval can't intersect any further
+        if first_list[i][1] < second_list[j][1]:
+            i += 1
+        else:
+            j += 1
+
+    return result
+
+
+def clone_graph_1(node):
+    # https://leetcode.com/problems/clone-graph
+    # Edge case: empty graph
+    if not node:
+        return node
+
+    # Dictionary to map original node -> cloned node
+    visited = {node: GraphNode(val=node.val, neighbors=[])}
+
+    queue = deque([node])
+
+
+    while queue:
+        current = queue.popleft()
+        for neighbor in current.neighbors:
+            if neighbor not in visited:
+                # Clone this neighbor and put in visited
+                visited[neighbor] = GraphNode(neighbor.val, [])
+
+                # Add neighbor to queue for further exploration
+                queue.append(neighbor)
+
+            # Add the cloned neighbor to the cloned current node's neighbors list
+            visited[current].neighbors.append(visited[neighbor])
+    return visited[node]
+
+
+def clone_graph_2(node):
+    visited = {}
+
+    def dfs(current):
+        # If current node already cloned, return it
+        if current in visited:
+            return visited[current]
+
+        # Create a clone for the current node
+        clone = GraphNode(current.val, [])
+        visited[current] = clone  # Save it in the mapping
+
+        # Recursively clone neighbors
+        for neighbor in current.neighbors:
+            clone.neighbors.append(dfs(neighbor))
+
+        return clone
+
+    return dfs(node) if node else node
+
+
+def build_graph_from_binary_tree(root):
+    # This graph is undirected.
+    graph = defaultdict(list)
+
+    def dfs(child, parent):
+        if parent:  # If you are checking for this node, append this itself
+            graph[child].append(parent)
+        if child.left:  # If you are checking for this node, append this itself
+            graph[child].append(child.left)
+            dfs(child.left, child)
+        if child.right:  # If you are checking for this node, append this itself
+            graph[child].append(child.right)
+            dfs(child.right, child)
+
+    dfs(root, None)
+    return graph
+
+
+def all_nodes_distance_k_in_binary_tree_1(root, target, k):
+    visited, result = {target}, []
+    graph = build_graph_from_binary_tree(root)
+
+    def dfs(node, distance):
+        if distance == 0:
+            result.append(node.val)
+        else:
+            visited.add(node)
+            for neighbor in graph[node]:
+                if neighbor not in visited:
+                    dfs(neighbor, distance - 1)
+
+    dfs(target, k)
+    return result
+
+
+def all_nodes_distance_k_in_binary_tree_2(root, target, k):
+    visited, result, queue = set(), [], deque([(target, 0)])
+    graph = build_graph_from_binary_tree(root)
+    while queue:
+        current, distance = queue.popleft()
+
+        # If the node is not already visited, add it to the visited
+        if current not in visited:
+            visited.add(current)
+
+            # Case A: If we've reached distance k, add this node's value to result
+            if k == distance:
+                result.append(current.val)
+            # Case B: If not yet at distance k, expand to neighbors
+            elif distance < k:
+                for child in graph[current]:
+                    queue.append((child, distance + 1))
+    return result
+
+
+def exclusive_time_of_functions(n, logs):
+    # https://leetcode.com/problems/exclusive-time-of-functions/discuss/863039/Python-3-or-Clean-Simple-Stack-or-Explanation
+
+    # Result array: exclusive time of each function (initialized to 0)
+    # Stack: holds [function_id, start_time] for functions currently running
+    # 'prev_time' is often used for tracking time slices
+    result, stack, prev_time = [0] * n, [], 0
+    for log in logs:
+        # Parse the log entry (format: "id:start/end:timestamp")
+        func, status, curr_time = log.split(':')
+        func, curr_time = int(func), int(curr_time)
+
+        if status == 'start':
+            # If another function was running, give it credit up to (curr_time - 1)
+            if stack:
+                result[stack[-1]] += curr_time - prev_time
+            # Push the new function onto the stack (it starts running now)
+            stack.append(func)
+            # Update prev_time to this function's start time
+            prev_time = curr_time
+        else: # status == 'end'
+            # Pop the function that just ended
+            stack.pop()
+            # Add its running time from prev_time up to curr_time (inclusive)
+            result[func] += (curr_time - prev_time + 1)
+            # The next function (if any) resumes at curr_time + 1
+            prev_time = curr_time + 1
+    return result
+
+
+
+def palindromic_substrings(s):
+    # https://leetcode.com/problems/palindromic-substrings
+    """
+    Count how many substrings of s are palindromes.
+    Approach: Expand Around Center
+    Time Complexity: O(n^2)  (n centers, O(n) expansion per center)
+    Space Complexity: O(1)
+    """
+    n, result = len(s), [0]
+
+    # Each index can be the center of:
+    # 1) An odd-length palindrome (centered at i)
+    # 2) An even-length palindrome (centered between i and i+1)
+    def count_palindromic(s, l, r):
+        while l >= 0 and r < n and s[l] == s[r]:
+            result[0] = result[0] + 1
+            l -= 1
+            r += 1
+
+    for i in range(n):
+        count_palindromic(s, i, i)       # odd-length palindromes
+        count_palindromic(s, i, i + 1)   # even-length palindromes
+
+    return result[0]
+
+
+
+def minimum_add_to_make_parentheses_valid_1(s):
+    # Check calculate_invalid function in 01-50 problems list as well
+    # https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/description/
+    left, right = 0, 0
+    for char in s:
+        if char == '(':
+            right += 1
+        elif right > 0:
+            right -= 1
+        else:
+            left += 1
+    return left + right
+
+
+def minimum_add_to_make_parentheses_valid_2(s):
+    right, stack = 0, []
+    for char in s:
+        if char == '(':
+            stack.append(char)
+        elif stack and char == ')':
+            stack.pop()
+        else:
+            right += 1
+    return right + len(stack)
+
+
+def string_to_integer_atoi(s):
+    # https://leetcode.com/problems/string-to-integer-atoi
+    INT_MAX, INT_MIN = 2 ** 31 -1 , -2 ** 31
+
+    i, n = 0, len(s)
+    # Step 1: Skip leading whitespaces
+    while i < n and s[i] == ' ':
+        i += 1
+
+    # Step 2: Handle optional sign
+    sign = 1
+    if i < n and s[i] in ('+', '-'):
+        if s[i] == '-':
+            sign = -1
+        i += 1
+
+    # Step 3: Parse digits
+    num = 0
+    while i < n and s[i].isdigit():
+        digit = int(s[i])
+        num = num * 10 + digit
+        i += 1
+
+    # Step 4: Apply sign
+    num *= sign
+
+    # Step 5: Clamp to 32-bit integer range
+    num = max(INT_MIN, min(INT_MAX, num))
+
+    return num
+
+
+def add_two_numbers(l1, l2):
+    # https://leetcode.com/problems/add-two-numbers
+    if l1 and l2:
+        head = current = ListNode()
+        carry = 0
+
+        while l1 or l2 or carry:
+            if l1:
+                carry += l1.val
+                l1 = l1.next
+            if l2:
+                carry += l2.val
+                l2 = l2.next
+            carry, digit = divmod(carry, 10)
+            current.next = ListNode(digit)
+            current = current.next
+        return head.next
+    else:
+        return l1 or l2
+
+
+class BinarySearchTreeIterator:
+    # https://leetcode.com/problems/binary-search-tree-iterator/discuss/965584/Python-Stack-Clean-and-Concise-Time%3A-O(1)-space%3A-O(H)
+    def __init__(self, root):
+        self.stack = []
+        self.push_left(root)
+
+    def push_left(self, node):
+        while node:
+            self.stack.append(node)
+            node = node.left
+
+    def next(self):
+        node = self.stack.pop()
+        self.push_left(node.right)
+        return node.val
+
+    def has_next(self):
+        return len(self.stack) > 0

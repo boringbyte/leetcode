@@ -1368,8 +1368,8 @@ def task_scheduler(tasks, n):
 def interval_list_intersections(first_list, second_list):
     i, j, n1, n2, result = 0, 0, len(first_list), len(second_list), []
     while i < n1 and j < n2:
-        lo = max(first_list[0], second_list[0])
-        hi = min(first_list[1], second_list[1])
+        lo = max(first_list[i][0], second_list[j][0])
+        hi = min(first_list[i][1], second_list[j][1])
         if lo <= hi:
             result.append([lo, hi])
         if first_list[i][1] < second_list[j][1]:
