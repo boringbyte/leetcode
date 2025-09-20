@@ -982,9 +982,7 @@ def clone_graph_1(node):
 
     # Dictionary to map original node -> cloned node
     visited = {node: GraphNode(val=node.val, neighbors=[])}
-
     queue = deque([node])
-
 
     while queue:
         current = queue.popleft()
@@ -1134,7 +1132,6 @@ def palindromic_substrings(s):
     return result[0]
 
 
-
 def minimum_add_to_make_parentheses_valid_1(s):
     # Check calculate_invalid function in 01-50 problems list as well
     # https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/description/
@@ -1163,7 +1160,7 @@ def minimum_add_to_make_parentheses_valid_2(s):
 
 def string_to_integer_atoi(s):
     # https://leetcode.com/problems/string-to-integer-atoi
-    INT_MAX, INT_MIN = 2 ** 31 -1 , -2 ** 31
+    INT_MAX, INT_MIN = 2 ** 31 - 1 , -2 ** 31
 
     i, n = 0, len(s)
     # Step 1: Skip leading whitespaces
@@ -1232,3 +1229,120 @@ class BinarySearchTreeIterator:
 
     def has_next(self):
         return len(self.stack) > 0
+
+
+def accounts_merge(accounts):
+    # https://leetcode.com/problems/accounts-merge
+    graph = defaultdict(list)
+    visited = set()
+    result = []
+
+    for account in accounts:
+        for i in range(2, len(account)):
+            graph[account[i - 1]].append(account[i])
+            graph[account[i]].append(account[i - 1])
+
+    def dfs(email, emails):
+        visited.add(email)
+        emails.append(email)
+        for new_email in graph[email]:
+            if new_email not in visited:
+                dfs(new_email, emails)
+        return emails
+
+    for account in accounts:
+        name = account[0]
+        first_email = account[1]
+        if first_email not in visited:
+            all_emails = []
+            dfs(first_email, all_emails)
+            result.append([name] + sorted(all_emails))
+
+    return result
+
+
+def subsets(nums):
+    # https://leetcode.com/problems/subsets
+    result, n = [], len(nums)
+
+    def backtrack(sofar, start, end):
+        result.append(sofar[:])  # 1. Decide whether to record current path (depends on problem)
+
+        # 2. Explore choices
+        for i in range(start, end):
+            sofar.append(nums[i])  # Choose
+            backtrack(sofar, i + 1, end)  # Explore
+            sofar.pop()  # Unchoose
+
+    backtrack(sofar=[], start=0, end=n)
+    return result
+
+
+def remove_all_adjacent_duplicates_in_string_ii(s, k):
+    # https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/description/
+    stack = [['$', 0]]  # [char, freq]
+
+    for char in s:
+        if stack[-1][0] == char:
+            stack[-1][1] += 1
+            if stack[-1][1] == k:
+                stack.pop()
+        else:
+            stack.append([char, 1])
+
+    return ''.join(char * count for char, count in stack)  # count of sentinel is 0
+
+
+def kth_smallest_element_in_a_sorted_matrix(matrix, k):
+    # https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/description/
+    n = len(matrix)
+
+    def count_less_equal(mid):
+        count, col = 0, n - 1
+        for row in range(n):
+            while col >= 0 and matrix[row][col] < mid:
+                col -= 1
+            count += (col + 1)
+        return count
+
+    low, high = matrix[0][0], matrix[-1][-1]
+
+    while low < high:
+        mid = (low + high) // 2
+        if count_less_equal(mid) < k:
+            low = mid + 1
+        else:
+            high = mid
+    return low
+
+
+def longest_palindromic_substring(s):
+    # https://leetcode.com/problems/longest-palindromic-substring
+    """
+    Count how many substrings of s are palindromes.
+    Approach: Expand Around Center
+    Time Complexity: O(n^2)  (n centers, O(n) expansion per center)
+    Space Complexity: O(1)
+    """
+    n = len(s)
+    if n <= 1:
+        return s
+
+    result = s[0]    # at least 1 char is palindrome
+    current_max = 1
+
+    def expand_around(l, r):
+        nonlocal result, current_max
+        while l >= 0 and r < n and s[l] == s[r]:
+            new_len = r - l + 1
+            if new_len > current_max:
+                current_max = new_len
+                result = s[l:r+1]
+            l -= 1
+            r += 1
+
+    for i in range(n):
+        expand_around(i, i)       # odd-length palindromes
+        expand_around(i, i + 1)   # even-length palindromes
+
+    return result
