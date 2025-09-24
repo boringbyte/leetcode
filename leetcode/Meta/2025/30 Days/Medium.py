@@ -1346,3 +1346,454 @@ def longest_palindromic_substring(s):
         expand_around(i, i + 1)   # even-length palindromes
 
     return result
+
+
+class RandomPickIndex1:
+    # https://leetcode.com/problems/random-pick-index/discuss/88153/Python-reservoir-sampling-solution.
+    # This is reservoir sampling problem
+    # Space-efficient but slower if pick() is called many times (must scan array each time).
+    def __init__(self, nums):
+        self.nums = nums
+
+    def pick(self, target):
+        result, count = None, 0
+        for i, num in enumerate(self.nums):
+            if num == target:
+                count += 1
+                # pick current index with probability 1/count
+                if random.randint(1, count) == 1:
+                    result = i
+        return result
+
+
+class Solution2:
+    # Very efficient if pick() is called many times but requires extra memory.
+    def __init__(self, nums):
+        self.indices = defaultdict(list)
+        for i, num in enumerate(nums):
+            self.indices[num].append(i)
+
+    def pick(self, target: int) -> int:
+        return random.choice(self.indices[target])
+
+
+def three_sum(nums):
+    # https://leetcode.com/problems/3sum
+    result = set()
+    negatives, zeros, positives = [], [], []
+
+    for num in nums:
+        if num < 0:
+            negatives.append(num)
+        elif num == 0:
+            zeros.append(num)
+        else:
+            positives.append(num)
+
+    n_set, p_set = set(negatives), set(positives)
+
+    if len(zeros) >= 3:
+        result.add((0, 0, 0))
+
+    if zeros:
+        for num in n_set:
+            if -num in p_set:
+                result.add((-num, 0, num))
+
+    k = len(negatives)
+    for i in range(k):
+        for j in range(i + 1, k):
+            target = -1 * (negatives[i] + negatives[j])
+            if target in p_set:
+                result.add((negatives[i], negatives[j], target))
+
+    k = len(positives)
+    for i in range(k):
+        for j in range(i + 1, k):
+            target = -1 * (positives[i] + positives[j])
+            if target in n_set:
+                result.add((positives[i], positives[j], target))
+
+    return result
+
+
+def the_maze(maze, start, destination):
+    # https://leetcode.com/problems/the-maze
+    # https://leetcode.ca/all/490.html
+    # https://leetcode.ca/2017-04-03-490-The-Maze/
+    m, n = len(maze), len(maze[0])
+    rs, cs = start
+    visited = {(rs, cs)}
+    queue = deque([start])
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+    while queue:
+        x, y = queue.popleft()
+
+        for dx, dy in directions:
+            nx, ny = x, y
+
+            # Roll until ball hits wall
+            while 0 <= nx + dx < m and 0 <= ny + dy < n and maze[nx + dx][ny + dy] == 0:
+                nx += dx
+                ny += dy
+
+            if [nx, ny] == destination:
+                return True
+
+            if (nx, ny) not in visited:
+                visited.add((nx, ny))
+                queue.append((nx, ny))
+
+    return False
+
+
+def convert_bst_to_sorted_dll(root):
+    # https://algo.monster/liteproblems/426
+    if not root:
+        return None
+
+    first, last = None, None
+
+    def dfs(node):
+        nonlocal first, last
+        if not node:
+            return
+
+        dfs(node.left)
+
+        if last:  # If we’ve already visited a node before (last), connect:
+            last.right = node
+            node.left = last
+        else:  # If this is the very first node, it becomes head.
+            first = node
+        last = node
+
+        dfs(node.right)
+
+    dfs(root)
+
+    first.left = last
+    last.right = first
+    return first
+
+
+def missing_element_in_sorted_array_1(nums, k):
+    # https://algo.monster/liteproblems/1060
+    for i in range(1, len(nums)):
+        gap = nums[i] - nums[i - 1] - 1
+        if k <= gap:
+            return nums[i - 1] + k
+        k -= gap
+    return nums[-1] + k
+
+
+def missing_element_in_sorted_array_2(nums, k):
+    # Key idea is missing_count(i) = nums[i] - nums[0] - i
+    n = len(nums)
+
+    def missing(i):
+        return nums[i] - nums[0] - i
+
+    # if kth missing is beyond the last element
+    if k > missing(n - 1):
+        return nums[-1] + (k + missing(n - 1))
+
+    # binary search for smallest index where missing(i) >= k
+    left, right = 0, n - 1
+    while left < right:
+        mid = (left + right) // 2
+        if missing(mid) < k:
+            left = mid + 1
+        else:
+            right = mid
+
+    # kth missing lies between nums[left-1] and nums[left]
+    return nums[left - 1] + (k - missing(left - 1))
+
+
+def minimize_the_maximum_diff_of_paris(nums, p):
+    # https://leetcode.com/problems/minimize-the-maximum-difference-of-pairs/description/
+    # Overall: O(n log n + n log(max_diff))
+    nums.sort()
+    n = len(nums)
+
+    def can_form_pairs(threshold):
+        count = 0
+        i = 0
+        while i < n - 1:
+            if i < n - 1:
+                if nums[i + 1] - nums[i] <= threshold:
+                    count += 1
+                    i += 2
+                else:
+                    i += 1
+                if count >= p:
+                    return True
+        return count >= p
+
+    left, right = 0, nums[-1] - nums[0]
+    result = right
+    while left <= right:
+        mid = (left + right) // 2
+        if can_form_pairs(mid):
+            result = mid
+            right = mid - 1
+        else:
+            left = mid + 1
+    return result
+
+
+class CircularQueue:
+
+    def __init__(self, k):
+        self.q = [0] * k
+        self.k = k
+        self.size = 0
+        self.front = 0
+        self.rear = 0
+
+    def is_empty(self):
+        return self.size == 0
+
+    def is_full(self):
+        return self.size == self.k
+
+    def enqueue(self, value):
+        if self.is_full():
+            return False
+        self.q[self.rear] = value
+        self.rear = (self.rear + 1) % self.k
+        self.size += 1
+        return True
+
+    def dequeue(self):
+        if self.is_empty():
+            return False
+        self.front = (self.front + 1) % self.k
+        self.size -= 1
+        return True
+
+    def Front(self):
+        if self.is_empty():
+            return -1
+        return self.q[self.front]
+
+    def Rear(self):
+        if self.is_empty():
+            return -1
+        return self.q[(self.rear - 1 + self.k) % self.k]
+
+
+def maximum_level_sum_of_a_binary_tree(root):
+    level, level_sum_dict = 0, dict()
+    queue = deque([root])
+
+    while queue:
+        size = len(queue)
+        level_sum = 0
+        while size > 0:
+            current = queue.popleft()
+            level_sum += current.val
+            if current.left:
+                queue.append(current.left)
+            if current.right:
+                queue.append(current.right)
+            size -= 1
+        level += 1
+        level_sum_dict[level] = level_sum
+    return max(level_sum_dict, key=level_sum_dict.get)
+
+
+def decode_ways(s):
+    if not s or s[0] == "0":
+        return 0
+
+    n = len(s)
+    dp = [0] * (n + 1)
+
+    dp[0] = 1  # empty string
+    dp[1] = 1  # first char is valid since not '0'
+
+    for i in range(2, n + 1):
+        one_digit = int(s[i - 1: i])  # last 1 digit
+        two_digit = int(s[i - 2: i])  # last 2 digits
+
+        if i <= one_digit <= 9:  # valid single digit
+            dp[i] += dp[i - 1]
+        if 10 <= two_digit <= 26:  # valid two digit
+            dp[i] += dp[i - 2]
+
+
+def combinations(n, k):
+    # https://leetcode.com/problems/combinations
+    result = []
+
+    def backtrack(start, path):
+        if len(path) == k:
+            result.append(path[:])
+            return
+        for i in range(start, n + 1):
+            path.append(i)
+            backtrack(i + 1, path)
+            path.pop()
+
+    backtrack(1, [])
+    return result
+
+
+def sum_of_subarray_minimums(arr):
+    # https://leetcode.com/problems/sum-of-subarray-minimums
+    MOD = 10 ** 9 + 7
+    n = len(arr)
+
+    # Arrays to store index of Previous Less Element (PLE) and Next Less Element (NLE)
+    ple = [-1] * n  # default: no smaller element on the left
+    nle = [n] * n  # default: no smaller element on the right
+
+    stack = []
+
+    # Find Previous Less Element (strictly smaller)
+    for i in range(n):
+        while stack and arr[stack[-1]] > arr[i]:
+            stack.pop()
+        ple[i] = stack[-1] if stack else -1
+        stack.append(i)
+
+    stack.clear()
+
+    # Find Next Less Element (smaller or equal, to avoid double counting)
+    for i in range(n - 1, -1, -1):
+        while stack and arr[stack[-1]] >= arr[i]:
+            stack.pop()
+        nle[i] = stack[-1] if stack else n
+        stack.append(i)
+
+    # Calculate contribution of each element
+    result = 0
+    for i in range(n):
+        left_count = i - ple[i]  # choices on the left
+        right_count = nle[i] - i  # choices on the right
+        result += arr[i] * left_count * right_count
+        result %= MOD
+
+    return result
+
+
+def group_anagrams(strs):
+    # https://leetcode.com/problems/group-anagrams/description/
+    anagrams_dict = defaultdict(list)
+    for word in strs:
+        l = [0] * 26
+        for char in word:
+            l[ord(char) - ord('a')] += 1
+        anagrams_dict[tuple(l)].append(word)
+    return anagrams_dict.values()
+
+
+def search_in_rotated_sorted_array(nums, target):
+    # https://leetcode.com/problems/search-in-rotated-sorted-array/description/
+    if not nums:
+        return -1
+
+    left, right = 0, len(nums) - 1
+
+    while left <= right:
+
+        mid = left + (right - left) // 2
+
+        if nums[mid] == target:
+            return mid
+        # 🔑 One side [left..mid] OR [mid..right] is always sorted
+        if nums[left] <= nums[mid]:                 # First check to find which part of array is sorted
+            if nums[left] <= target < nums[mid]:    # Second check is to find if target lies btw the sorted portion
+                right = mid - 1
+            else:
+                left = mid + 1
+        else:
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid + 1
+    return -1
+
+
+def maximum_manhattan_distances_after_k_changes(s, k):
+    # https://leetcode.com/problems/maximum-manhattan-distance-after-k-changes/description/
+    # Helper: compute max distance if favorable directions are dir1, dir2
+    def flip(s: str, k: int, dir1: str, dir2: str) -> int:
+        pos = 0
+        opposite = 0
+        best = 0
+        for c in s:
+            if c == dir1 or c == dir2:
+                pos += 1
+            else:
+                pos -= 1
+                opposite += 1
+            # We can flip up to k of the "opposite" moves to favorable:
+            # Each flip gives +2 (turning a negative into a positive)
+            # but can't use more flips than # of opposite encountered, or more than k
+            current = pos + 2 * min(k, opposite)
+            if current > best:
+                best = current
+        return best
+
+    # Try all 4 possible favorable direction pairs which maximizes the manhattan distance
+    # NE, NW, SE, SW
+    result = 0
+    result = max(result, flip(s, k, 'N', 'E'))
+    result = max(result, flip(s, k, 'N', 'W'))
+    result = max(result, flip(s, k, 'S', 'E'))
+    result = max(result, flip(s, k, 'S', 'W'))
+    return result
+
+
+def peak_index_in_mountain_array(arr):
+    # https://leetcode.com/problems/peak-index-in-a-mountain-array/description/
+    left, right = 0, len(arr) - 1
+
+    while left < right:
+        mid = left + (right - left) // 2
+        if arr[mid + 1] <= arr[mid]:  # This is the failing condition
+            right = mid
+        else:
+            left = mid + 1
+    return left
+
+
+def sort_colors(nums):
+    # https://leetcode.com/problems/sort-colors
+    red, white, blue = 0, 0, len(nums) - 1
+    while white <= blue:
+        if nums[white] == 0:  # Case: red
+            nums[white], nums[red] = nums[red], nums[white]
+            white += 1
+            red += 1
+        elif nums[white] == 1:   # Case: white
+            white += 1
+        else:  # Case: blue (nums[white] == 2)
+            nums[white], nums[blue] = nums[blue], nums[white]
+            blue -= 1
+
+
+def integer_to_roman(num):
+    # https://leetcode.com/problems/integer-to-roman
+    # 900, 400 and other such values are taken into account because of subtractive notation rule
+
+    roman_map = {1000: "M", 900: "CM", 500: "D", 400: "CD", 100: "C", 90: "XC", 50: "L", 40: "XL",
+                 10: "X", 9: "IX", 5: "V", 4: "IV", 1: "I"}  # Decreasing order of values to symbol
+
+    result = []
+    for value, symbol in roman_map.items():
+        """
+        if num == 0:
+            break
+        count, num = divmod(num, value)   # how many times this value fits
+        result.append(symbol * count)     # add symbol that many times
+        """
+        while num >= value:  # Remove as much as you can
+            num -= value     # Always subtract the biggest Roman value you can, append its symbol, repeat.
+            result.append(symbol)
+    return ''.join(result)
+
