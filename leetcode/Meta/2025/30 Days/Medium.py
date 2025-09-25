@@ -1797,3 +1797,124 @@ def integer_to_roman(num):
             result.append(symbol)
     return ''.join(result)
 
+
+def string_compression(chars):
+    # https://leetcode.com/problems/string-compression
+    n = len(chars)
+
+    if n <= 1:
+        return n
+
+    i = j = 0
+
+    while i < n:
+        letter = chars[i]
+        counter = 0
+        while i < n and chars[i] == letter:
+            counter += 1
+            i += 1
+
+        chars[j] = letter   # This is for inplace character
+        j += 1
+
+        if counter > 1:     # This is for inplace number if number of letters are more than 1
+            for c in str(counter):
+                chars[j] = c
+                j += 1
+    return j
+
+
+def set_matrix_zones(matrix):
+    # https://leetcode.com/problems/set-matrix-zeroes
+    if not matrix or not matrix[0]:
+        return
+
+    m, n = len(matrix), len(matrix[0])
+
+    first_row_has_zero = any(matrix[0][j] == 0 for j in range(n))
+    first_col_has_zero = any(matrix[i][0] == 0 for i in range(m))
+
+    # Use first row and first col as markers
+    for i in range(1, m):
+        for j in range(1, n):
+            if matrix[i][j] == 0:
+                matrix[i][0] = 0
+                matrix[0][j] = 0
+
+    # Zero cells based on markers (skip first row/col for now)
+    for i in range(1, m):
+        if matrix[i][0] == 0:
+            # zero entire row i
+            for j in range(1, n):
+                matrix[i][j] = 0
+
+    for j in range(1, n):
+        if matrix[0][j] == 0:
+            # zero entire column j
+            for i in range(1, m):
+                matrix[i][j] = 0
+
+    # Finally zero first row/column if needed
+    if first_row_has_zero:
+        for j in range(n):
+            matrix[0][j] = 0
+
+    if first_col_has_zero:
+        for i in range(m):
+            matrix[i][0] = 0
+
+
+def subarray_product_less_than_k(nums, k):
+    # https://leetcode.com/problems/subarray-product-less-than-k
+    if k <= 1:
+        return 0
+
+    product = 1
+    left = count = 0
+
+    for right, num in enumerate(nums):
+        product *= num
+
+        while product >= k:
+            product //= nums[left]
+            left += 1
+
+        # All subarrays ending at `right` and starting anywhere from `left` to `right`
+        count += (right - left + 1)
+
+    return count
+
+
+def repeated_dna_sequences(s):
+    # https://leetcode.com/problems/repeated-dna-sequences
+    seen = set()
+    result = set()
+
+    for i in range(len(s) - 9):     # last window starts at len(s) - 10
+        seq = s[i: i + 10]
+        if seq in seen:             # Only add if it occurs more than once
+            result.add(seq)
+        else:                       # This is not necessary but adding else condition will improve the speed
+            seen.add(seq)
+    return list(result)
+
+
+def unique_paths_1(m, n):
+    # https://leetcode.com/problems/unique-paths
+
+    dp = [[1] * n for _ in range(m)]
+    # print('\n'.join(' '.join('%2d' % x for x in l) for l in dp))
+
+    for i in range(1, m):
+        for j in range(1, n):
+            dp[i][j] = dp[i - 1][j] + dp[i][j - 1]
+    return dp[-1][-1]
+
+
+def unique_paths_2(m, n):
+    dp = [1] * n
+
+    for i in range(1, m):
+        for j in range(1, n):
+            dp[j] = dp[j] + dp[j - 1]
+    return dp[-1]
