@@ -1,4 +1,5 @@
 import bisect
+import math
 import random
 import heapq
 from collections import OrderedDict, defaultdict, deque, Counter
@@ -1918,3 +1919,173 @@ def unique_paths_2(m, n):
         for j in range(1, n):
             dp[j] = dp[j] + dp[j - 1]
     return dp[-1]
+
+
+def longest_common_subsequence(text1, text2):
+    # https://leetcode.com/problems/longest-common-subsequence
+    m, n = len(text1), len(text2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if text1[i - 1] == text2[j - 1]:
+                dp[i][j] = 1 + dp[i - 1][j - 1]
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+    return dp[m][n]
+
+
+def permutations(nums):
+    # https://leetcode.com/problems/permutations/
+    result, n = [], len(nums)
+    visited = [0] * n
+
+    def backtrack(sofar):
+        if len(sofar) == n:
+            result.append(sofar[:])
+        else:
+            for i in range(n):
+                if visited[i] != 0:
+                    chosen, visited[i] = nums[i], 1
+                    backtrack(sofar + [chosen])
+                    visited[i] = 0
+
+    backtrack(sofar=[])
+    return result
+
+
+def rotting_oranges(grid):
+    # https://leetcode.com/problems/rotting-oranges
+    m, n = len(grid), len(grid[0])
+    minutes = 0
+    rotten_queue, fresh_count = deque(), 0
+    directions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 2:
+                rotten_queue.append((i, j))
+            else:
+                if grid[i][j] == 1:
+                    fresh_count += 1
+
+    while rotten_queue:
+        for _ in range(len(rotten_queue)):  # process one minute's worth of rotting
+            x, y = rotten_queue.popleft()
+
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < m and 0 <= ny < n and grid[nx][ny] == 1:
+                    grid[nx][ny] = 2
+                    fresh_count -= 1
+                    rotten_queue.append((nx, ny))
+        minutes += 1  # finished one round of rotting
+    return max(0, minutes - 1) if fresh_count == 0 else -1
+
+
+def diagonal_traversal_ii(nums):
+    # https://leetcode.com/problems/diagonal-traverse-ii
+
+    diagonals = defaultdict(list)
+
+    for i in range(len(nums)):
+        for j in range(len(nums[0])):
+            diagonals[i + j].append(nums[i][j])
+
+    result = []
+
+    for k in sorted(diagonals.keys()):
+        result.extend(reversed(diagonals[k]))
+
+    return result
+
+
+def zigzag_conversion(s, num_rows):
+    # https://leetcode.com/problems/zigzag-conversion
+    if num_rows == 1 or num_rows >= len(s):
+        return s
+
+    rows = [''] * num_rows
+    curr_row, step = 0, 1
+
+    for char in s:
+        rows[curr_row] += char
+        if curr_row == 0:
+            step = 1
+        elif curr_row == num_rows - 1:
+            step = -1
+        curr_row += step
+
+    return ''.join(rows)
+
+
+def repeated_string_match_1(a, b):
+    # https://leetcode.com/problems/repeated-string-match
+    count = math.ceil(len(b) / len(a))
+
+    for i in range(2):
+        if b in a * (count + i):
+            return count + i
+    return -1
+
+
+def repeated_string_match_2(a, b):
+    # -------------------
+    # Step 1: Build LPS (Longest Prefix Suffix) for KMP
+    # lps[i] = the longest proper prefix of b[:i+1] which is also a suffix
+    def build_lps(pattern):
+        lps = [0] * len(pattern)
+        length = 0  # length of the current longest prefix-suffix
+        i = 1
+        while i < len(pattern):
+            if pattern[i] == pattern[length]:
+                length += 1
+                lps[i] = length
+                i += 1
+            else:
+                if length > 0:
+                    length = lps[length - 1]
+                else:
+                    lps[i] = 0
+                    i += 1
+        return lps
+
+
+    # -------------------
+    # Step 2: KMP search function
+    # returns True if "pattern" is found in "text"
+    def kmp_search(text, pattern):
+        lps = build_lps(pattern)
+        i = j = 0  # i → index for text, j → index for pattern
+
+        while i < len(text):
+            if text[i] == pattern[j]:
+                i += 1
+                j += 1
+                if j == len(pattern):  # found full match
+                    return True
+            else:
+                if j > 0:
+                    j = lps[j - 1]
+                else:
+                    i += 1
+        return False
+
+
+    # -------------------
+    # Step 3: Repeat string a until it's long enough
+    repeated = a
+    count = 1
+    while len(repeated) < len(b):
+        repeated += a
+        count += 1
+
+    # -------------------
+    # Step 4: Check in "repeated" or "repeated+a" (to cover edge overlaps)
+    if kmp_search(repeated, b):
+        return count
+    if kmp_search(repeated + a, b):
+        return count + 1
+
+    return -1
