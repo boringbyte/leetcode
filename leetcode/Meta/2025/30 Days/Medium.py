@@ -3,6 +3,8 @@ import math
 import random
 import heapq
 from collections import OrderedDict, defaultdict, deque, Counter
+from itertools import accumulate
+
 from leetcode.LCMetaPractice import ListNode, TreeNode, RandomPointerNode, GraphNode
 
 
@@ -2051,7 +2053,6 @@ def repeated_string_match_2(a, b):
                     i += 1
         return lps
 
-
     # -------------------
     # Step 2: KMP search function
     # returns True if "pattern" is found in "text"
@@ -2072,7 +2073,6 @@ def repeated_string_match_2(a, b):
                     i += 1
         return False
 
-
     # -------------------
     # Step 3: Repeat string a until it's long enough
     repeated = a
@@ -2089,3 +2089,300 @@ def repeated_string_match_2(a, b):
         return count + 1
 
     return -1
+
+
+def reverse_integer(x):
+    # https://leetcode.com/problems/reverse-integer
+
+    result, sign = 0, 1         # 'result' will store reversed number, 'sign' handles negative input.
+
+    if x < 0:                   # If the number is negative,
+        sign, x = -sign, -x     # flip the sign and make 'x' positive for easy processing.
+
+    while x:                    # Continue until no digits remain.
+        x, last_digit = divmod(x, 10)
+        # divmod(x, 10) returns (quotient, remainder).
+        # Example: divmod(123, 10) = (12, 3).
+        # 'last_digit' = remainder = the last digit of x.
+        # 'x' becomes the quotient (remaining number without last digit).
+
+        result = result * 10 + last_digit
+        # Build reversed number step by step.
+        # Multiply current result by 10 (shifting left) and add last digit.
+
+    # If result overflows 32-bit signed integer range, return 0.
+    return 0 if result > pow(2, 31) else result * sign
+
+
+def binary_tree_level_order_traversal(root):
+    # https://leetcode.com/problems/binary-tree-level-order-traversal
+    result = []
+    if not root:
+        return result
+
+    queue = deque([root])
+    while queue:
+        size = len(queue)
+        level_list = []
+        while size > 0:
+            current = queue.popleft()
+            level_list.append(current.val)
+            if current.left:
+                queue.append(current.left)
+            if current.right:
+                queue.append(current.right)
+            size -= 1
+        result.append(level_list)
+
+    return result
+
+
+def check_completeness_of_a_binary_tree(root):
+    # https://leetcode.com/problems/check-completeness-of-a-binary-tree
+    # Do a BFS until we find the first None child.
+    # After this point, if we ever encounter a non-None node, the tree is not complete.
+    # If BFS finishes without contradiction → tree is complete.
+
+    queue = deque([root])
+    found_null = False
+
+    while queue:
+        current = queue.popleft()
+        if current:
+            if found_null:
+                return False
+            queue.append(current.left)
+            queue.append(current.right)
+        else:
+            found_null = True
+
+    return True
+
+
+def next_greater_element_iii(n):
+    # https://leetcode.com/problems/next-greater-element-iii
+    # Convert number → list of digits.
+    # Traverse from right to left, find the first decreasing digit (i).
+    # This is the "pivot" where a swap can make the number larger.
+    # From the right, find the smallest digit greater than digits[i].
+    # Swap them.
+    # Reverse the digits to the right of i → makes it the next smallest permutation.
+    # Convert back to integer. If overflow, return -1.
+
+    digits = list(str(n))
+    i = len(digits) - 2
+
+    # Step 1: find first decreasing digit from right
+    while i >= 0 and digits[i] >= digits[i + 1]:
+        i -= 1
+
+    if i == -1:
+        return -1  # Digits are in descending order → no next greater
+
+    # Step 2: find the smallest digit > digits[i] from right
+    j = len(digits) - 1
+    while digits[j] <= digits[i]:
+        j -= 1
+
+    # Step 3: swap
+    digits[i], digits[j] = digits[j], digits[i]
+
+    # Step 4: reverse everything to the right of i
+    digits[i + 1:] = reversed(digits[i + 1:])
+
+    result = int("".join(digits))
+
+    # Step 5: check 32-bit range
+    return result if result < 2 ** 31 else -1
+
+
+def house_robber_ii(nums):
+    # https://leetcode.com/problems/house-robber-ii
+
+    if not nums:
+        return 0
+    if len(nums) == 1:
+        return nums[0]
+
+    def rob_linear(nums):
+        prev, curr = 0, 0
+        for num in nums:
+            prev, curr = curr, max(curr, prev + num)
+        return curr
+
+    # Case 1: rob from house 0 to n-2
+    case1 = rob_linear(nums[:-1])
+    # Case 2: rob from house 1 to n-1
+    case2 = rob_linear(nums[1:])
+
+    return max(case1, case2)
+
+
+def koko_eating_bananas(piles, h):
+    # https://leetcode.com/problems/koko-eating-bananas
+    left, right = 1, max(piles)
+    result = right  # store best answer
+
+    while left <= right:
+        mid = (left + right) // 2   # candidate speed
+        hours = sum(math.ceil(p / mid) for p in piles)
+        # total hours Koko takes at speed = mid
+
+        if hours <= h:
+            # Feasible → try smaller speed
+            result = mid
+            right = mid - 1
+        else:
+            # Too slow → increase speed
+            left = mid + 1
+
+    return result
+
+
+def maximum_width_fo_binary_tree(root):
+    # https://leetcode.com/problems/maximum-width-of-binary-tree/description/
+    # Assign an index to each node, like in a binary heap:
+    # Root index = 0.
+    # For a node at index i:
+        # Left child → 2*i.
+        # Right child → 2*i + 1.
+    # At each level:
+        # Width = rightmost_index - leftmost_index + 1.
+    max_width = 0
+    if not root:
+        return max_width
+
+    queue = deque([(root, 0)])  # (node, index)
+
+    while queue:
+        level_length = len(queue)
+        _, first_index = queue[0]  # leftmost index at this level
+        for i in range(level_length):
+            current, index = queue.popleft()
+            if current.left:
+                queue.append((current.left, 2 * index))
+            if current.right:
+                queue.append((current.right, 2 * index + 1))
+            if i == level_length - 1:
+                last_index = index
+        max_width = max(max_width, last_index - first_index + 1)
+    return max_width
+
+
+def reversed_linked_list_ii(head, left, right):
+    # https://leetcode.com/problems/reverse-linked-list-ii
+    # Traverse until left - 1 → keep a pointer prev (node before reversal starts).
+    # Reverse the sublist from left to right.
+    # Reconnect:
+        # prev.next should point to new head of reversed sublist.
+        # Tail of reversed sublist should connect to node after right.
+
+    if not head or left == right:
+        return head
+
+    dummy = ListNode(0, head)
+    prev = dummy
+
+    # Step 1: move prev to the node before reversal starts
+    for _ in range(left - 1):
+        prev = prev.next
+
+    # Start of sublist to reverse
+    curr = prev.next
+
+    # Step 2: reverse sublist [left..right]
+    for _ in range(right - left):
+        nxt = curr.next
+        curr.next = nxt.next
+        nxt.next = prev.next
+        prev.next = nxt
+
+    return dummy.next
+
+
+def car_pooling(trips, capacity):
+    # https://leetcode.com/problems/car-pooling
+    # https://leetcode.com/problems/car-pooling/solutions/857489/python-linear-solution-using-cumulative-sums-explained
+    # trips = [[3,2,7],[3,7,9],[8,3,9]], capacity = 11. Let us represent it in the following way:
+    # # # 3 3 3 3 3 # # #  -> ignore 1st #
+    # # # # # # # # 3 3 3
+    # # # # 8 8 8 8 8 8 8
+    m = max([i for _, _, i in trips])   # [num_passengers, start, end]. So m = farthest location we need to track.
+    times = [0] * (m + 2)               # Build a difference array. Why m+2? Because we use j+1 and k+1 indexing (1-based shift).
+    for num_passengers, start, end in trips:
+        times[start + 1] += num_passengers
+        times[end + 1] -= num_passengers
+
+    return max(accumulate(times)) <= capacity  #  Reconstruct actual passenger counts
+
+
+def shortest_bridge(grid):
+    # https://leetcode.com/problems/shortest-bridge
+    n = len(grid)
+    directions = [(1,0), (-1,0), (0,1), (0,-1)]
+    visited = [[0] * n  for _ in range(n)]
+    queue = deque()
+
+    def dfs(x, y):
+        """Mark the first island and push its cells into BFS queue"""
+        if x < 0 or x >= n or y < 0 or y >= n:
+            return
+        if visited[x][y] or grid[x][y] == 0:
+            return
+        visited[x][y] = 1
+        queue.append((x, y, 0))  # store (x,y,steps) for BFS
+        for dx, dy in directions:
+            dfs(x + dx, y + dy)
+
+    # Find first island and run DFS to mark it
+    found = False
+    for i in range(n):
+        if found:
+            break
+        for j in range(n):
+            if grid[i][j] == 1:
+                dfs(i, j)
+                found = True
+                break
+
+    # Step 2: BFS from the first island until we reach the second island
+    while queue:
+        x, y, d = queue.popleft()
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < n and 0 <= ny < n and not visited[nx][ny]:
+                if grid[nx][ny] == 1:
+                    return d  # reached the second island
+                visited[nx][ny] = 1
+                queue.append((nx, ny, d + 1))
+
+
+def maximum_number_of_events_that_can_be_attended(events):
+    events.sort()       # Sort events by start day
+    n = len(events)
+    min_heap = []       # Min-heap to store end days of active events
+    day = i = attended = 0
+
+    # Iterate day by day while there are still events
+    while i < n or min_heap:
+        if not min_heap:
+            # If no active events, jump to next event's start day
+            day = events[i][0]
+
+        # Add all events starting today
+        while i < n and events[i][0] <= day:
+            heapq.heappush(min_heap, events[i][1])  # push end day
+            i += 1
+
+        # Remove expired events
+        while min_heap and min_heap[0] < day:
+            heapq.heappop(min_heap)
+
+        # Attend the event that ends earliest
+        if min_heap:
+            heapq.heappop(min_heap)
+            attended += 1
+            day += 1  # move to next day
+
+    return attended
+
