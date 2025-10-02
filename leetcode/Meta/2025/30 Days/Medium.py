@@ -12,9 +12,9 @@ def simplify_path(path):
     # https://leetcode.com/problems/simplify-path
     stack, components = [], path.split('/')
     for component in components:
-        if component in ['.', '']:
+        if component in ['', '.']:  # If there is nothing or single dot
             continue
-        elif component == '..':
+        elif component == '..':     # If there is double dot
             if stack:
                 stack.pop()
         else:
@@ -29,14 +29,14 @@ class LRUCache1:
         self.cache = {}
 
     def get(self, key):
-        if key not in self.cache:
+        if key not in self.cache:   # For get, check if the key is not there
             return -1
         value = self.cache.pop(key)
         self.cache[key] = value
         return value
 
     def put(self, key, value):
-        if key in self.cache:
+        if key in self.cache:       # For put, check if the key is there
             self.cache.pop(key)
         elif len(self.cache) >= self.capacity:
             self.cache.pop(next(iter(self.cache)))  # For ordered dict use self.cache.popitem(last=False)
@@ -69,13 +69,13 @@ class LRUCache2:
 
         # If at capacity, evict least recently used (front of list)
         if len(self.cache) == self.capacity:
-            self.cache.pop(0)
+            self.cache.pop(0)   # As we are using append for adding keys, key at position 0 becomes least recently used
 
         # Insert new key-value at MRU position
         self.cache.append((key, value))
 
 
-class Node:
+class DLL:
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -87,36 +87,36 @@ class LRUCache3:
 
     def __init__(self, capacity: int):
         self.capacity = capacity
-        self.cache = {}  # key -> node
-        self.head = Node(0, 0)  # dummy head
-        self.tail = Node(0, 0)  # dummy tail
+        self.cache = {}                         # key -> node
+        self.head = DLL(0, 0)       # dummy head
+        self.tail = DLL(0, 0)       # dummy tail
         self.head.next = self.tail
         self.tail.prev = self.head
 
     def _remove(self, node):
-        prev, nxt = node.prev, node.next
+        prev, nxt = node.prev, node.next        # As we are removing, we get prev and next from the node
         prev.next, nxt.prev = nxt, prev
 
     def _add(self, node):
-        prev, nxt = self.tail.prev, self.tail
+        prev, nxt = self.tail.prev, self.tail   # As we are adding, we get prev and next from the tail
         prev.next = nxt.prev = node
         node.prev, node.next = prev, nxt
 
     def get(self, key: int) -> int:
-        if key in self.cache:
-            node = self.cache[key]
-            self._remove(node)
-            self._add(node)
-            return node.value
-        return -1
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self._remove(node)
+        self._add(node)
+        return node.value
 
     def put(self, key: int, value: int) -> None:
         if key in self.cache:
             self._remove(self.cache[key])
-        node = Node(key, value)
+        node = DLL(key, value)
         self._add(node)
         self.cache[key] = node
-        if len(self.cache) > self.capacity:
+        if len(self.cache) > self.capacity:     # Should this be > or >=. Need to verify
             # remove from the front
             lru = self.head.next
             self._remove(lru)
@@ -133,6 +133,12 @@ def maximum_swap(num):
     left, right = -1, -1  # left tracks the smallest and right tracks the largest
 
     # Traverse from right to left
+    # 🔧 Example: 2736
+    # Start: max_idx = 3 (digit 6)
+    # i=2 → compare 3 vs 6 → 3 < 6 → left needs to be updated with i and right with max_idx
+    # i=1 → compare 7 vs 6 → 7 > 6 → update max_idx = 1
+    # i=0 → compare 2 vs 7 → 2 < 7 → left needs to be updated with i and right with max_idx
+    # So the last (left, right) = (0,1) → swap 2 and 7 → 7236.
     for i in range(n - 2, -1, -1):
         if s[i] > s[max_idx]:
             max_idx = i
@@ -179,9 +185,14 @@ class SparseVector1:
         self.hashmap = {i: val for i, val in enumerate(nums) if val}
 
     def dot_product(self, vec):
-        if len(self.hashmap) > len(vec.hashmap):
+        if len(self.hashmap) > len(vec.hashmap):  # We want to iterate over smaller vector to calculate the result faster
             self, vec = vec, self
-        return sum(val * vec.hashmap[key] for key, val in self.hashmap.items() if key in vec.hashmap)
+        result = 0
+        for key, val in self.hashmap.items():
+            if key in vec.hashmap:
+                result += (val * vec.hashmap[key])
+        return result
+    # return sum(val * vec.hashmap[key] for key, val in self.hashmap.items() if key in vec.hashmap)
 
 
 class SparseVector2:
@@ -190,7 +201,7 @@ class SparseVector2:
         self.linked_list = [[i, val] for i, val in enumerate(nums) if val]
 
     def dot_product(self, vec):
-        if len(self.linked_list) > len(vec.linked_list):
+        if len(self.linked_list) > len(vec.linked_list):  # We want to iterate over smaller vector to calculate the result faster
             self, vec = vec, self
         result = i = j = 0
         n1, n2 = len(self.linked_list), len(vec.linked_list)
