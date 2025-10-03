@@ -345,7 +345,7 @@ def lowest_common_ancestor_of_binary_tree_iii(root, p, q):
     if root is None or root == p or root == q:
         return root
     # We search both subtrees.
-    # l will be either None (not found) or the node (p or q or an ancestor).
+    # l can be either None (not found) or the node (p or q or an ancestor).
     # r behaves the same.
     l = lowest_common_ancestor_of_binary_tree_iii(root.left, p, q)
     r = lowest_common_ancestor_of_binary_tree_iii(root.right, p, q)
@@ -360,6 +360,7 @@ def lowest_common_ancestor_of_binary_tree_iii(root, p, q):
 
 def binary_tree_vertical_order_traversal_1(root):
     # https://algo.monster/liteproblems/314
+    # In BFS, we automatically follow order with respect to the level. So there is no need to track it using another variable.
     if root is None:
         return
     result = []
@@ -376,6 +377,7 @@ def binary_tree_vertical_order_traversal_1(root):
 
 
 def binary_tree_vertical_order_traversal_2(root):
+    # DFS does not automatically follow order with respect to the level. So there is a need to track it using another variable.
     if root is None:
         return
     result = []
