@@ -82,6 +82,7 @@ def valid_palindrome_ii(s):
 def valid_word_abbreviation(word, abbr):
     # https://leetcode.com/problems/valid-word-abbreviation/description/
     # https://shandou.medium.com/leetcode-408-valid-word-abbreviation-63f1ed6461de
+    # https://neetcode.io/problems/valid-word-abbreviation?list=neetcode250
     """
     A string can be shortened by replacing any number of non-adjacent, non-empty substrings with their lengths (without leading zeros).
     word = "apple", abbr = "a3e"
@@ -129,6 +130,9 @@ def range_sum_of_bst(root, low, high):
 def kth_missing_positive_number_1(arr, k):
     # https://leetcode.com/problems/kth-missing-positive-number
     # https://leetcode.com/problems/kth-missing-positive-number/solutions/1004535/python-two-solutions-o-n-and-o-log-n-explained/
+    """
+    This is linear search
+    """
     s = set(arr)
     n = k + len(arr) + 1
     for i in range(1, n):
@@ -139,6 +143,10 @@ def kth_missing_positive_number_1(arr, k):
 
 
 def kth_missing_positive_number_2(arr, k):
+    """
+    This is a binary search problem as the arr is already sorted.
+    arr[mid] - mid -> gives the number of values missing in the array till to that index
+    """
     start, end = 0, len(arr)
     while start < end:
         mid = (start + end) // 2
@@ -156,21 +164,48 @@ class MovingAverage:
     def __init__(self, size):
         self.size = size
         self.data = deque()
+        self.current_count = 0
         self.current_total = 0
 
     def next(self, value):
         self.data.append(value)
+        self.current_count += 1
         self.current_total += value
 
         if len(self.data) > self.size:
+            self.current_count -= 1
             self.current_total -= self.data.popleft()
 
-        current_size = min(len(self.data), self.size)
-        return self.current_total / current_size
+        return self.current_total / self.current_count
+
+
+class MovingAverage2:
+    """Without using deque and using circular buffer"""
+
+    def __init__(self, size):
+        self.size = size
+        self.data = [0] * size
+        self.count = 0
+        self.total = 0
+        self.index = 0
+
+    def next(self, value):
+        # Subtract the old value (only after filling window)
+        if self.count == self.size:
+            self.total -= self.data[self.index]
+        else:
+            self.count += 1  # Count will be less thant the size only till we fill all the buffer with elements. From then, it will be equal to size
+
+        # Insert new value
+        self.data[self.index] = value
+        self.total += value
+        self.index = (self.index + 1) % self.size  # Circular move. Points to the next index.
+
+        return self.total / self.count
 
 
 def best_time_to_buy_and_sell_stock(prices):
-    # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/
+    # https://leetcode.com/problems/best-time-to-buy-and-sell-stock
     profit, buy_price = 0, prices[0]
     for price in prices[1:]:
         buy_price = min(buy_price, price)
@@ -187,10 +222,10 @@ def closest_binary_search_tree_value(root, target):
         if new_difference < difference:
             difference = new_difference
             result = root.val
-        if root.val < target:
-            root = root.right
-        elif target < root.val:
+        if target < root.val:
             root = root.left
+        elif target > root.val:
+            root = root.right
         else:
             break
 
@@ -199,6 +234,11 @@ def closest_binary_search_tree_value(root, target):
 
 def add_strings(num1, num2):
     # https://leetcode.com/problems/add-strings
+    """
+    This is similar to how we do in our childhood.
+    1. Add from back of both the numbers.
+    2. divmod(13, 10) returns 1, 3. 1 is for carry over and 3 is the digit
+    """
 
     i, j = len(num1) - 1, len(num2) - 1
     carry, result = 0, []
@@ -210,19 +250,27 @@ def add_strings(num1, num2):
             digit2 = int(num2[j])
         carry, digit = divmod(digit1 + digit2 + carry, 10)
         result.append(str(digit))
-        i, j = i + 1, j - 1
+        i, j = i - 1, j - 1
     return ''.join(result[::-1])
 
 
 def two_sum(nums, target):
-    nums_dict = {num: i for i, num in enumerate(nums)}
+    # https://leetcode.com/problems/two-sum
+    """
+    There is exactly one possible solution in the 'nums'. This is the condition for this solution to work.
+    """
+    num_idx_dict = {num: i for i, num in enumerate(nums)}
     for i, num in enumerate(nums):
         diff = target - num
-        if diff in nums_dict and i != nums[diff]:
-            return [i, nums_dict[diff]]
+        if diff in num_idx_dict and i != nums[diff]:  # Make sure that indexes do not match
+            return [i, num_idx_dict[diff]]
 
 
 def valid_parenthesis(s):
+    # https://leetcode.com/problems/valid-parentheses
+    """
+    This is a stack with hashmap problem
+    """
     if len(s) % 2:
         return False
 
@@ -239,24 +287,41 @@ def valid_parenthesis(s):
     return len(stack) == 0
 
 
-def to_goat_latin(sentence):
+def to_goat_latin_1(sentence):
+    # https://leetcode.com/problems/goat-latin
     words = sentence.split()
     result = []
-    for i, word in enumerate(words):
+    for i, word in enumerate(words, 1):  # Staring with 1 index instead of usual 0 index
         if word[0].lower() in 'aeiou':
             new_word = word + 'ma'
         else:
             new_word = word[1:] + word[0] + 'ma'
-        new_word = new_word + ('a' * (i + 1))
+        new_word = new_word + ('a' * i)
         result.append(new_word)
     return ' '.join(result)
 
 
+def to_goat_latin_2(sentence):
+    """
+    More concise version of the above solution
+    """
+    result = []
+    for i, word in enumerate(sentence.split(), 1):
+        if word[0].lower() not in 'aeiou':
+            word = word[1:] + word[0]
+        result.append(word + 'ma' + 'a' * i)
+    return ' '.join(result)
+
+
 def longest_common_prefix(strs):
-    # https://leetcode.com/problems/longest-common-prefix/description/
-    if not str:
+    # https://leetcode.com/problems/longest-common-prefix
+    """
+    Input: strs = ["flower","flow","flight"]
+    Output: "fl"
+    """
+    if not strs:
         return ''
-    shortest_str = min(strs, key=len)
+    shortest_str = min(strs, key=len)  # Get the string with the lowest length
     for i, char in enumerate(shortest_str):
         for other_str in strs:
             if other_str[i] != char:
@@ -266,29 +331,44 @@ def longest_common_prefix(strs):
 
 def strobogrammatic_number(num):
     # https://algo.monster/liteproblems/246
+    """
+    Only having 0, 1, 6, 8, 9 helps in forming a strobogrammatic number. 2, 3, 4, 5, 7 don't form valid digits when rotated.
+    """
     number_map = {('0', '0'), ('1', '1'), ('6', '9'), ('8', '8'), ('9', '6')}
-    i, j = 0, len(num) - 1
-    while i <= j:
-        if (num[i], num[j]) not in number_map:
+    l, r = 0, len(num) - 1
+    while l <= r:
+        if (num[l], num[r]) not in number_map:
             return False
-        i, j = i + 1, j - 1
+        l, r = l + 1, r - 1
     return True
 
 
-def remove_duplicates_from_sorted_array(nums):
+def remove_duplicates_from_sorted_array_1(nums):
     # https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/
     # https://leetcode.com/problems/remove-duplicates-from-sorted-array/solutions/2107606/py-all-4-methods-intuitions-walk-through-wrong-answer-explanations-for-beginners-python/
     if not nums:
         return 0
-    slow, fast, n = 0, 1, len(nums)
-    while fast < n:
-        if nums[slow] == nums[fast]:
-            fast += 1
+    unique_pos, scan_pos, n = 0, 1, len(nums)
+    while scan_pos < n:
+        if nums[unique_pos] == nums[scan_pos]:
+            scan_pos += 1
         else:
-            nums[slow + 1] = nums[fast]
-            slow += 1
-            fast += 1
-    return slow + 1
+            nums[unique_pos + 1] = nums[scan_pos]
+            unique_pos += 1
+            scan_pos += 1
+    return unique_pos + 1
+
+
+def remove_duplicates_from_sorted_array_2(nums):
+    if not nums:
+        return 0
+    unique_pos, scan_pos, n = 0, 1, len(nums)
+    while scan_pos < n:
+        if nums[unique_pos] != nums[scan_pos]:
+            nums[unique_pos + 1] = nums[scan_pos]
+            unique_pos += 1
+        scan_pos += 1
+    return unique_pos + 1
 
 
 def middle_of_the_linked_list(head):
@@ -307,27 +387,41 @@ def move_zeros(nums):
     for i in range(n):
         if nums[i] == 0:
             snow_ball_size += 1
-        elif snow_ball_size > 0:
-            t = nums[i]
-            nums[i] = 0
-            nums[i - snow_ball_size] = t
+        else:
+            if snow_ball_size > 0:
+                temp = nums[i]
+                nums[i] = 0
+                nums[i - snow_ball_size] = temp
 
 
 def maximum_difference_by_remapping_a_digit(num):
     # https://leetcode.com/problems/maximum-difference-by-remapping-a-digit/description/
+    """
+    Input: num = 11891
+    Output: 99009
+    Explanation:
+    To achieve the maximum value, Bob can remap the digit 1 to the digit 9 to yield 99899.
+    To achieve the minimum value, Bob can remap the digit 1 to the digit 0, yielding 890.
+    The difference between these two numbers is 99009.
+
+    It’s a greedy digit-mapping strategy:
+        The first non-9 drives the upper bound.
+        The first digit drives the lower bound.
+    """
     s = str(num)
 
     replace_for_max = ''
     for char in s:
-        if char != '9':
+        if char != '9':  # This finds the first digit that’s not already 9, because changing a 9 to anything smaller would reduce the number.
             replace_for_max = char
             break
-    max_str = ''.join(['9' if char == replace_for_max else char for char in s])
+    max_num = ''.join(['9' if char == replace_for_max else char for char in s])
 
+    # To minimize the number, we replace the first digit with '0', but only if doing so doesn’t remove all digits (since leading zeros drop).
     replace_for_min = s[0]
-    min_str = ''.join(['0' if char == replace_for_min else char for char in s])
+    min_num = ''.join(['0' if char == replace_for_min else char for char in s])
 
-    return int(max_str) - int(min_str)
+    return int(max_num) - int(min_num)
 
 
 def climbing_stairs(n):
