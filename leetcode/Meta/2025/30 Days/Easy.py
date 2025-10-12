@@ -1,5 +1,6 @@
 import heapq
 import string
+import pandas as pd
 from collections import deque, Counter
 from itertools import zip_longest
 from leetcode.CapitalOne.relevant_leetcode.Easy import ListNode
@@ -424,8 +425,20 @@ def maximum_difference_by_remapping_a_digit(num):
     return int(max_num) - int(min_num)
 
 
-def climbing_stairs(n):
+def climbing_stairs_1(n):
+    """This is recursive solution"""
+    if n == 0 or n == 1:
+        return 1
+    return climbing_stairs_1(n - 1) + climbing_stairs_2(n - 2)
+
+
+def climbing_stairs_2(n):
     # https://leetcode.com/problems/climbing-stairs
+    """
+    - dp[0] doesn't matter here as we are not using it
+    - dp[1] and dp[2] are the initial conditions which are 1 and 2 respectively
+    - We create dp array of size n + 1 due to dp[0] being ignored.
+    """
     if n <= 3:
         return n
     dp = [0] * (n + 1)
@@ -446,6 +459,10 @@ def pascals_triangle(num_rows):
 
 
 def roman_to_integer(s):
+    # https://leetcode.com/problems/roman-to-integer
+    """
+    This is a greedy problem
+    """
     symbols = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
     result, n = 0, len(s)
 
@@ -459,14 +476,18 @@ def roman_to_integer(s):
 
 def check_if_two_string_arrays_are_equivalent(word1, word2):
     # https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent/solutions/1007878/python-understanding-generators-and-yield-statement/
-
-    def generate(word_list):
+    """
+    Create a generator to yield character for each iteration.
+    The yield None acts like a sentinel value, a special marker that says:
+        "The generator has finished producing characters."
+    """
+    def generator(word_list):
         for word in word_list:
             for char in word:
                 yield char
-        yield None
+        yield None  # This is not required if I use zip_longest. If we use zip, yield None is necessary
 
-    for c1, c2 in zip_longest(generate(word1), generate(word2)):
+    for c1, c2 in zip(generator(word1), generator(word2)):
         if c1 != c2:
             return False
         return True
@@ -483,8 +504,14 @@ def find_peaks(mountain):
 
 
 def average_selling_price():
-    # https://leetcode.com/problems/find-the-peaks/description/
-    pass
+    # https://leetcode.com/problems/average-selling-price
+    # This question can be solved using pandas or sql
+    prices = pd.DataFrame()
+    units_sold = pd.DataFrame()
+    df = pd.merge(prices, units_sold, on="product_id", how="left")
+    df = df[df.purchase_date.isna() | ((df.purchase_date >= df.start_date) & (df.purchase_date <= df.end_date))]
+    result = df.groupby('product_id').apply(lambda x: round((x['price'] * x['units']).sum() / x['units'].sum(), 2) if x['units'].sum() != 0 else 0).reset_index(name='average_price')
+    return result
 
 
 class RecentCounter:
@@ -492,7 +519,7 @@ class RecentCounter:
     def __init__(self):
         self.queue = deque()
 
-    def pint(self, t):
+    def ping(self, t):
         self.queue.append(t)
         while self.queue[-1] - self.queue[0] > 3000:
             self.queue.popleft()
@@ -501,7 +528,21 @@ class RecentCounter:
 
 def find_all_k_distant_indices_in_an_array(nums, key, k):
     # https://leetcode.com/problems/find-all-k-distant-indices-in-an-array
-    pass
+    """
+    1. Find the indices where key is present
+    2. For each key index, check around that index of distance k
+        There is problem is here if that distance falls below 0 or goes beyond the length of the nums array.
+        That's why we have max and min for lower and upper bounds respectively.
+    """
+    key_indices = [i for i, val in enumerate(nums) if val == key]
+    result = set()
+
+    for j in key_indices:
+        # Add all indices within distance k of j
+        for i in range(max(0, j - k), min(len(nums), j + k + 1)):
+            result.add(i)
+
+    return sorted(result)
 
 
 def linked_list_cycle(head):
@@ -515,7 +556,7 @@ def linked_list_cycle(head):
     return False
 
 
-def reverse_vowels_of_a_string(s):
+def reverse_vowels_of_a_string(s: str):
     # https://leetcode.com/problems/reverse-vowels-of-a-string/
     vowels = "aeiou"
     s = list(s)
@@ -534,7 +575,12 @@ def reverse_vowels_of_a_string(s):
 
 
 def single_number(nums):
-    #https://leetcode.com/problems/single-number
+    # https://leetcode.com/problems/single-number
+    """
+    XOR trick
+        - a ^ a = 0
+        - a ^ 0 = a
+    """
     result = 0
     for num in nums:
         result ^= num
@@ -548,7 +594,7 @@ def palindrome_number(x):
 
     div = 1
     while x // div >= 10:
-        div *= 10
+        div *= 10  # Gets a number such that for 1221 we get div as 1000
 
     while x:
         left, rem = divmod(x, div)
@@ -557,8 +603,8 @@ def palindrome_number(x):
         if left != right:
             return False
 
-        x = rem % 10
-        div //= 100
+        x = rem % 10  # Remove right digit as left was already removed
+        div //= 100   # As two digits are being removed, we are using 100 here
 
     return True
 
