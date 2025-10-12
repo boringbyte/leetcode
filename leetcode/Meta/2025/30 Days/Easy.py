@@ -21,6 +21,10 @@ def diameter_of_binary_tree(root):
 
 def merge_sorted_array(nums1, m, nums2, n):
     # https://leetcode.com/problems/merge-sorted-array/
+    """
+    Arrange from backwards of the nums1 array as it contains zeros.
+    Also, if the non-zero elements are more in nums2 then simply copy them at the end
+    """
     while m > 0 and n > 0:
         if nums1[m - 1] >= nums2[n - 1]:
             nums1[m + n - 1] = nums1[m - 1]
@@ -35,7 +39,12 @@ def merge_sorted_array(nums1, m, nums2, n):
 
 def valid_palindrome(s):
     # https://leetcode.com/problems/valid-palindrome/
-
+    """
+    Think of normal palindrome validation of two pointer solution.
+    Use negative conditions:
+      1. Check if a character on left and right pointers are not an alphanumeric or not.
+      2. Another is normal palindrome validation check
+    """
     l, r = 0, len(s)
     while l < r:
         if not s[l].isalnum():
@@ -51,6 +60,10 @@ def valid_palindrome(s):
 
 def valid_palindrome_ii(s):
     # https://leetcode.com/problems/valid-palindrome-ii
+    """
+    1. Write a normal two pointer function for checking if a string is palindrome or not.
+    2. Use Two-pointer palindrome check — allow one mismatch by skipping either left or right character once.
+    """
     def check_palindrome(l, r):
         while l < r:
             if s[l] != s[r]:
@@ -69,6 +82,11 @@ def valid_palindrome_ii(s):
 def valid_word_abbreviation(word, abbr):
     # https://leetcode.com/problems/valid-word-abbreviation/description/
     # https://shandou.medium.com/leetcode-408-valid-word-abbreviation-63f1ed6461de
+    """
+    A string can be shortened by replacing any number of non-adjacent, non-empty substrings with their lengths (without leading zeros).
+    word = "apple", abbr = "a3e"
+    word = "abbreviation", abbr = "a2reviation"
+    """
     i = j = 0
     m , n = len(word), len(abbr)
 
@@ -82,13 +100,13 @@ def valid_word_abbreviation(word, abbr):
             return False
 
         start = j
-        while j < n and abbr[j].isdigit():
+        while j < n and abbr[j].isdigit():  # Condition 3: Check if the chars in abbr are digits and pick that window
             j += 1
 
-        skip = int(abbr[start: j])
+        skip = int(abbr[start: j])  # Skip the window of 'word' picked by 'abbr'
         i += skip
 
-    return i == m and j == n
+    return i == m and j == n  # Make sure we reached the end and return based on that condition.
 
 
 def range_sum_of_bst(root, low, high):
