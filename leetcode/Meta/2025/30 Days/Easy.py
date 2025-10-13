@@ -622,12 +622,12 @@ def binary_search(nums, target):
 
 
 def find_subsequence_of_length_k_with_largest_sum(nums, k):
-    # https://leetcode.com/problems/find-subsequence-of-length-k-with-the-largest-sum.
+    # https://leetcode.com/problems/find-subsequence-of-length-k-with-the-largest-sum
     # https://leetcode.com/problems/find-subsequence-of-length-k-with-the-largest-sum/solutions/1705383/python-simple-solution-100-time/
-    heap = []
+    heap = []  # Heaps are min heaps by default. First element is always the lowest element.
     for i, num in enumerate(nums):
         if len(heap) == k:
-            heapq.heappushpop(heap, (num, i))
+            heapq.heappushpop(heap, (num, i))  # Lowest value elements are always popped out first
         else:
             heapq.heappush(heap, (num, i))
 
@@ -637,7 +637,11 @@ def find_subsequence_of_length_k_with_largest_sum(nums, k):
 
 def merge_two_sorted_lists(list1, list2):
     # https://leetcode.com/problems/merge-two-sorted-lists/description/
-
+    """
+    1. Check condition if list1 and list2 are there.
+        1. If both are there then process them
+        2. If one of them is there then return it.
+    """
     if list1 and list2:
         head = current = ListNode()
 
@@ -675,6 +679,9 @@ def minimum_depth_of_binary_tree_1(root):
 
 
 def minimum_depth_of_binary_tree_2(root):
+    """
+    Problem can be solved using BFS solution. Make sure to return as soon as we hit leaf node as in BFS, you reach the earliest leaf nodes.
+    """
     if not root:
         return 0
 
@@ -702,9 +709,9 @@ def find_the_kth_character_in_string_game_i(k):
     letters = string.ascii_lowercase
     char_int_map = {char: i for i, char in enumerate(letters)}
     next_int_char_map = {i + 1: letters[(i + 1) % 26] for i in range(26)}
+
     while len(word) < k:
-        # iterate on a copy to avoid modifying while looping
-        for char in list(word):
+        for char in list(word):  # iterate on a copy to avoid modifying while looping
             offset = char_int_map[char]
             next_char = next_int_char_map[offset + 1]
             word.append(next_char)
@@ -732,6 +739,9 @@ def valid_anagram_1(s, t):
 
 def valid_anagram_2(s, t):
     # https://leetcode.com/problems/valid-anagram
+    if len(s) != len(t):
+        return False
+
     l, m = [0] * 26, [0] * 26
     for char in s:
         l[ord(char) - ord('a')] += 1
@@ -746,6 +756,10 @@ def find_missing_and_repeated_values(grid):
     # https://leetcode.com/problems/find-missing-and-repeated-values
     # https://leetcode.com/problems/find-missing-and-repeated-values/solutions/6503987/counting-math-python-c-java-js-c-go-swift/
     # flat_list = [item for row in grid for item in row]
+    """
+    Create a count grid of size n + 1 to calculate the number of elements.
+    There will be one index where 2 elements will be there and there will be another index where there will be zero elements.
+    """
     n = len(grid)
     size = n * n
     count = [0] * (size + 1)
@@ -762,14 +776,14 @@ def find_missing_and_repeated_values(grid):
     return [a, b]
 
 
-def find_the_index_of_first_occurrence_in_a_string(haystack, needle):
+def find_the_index_of_first_occurrence_in_a_string_1(haystack, needle):
     # https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/solutions/665448/ac-simply-readable-python-kmp-rabin-karp/
     """
     # Using string built-in method
     haystack.find(needle)
 
     # Robin Karp
-    n, h = len(haystack), len(needle)
+    h, n = len(haystack), len(needle)
     needle_hash = hash(needle)
     for i in range(h - n + 1):
         if hash(haystack[i: i + n]) == needle_hash:
@@ -784,8 +798,52 @@ def find_the_index_of_first_occurrence_in_a_string(haystack, needle):
         return len(haystack.split(needle)[0])
 
 
+def find_the_index_of_first_occurrence_in_a_string_2(haystack, needle):
+    if not needle:
+        return 0
+
+    # Step 1: Build Longest Prefix Suffix array
+    lps = [0] * len(needle)
+    prev_lps, i = 0, 1
+
+    while i < len(needle):
+        if needle[i] == needle[prev_lps]:
+            prev_lps += 1
+            lps[i] = prev_lps
+            i += 1
+        else:
+            if prev_lps != 0:
+                prev_lps = lps[prev_lps - 1]
+            else:
+                lps[i] = 0
+                i += 1
+
+    # Step 2: Search in haystack
+    i = j = 0  # i -> haystack, j -> needle
+    while i < len(haystack):
+        if haystack[i] == needle[j]:
+            i += 1
+            j += 1
+        else:
+            if j != 0:
+                j = lps[j - 1]
+            else:
+                i += 1
+
+        if j == len(needle):
+            return i - j  # Found match
+
+    return -1
+
+
 class RangeSumQueryImmutable:
     # https://leetcode.com/problems/range-sum-query-immutable/
+    """
+    1. Create `running_sum` variable which is a copy of  `nums` to make sure that we have 0th element inside it for calculating running_sum
+    2. When returning with left and right indexes:
+        1. If left == 0 we return the right as the variable contains running sum.
+        2. If left != 0, we return right - (left - 1) as it is given to return inclusive sum between the indices.
+    """
 
     def __init__(self, nums):
         self.nums = nums
