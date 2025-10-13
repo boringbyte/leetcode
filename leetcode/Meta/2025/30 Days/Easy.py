@@ -722,11 +722,11 @@ def find_the_kth_character_in_string_game_i(k):
 
 def contains_duplicate_ii(nums, k):
     # https://leetcode.com/problems/contains-duplicate-ii
-    seen = dict()
+    num_idx_dict = dict()
     for i, num in enumerate(nums):
-        if num in seen and abs(i - seen[num]) <= k:
+        if num in num_idx_dict and abs(i - num_idx_dict[num]) <= k:
             return True
-        seen[num] = i
+        num_idx_dict[num] = i
     return False
 
 
