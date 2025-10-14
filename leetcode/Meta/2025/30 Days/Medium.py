@@ -329,6 +329,11 @@ def kth_largest_number_in_an_array_4(nums, k):
 
 def lowest_common_ancestor(root, p, q):
     # https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/
+    """
+    Create a child parent dictionary which tracks the relationship in the reverser order of a tree
+    Track the path of `p` node from it to the root node and save this path to set.
+    Track the parth of `q` node from it till it doesn't encounter node in the set
+    """
     child_parent_dict, p_ancestors = dict(), set()
 
     def dfs(child, parent):
@@ -394,11 +399,10 @@ def binary_tree_vertical_order_traversal_2(root):
     column_dict = defaultdict(list)
 
     def dfs(node, depth, column):
-        if not node:
-            return
-        column_dict[column].append((depth, node.val))
-        dfs(node.left, depth + 1, column - 1)
-        dfs(node.right, depth + 1, column + 1)
+        if node:
+            column_dict[column].append((depth, node.val))
+            dfs(node.left, depth + 1, column - 1)
+            dfs(node.right, depth + 1, column + 1)
 
     dfs(root, 0, 0)
 
@@ -410,6 +414,13 @@ def binary_tree_vertical_order_traversal_2(root):
 
 
 def minimum_remove_to_make_valid_parentheses(s):
+    # https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses
+    """
+    First, convert `s` from a string to a list since strings are immutable in Python.
+    The stack stores the indices of unmatched '(' positions only.
+    During traversal, if there are more '(' than ')' in `s`, those extra '(' indices will remain in the stack — we remove them at the end.
+    Finally, convert the list back to a string before returning.
+    """
     s, stack = list(s), []
     for i, char in enumerate(s):
         if char == "(":
