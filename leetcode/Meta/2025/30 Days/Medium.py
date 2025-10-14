@@ -1,11 +1,10 @@
-import bisect
 import math
 import random
 import heapq
-from collections import OrderedDict, defaultdict, deque, Counter
+from collections import defaultdict, deque, Counter
 from itertools import accumulate
 
-from leetcode.LCMetaPractice import ListNode, TreeNode, RandomPointerNode, GraphNode
+from leetcode.LCMetaPractice import ListNode, GraphNode
 
 
 def simplify_path(path):
@@ -154,6 +153,7 @@ def maximum_swap(num):
 
 
 def find_peak_element_1(nums):
+    # https://leetcode.com/problems/find-peak-element
     # This might work but it is O(n)
     n = len(nums)
     if n == 1 or nums[0] >= nums[1]:
@@ -172,7 +172,7 @@ def find_peak_element_2(nums):
     left, right = 0, len(nums) - 1
     while left < right:
         mid = left + (right - left) // 2
-        if nums[mid + 1] < nums[mid]:
+        if nums[mid] > nums[mid + 1]:  # This section is not strictly increasing and peak can be in this section. This is greedy.
             right = mid
         else:
             left = mid + 1
@@ -181,6 +181,10 @@ def find_peak_element_2(nums):
 
 class SparseVector1:
     # https://zhenchaogan.gitbook.io/leetcode-solution/leetcode-1570-dot-product-of-two-sparse-vectors
+    """
+    1. Create hashmap with index as key and num as value
+    2. Check the length of other array and iterate over smaller array for faster computation
+    """
     def __init__(self, nums):
         self.hashmap = {i: val for i, val in enumerate(nums) if val}
 
@@ -196,7 +200,13 @@ class SparseVector1:
 
 
 class SparseVector2:
-    # This is what I used in my last interview
+    """
+    This is similar to dictionary/hashmap solution, but we are using linked list with index and num as each item of primary list
+    While iterating:
+        1. If both keys match, then compute value and move on to next elements in the primary list.
+        2. If index in 1st primary list is smaller then, iterate over that list.
+        3. If index in 2nd primary list is smaller then, iterate over that list.
+    """
     def __init__(self, nums):
         self.linked_list = [[i, val] for i, val in enumerate(nums) if val]
 
