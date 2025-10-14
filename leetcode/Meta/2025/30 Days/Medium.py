@@ -37,7 +37,8 @@ class LRUCache1:
     def put(self, key, value):
         if key in self.cache:       # For put, check if the key is there
             self.cache.pop(key)
-        elif len(self.cache) >= self.capacity:
+
+        if len(self.cache) >= self.capacity:
             self.cache.pop(next(iter(self.cache)))  # For ordered dict use self.cache.popitem(last=False)
             # oldest_key = next(iter(self.cache))
         self.cache[key] = value
@@ -112,11 +113,12 @@ class LRUCache3:
     def put(self, key: int, value: int) -> None:
         if key in self.cache:
             self._remove(self.cache[key])
+
         node = DLL(key, value)
         self._add(node)
         self.cache[key] = node
-        if len(self.cache) > self.capacity:     # Should this be > or >=. Need to verify
-            # remove from the front
+
+        if len(self.cache) > self.capacity:
             lru = self.head.next
             self._remove(lru)
             del self.cache[lru.key]
@@ -129,26 +131,25 @@ def maximum_swap(num):
 
     # Track the rightmost max digit and positions to swap
     max_idx = n - 1
-    left, right = -1, -1  # left tracks the smallest and right tracks the largest
+    smallest, largest = -1, -1  # smallest tracks the smallest and largest tracks the largest
 
     # Traverse from right to left
     # 🔧 Example: 2736
     # Start: max_idx = 3 (digit 6)
-    # i=2 → compare 3 vs 6 → 3 < 6 → left needs to be updated with i and right with max_idx
+    # i=2 → compare 3 vs 6 → 3 < 6 → smallest needs to be updated with i and largest with max_idx
     # i=1 → compare 7 vs 6 → 7 > 6 → update max_idx = 1
-    # i=0 → compare 2 vs 7 → 2 < 7 → left needs to be updated with i and right with max_idx
-    # So the last (left, right) = (0,1) → swap 2 and 7 → 7236.
+    # i=0 → compare 2 vs 7 → 2 < 7 → smallest needs to be updated with i and largest with max_idx
+    # So the last (smallest, largest) = (0,1) → swap 2 and 7 → 7236.
     for i in range(n - 2, -1, -1):
         if s[i] > s[max_idx]:
             max_idx = i
         elif s[i] < s[max_idx]:
-            left, right = i, max_idx
+            smallest, largest = i, max_idx
 
-    if left == -1:  # already largest
+    if smallest == -1:  # already largest
         return num
 
-    # Swap and return
-    s[left], s[right] = s[right], s[left]
+    s[smallest], s[largest] = s[largest], s[smallest]
     return int("".join(s))
 
 
@@ -176,6 +177,19 @@ def find_peak_element_2(nums):
             right = mid
         else:
             left = mid + 1
+    return left
+
+
+def find_peak_element_3(nums):
+    # https://leetcode.com/problems/find-peak-element
+    # This is the usual binary search logic
+    left, right = 0, len(nums) - 1
+    while left < right:
+        mid = left + (right - left) // 2
+        if nums[mid] <= nums[mid + 1]:
+            left = mid + 1
+        else:
+            right = mid
     return left
 
 

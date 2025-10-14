@@ -611,14 +611,14 @@ def palindrome_number(x):
 
 def binary_search(nums, target):
     # https://leetcode.com/problems/binary-search
-    l, r = 0, len(nums) - 1
-    while l < r:
-        mid = l + (r - l) // 2
+    left, right = 0, len(nums) - 1
+    while left < right:
+        mid = left + (right - left) // 2
         if target > nums[mid]:
-            l = mid + 1
+            left = mid + 1
         else:
-            r = mid
-    return -1 if nums[l] != target else l
+            right = mid
+    return -1 if nums[left] != target else left
 
 
 def find_subsequence_of_length_k_with_largest_sum(nums, k):
