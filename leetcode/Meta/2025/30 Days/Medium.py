@@ -437,14 +437,21 @@ def minimum_remove_to_make_valid_parentheses(s):
 
 
 def k_closest_points_to_origin_1(points, k):
+    # https://leetcode.com/problems/k-closest-points-to-origin
     # Time Complexity: O(NlogN)
     # Space Complexity:
     return sorted(points, key=lambda x, y: x * x + y * y)[:k]
 
 
 def k_closest_points_to_origin_2(points, k):
-    # O(nlogk) --> n for loop and logk for push and pop
-    # We want to maintain max heap, that's why we use -ve distance
+    """
+    O(nlogk) --> n for loop and logk for push and pop
+    We want the k closest points to the origin. That means we want to keep only the k smallest distances in the heap.
+    In Python heapq implements a min-heap by default, and it always pops the smallest value first.
+    To simulate a max-heap, we insert negative distances.
+    That way, the largest distance (farthest point) among the current k points becomes the smallest negative number,
+     and will be popped when a closer point appears.
+    """
     def euclidean(p, q):
         return p * p + q * q
 
@@ -459,22 +466,24 @@ def k_closest_points_to_origin_2(points, k):
 
 
 def continuous_subarray_sum(nums, k):
+    # https://leetcode.com/problems/continuous-subarray-sum
     """
-    If that subarray sum is divisible by k, then:
+    If the subarray sum is divisible by k, then:
         (prefix_sum[j] - prefix_sum[i]) % k == 0 → prefix_sum[j] % k == prefix_sum[i] % k
+    So, if two prefix sums have the same remainder when divided by k, the subarray between them has a sum divisible by k.
     """
-    seen = {0: -1}
+    remainder_index_map = {0: -1}  # Handle case where subarray starts at index 0
     prefix_sum = 0
 
-    for i, num in enumerate(nums):
+    for previous_index, num in enumerate(nums):
         prefix_sum += num
         remainder = prefix_sum % k
 
-        if remainder in seen:
-            if i - seen[remainder] >= 2:
+        if remainder in remainder_index_map:
+            if previous_index - remainder_index_map[remainder] >= 2:
                 return True
         else:
-            seen[remainder] = i
+            remainder_index_map[remainder] = previous_index
     return False
 
 
@@ -495,6 +504,12 @@ def power_1(x, n):
 
 
 def power_2(x: float, n: int) -> float:
+    """
+    First check about the power term `n`. If it is -ve then, follow the match principles.
+    Second loop while n > 0
+        if n is odd then, multiply result with x
+        if x is even then, square the base (x) and halve the exponent (n)
+    """
     if n < 0:
         x = 1 / x
         n = -n
@@ -509,6 +524,10 @@ def power_2(x: float, n: int) -> float:
 
 
 def merge_intervals(intervals):
+    # https://leetcode.com/problems/merge-intervals
+    """
+    First sort the intervals based on their start times.
+    """
     intervals, result = sorted(intervals, key=lambda x: x[0]), []
     for start, end in intervals:
         if not result or start > result[-1][-1]:
@@ -519,11 +538,14 @@ def merge_intervals(intervals):
 
 
 def first_and_last_position_of_element_in_sorted_array(nums, target):
+    # https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array
+
+    result = [-1, -1]
+
     if not nums:
-        return [-1, -1]
+        return result
 
     n = len(nums)
-    result = [-1, -1]
 
     left, right = 0, n - 1
     while left < right:
@@ -551,6 +573,7 @@ def first_and_last_position_of_element_in_sorted_array(nums, target):
 
 
 def binary_tree_right_side_view_1(root):
+    # https://leetcode.com/problems/binary-tree-right-side-view
     queue, result = deque([root]), []
     if not root:
         return result
@@ -567,6 +590,7 @@ def binary_tree_right_side_view_1(root):
 
 
 def binary_tree_right_side_view_2(root):
+    # https://leetcode.com/problems/binary-tree-right-side-view
     result, visited = [], set()
     if not root:
         return result
@@ -576,8 +600,8 @@ def binary_tree_right_side_view_2(root):
             if level not in visited:
                 visited.add(level)
                 result.append(node.val)
-            dfs(node.right,level + 1)
-            dfs(node.right,level + 1)
+            dfs(node.right, level + 1)
+            dfs(node.right, level + 1)
 
     dfs(root, 0)
     return result
@@ -614,7 +638,7 @@ def shortest_path_in_binary_matrix(grid):
 
     directions = [(-1,-1), (-1,0), (-1,1), (0,-1), (0,1), (1,-1), (1,0), (1,1)]
     queue = deque([(0, 0, 1)])  # (row, col, distance)
-    visited = set([(0, 0)])
+    visited = {(0, 0)}
 
     while queue:
         x, y, distance = queue.popleft()
@@ -659,6 +683,7 @@ def basic_calculator_ii(s):
 
 
 def subarray_sum_equals_k(nums, k):
+    # https://leetcode.com/problems/subarray-sum-equals-k
     # In this all are positive numbers only
     # In comments of https://leetcode.com/problems/subarray-sum-equals-k/discuss/102111/Python-Simple-with-Explanation
     prefix_sum, prefix_sum_counts, result = 0, defaultdict(int), 0
