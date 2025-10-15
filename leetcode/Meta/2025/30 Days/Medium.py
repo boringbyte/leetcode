@@ -1155,18 +1155,20 @@ def clone_graph_2(node):
 
 
 def build_graph_from_binary_tree(root):
-    # This graph is undirected.
+    # This graph is bidirectional.
     graph = defaultdict(list)
 
-    def dfs(child, parent):
-        if parent:  # If you are checking for this node, append this itself
-            graph[child].append(parent)
-        if child.left:  # If you are checking for this node, append this itself
-            graph[child].append(child.left)
-            dfs(child.left, child)
-        if child.right:  # If you are checking for this node, append this itself
-            graph[child].append(child.right)
-            dfs(child.right, child)
+    def dfs(node, parent):
+        # connect current node ↔ parent
+        if parent:
+            graph[node].append(parent)
+            graph[parent].append(node)   # optional if you need both directions
+
+        # explore children
+        if node.left:
+            dfs(node.left, node)
+        if node.right:
+            dfs(node.right, node)
 
     dfs(root, None)
     return graph
@@ -1174,19 +1176,19 @@ def build_graph_from_binary_tree(root):
 
 def all_nodes_distance_k_in_binary_tree_1(root, target, k):
     # https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree
-    visited, result = {target}, []
+    visited, result = set(), []
     graph = build_graph_from_binary_tree(root)
 
     def dfs(node, distance):
-        if distance == 0:
+        if distance == k:
             result.append(node.val)
         else:
             visited.add(node)
             for neighbor in graph[node]:
                 if neighbor not in visited:
-                    dfs(neighbor, distance - 1)
+                    dfs(neighbor, distance + 1)
 
-    dfs(target, k)
+    dfs(target, 0)
     return result
 
 
@@ -1195,15 +1197,10 @@ def all_nodes_distance_k_in_binary_tree_2(root, target, k):
     graph = build_graph_from_binary_tree(root)
     while queue:
         current, distance = queue.popleft()
-
-        # If the node is not already visited, add it to the visited
         if current not in visited:
             visited.add(current)
-
-            # Case A: If we've reached distance k, add this node's value to result
             if k == distance:
                 result.append(current.val)
-            # Case B: If not yet at distance k, expand to neighbors
             elif distance < k:
                 for child in graph[current]:
                     queue.append((child, distance + 1))
@@ -1240,7 +1237,6 @@ def exclusive_time_of_functions(n, logs):
     return result
 
 
-
 def palindromic_substrings(s):
     # https://leetcode.com/problems/palindromic-substrings
     """
@@ -1257,8 +1253,8 @@ def palindromic_substrings(s):
     def count_palindromic(s, l, r):
         while l >= 0 and r < n and s[l] == s[r]:
             result[0] = result[0] + 1
-            l -= 1
-            r += 1
+            l -= 1  # expanding from the center towards left
+            r += 1  # expanding from the center towards right
 
     for i in range(n):
         count_palindromic(s, i, i)       # odd-length palindromes
@@ -1282,14 +1278,16 @@ def minimum_add_to_make_parentheses_valid_1(s):
 
 
 def minimum_add_to_make_parentheses_valid_2(s):
+    # This works as there are only '(' and ')' in the string `s`
     right, stack = 0, []
     for char in s:
         if char == '(':
             stack.append(char)
-        elif stack and char == ')':
-            stack.pop()
         else:
-            right += 1
+            if stack:
+                stack.pop()
+            else:
+                right += 1
     return right + len(stack)
 
 
