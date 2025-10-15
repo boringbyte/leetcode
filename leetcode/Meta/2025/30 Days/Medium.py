@@ -4,7 +4,7 @@ import heapq
 from collections import defaultdict, deque, Counter
 from itertools import accumulate
 
-from leetcode.LCMetaPractice import ListNode, GraphNode
+from leetcode.LCMetaPractice import ListNode, GraphNode, RandomPointerNode
 
 
 def simplify_path(path):
@@ -744,6 +744,7 @@ def nested_list_weighted_sum_2(nested_list):
 
 
 def top_k_frequent_elements_1(nums, k):
+    # https://leetcode.com/problems/top-k-frequent-elements
     """
     Time: O(n + m log k)
     Space: O(m + k)
@@ -783,22 +784,44 @@ def top_k_frequent_elements_3(nums, k):
     return [num for num, _ in counts.most_common(k)]
 
 
-def custom_sort_string(order, s):
+def custom_sort_string_1(order, s):
     # https://leetcode.com/problems/custom-sort-string
+    """
+    First order them based on the `order` variable. There can be more than one of the same character in s.
+    Second, after dealing with these characters, just work with the rest of the remaining characters.
+    """
     result, counter = [], Counter(s)
     for char in order:
         if char in counter:
             result.append(char * counter[char])
             del counter[char]
+
     for char, freq in counter.items():
         result.append(char * freq)
 
     return "".join(result)
 
 
+def custom_sort_string_2(order, s):
+    result, counter = [], Counter(s)
+    order = dict.fromkeys(order)  # If you use set here, order will not be preserved. Should be careful.
+
+    for char in order:
+        if char in counter:
+            result.append(char * counter[char])
+
+    for char, freq in counter.items():
+        if char not in order:
+            result.append(char * freq)
+
+    return "".join(result)
+
+
 def diagonal_traverse(mat):
     # https://leetcode.com/problems/diagonal-traverse/description/
-    # Use dict and sum of i+j is same for elements on the diagonal
+    """
+    All elements with the same (i + j) lie on the same top-left to bottom-right diagonal.
+    """
     m, n, result = len(mat), len(mat[0]), []
     diagonal_map = defaultdict(list)
 
@@ -818,18 +841,45 @@ def diagonal_traverse(mat):
 
 def copy_list_with_random_pointer(head):
     # https://leetcode.com/problems/copy-list-with-random-pointer
-    pass
+    if not head:
+        return None
+
+    # Step 1: Interleave copy nodes with original nodes. A → A' → B → B' → C → C'
+    current = head
+    while current:
+        new_node = RandomPointerNode(current.val)
+        new_node.next = current.next
+        current.next = new_node
+        current = new_node.next
+
+    # Step 2: Assign random pointer to the copied nodes
+    current = head
+    while current:
+        if current.random:
+            current.next.random = current.random.next
+        current = current.next.next
+
+    # Step 3: Separate the two lists
+    current = head
+    copy_head = head.next
+    while current:
+        copy = current.next
+        current.next = copy.next
+        copy.next = copy.next.next if copy.next else None
+        current = current.next
+
+    return copy_head
 
 
 class RandomPickWeight:
-
+    # https://leetcode.com/problems/random-pick-with-weight
     def __init__(self, w):
         self.w = w
         self.total = sum(self.w)
         self.n = len(self.w)
 
         # 1. Normalize the weights. Now self.w contains probabilities that sum up to 1.
-        # Example: w = [1,3,2] → self.w = [1/6, 3/6, 2/6] = [0.166, 0.5, 0.333].
+        # Example: w = [1, 3, 2] → self.w = [1/6, 3/6, 2/6] = [0.166, 0.5, 0.333].
         for i in range(self.n):
             self.w[i] = self.w[i] / self.total
 
@@ -844,18 +894,17 @@ class RandomPickWeight:
     def pick_index(self):
         # k = random.random()
         # return bisect.bisect_left(self.w, k)
-
         # or
         # 3. Pick a random number from uniform distribution between 0, 1
         k = random.uniform(0, 1)  # returns a floating point number
-        l, r = 0, len(self.w)
-        while l < r:
-            mid = l + (r - l) // 2
+        left, right = 0, len(self.w)
+        while left < right:
+            mid = left + (right - left) // 2
             if k <= self.w[mid]:
-                r = mid
+                right = mid
             else:
-                l = mid + 1
-        return l
+                left = mid + 1
+        return left
 
 
 def next_permutation(nums):
@@ -881,13 +930,13 @@ def next_permutation(nums):
 
 def buildings_with_an_ocean_view_1(heights):
     # https://goodtecher.com/leetcode-1762-buildings-with-an-ocean-view/
-    result, n = [], len(heights)
+    stack, n = [], len(heights)
     for i in range(n - 1, -1, -1):
-        if not result:
-            result.append(i)
-        if heights[i] > heights[result[-1]]:
-            result.append(i)
-    return result[::-1]
+        if not stack:
+            stack.append(i)
+        if heights[i] > heights[stack[-1]]:
+            stack.append(i)
+    return stack[::-1]
 
 
 def buildings_with_an_ocean_view_2(heights):
@@ -902,6 +951,7 @@ def buildings_with_an_ocean_view_2(heights):
 
 def buildings_with_an_ocean_view_3(heights):
     # Solution if ocean is to the left of the buildings.
+    # This is same as the buildings_with_an_ocean_view_1
     stack = []
     for i, height in enumerate(heights):
         if not stack or heights[stack[-1]] < height:
@@ -925,7 +975,14 @@ def group_shifted_strings(strings):
 
 def course_schedule(num_courses, prerequisites):
     # https://leetcode.com/problems/course-schedule/description/
-    # Index of the graph and in_degree are also important
+    """
+    As course numbers start with 0 and go till num_courses - 1, we can create in_degree as simple list and the index represents the course
+    This is Topological Sorting problem and if there is a cycle, we can't finish all the courses.
+    Start with the courses that have no pre-requisites and process courses by BFS algorithm
+    Track how many courses have been successfully scheduled through `taken` variable.
+    [[1,0]] --> [curr, prev] --> graph[0].append(1)
+    Do not overlook graph construction
+    """
     graph = [[] for _ in range(num_courses)]
     in_degree = [0] * num_courses
     for curr, prev in prerequisites:
@@ -961,7 +1018,7 @@ def insert_into_a_sorted_circular_linked_list(head, insert_val):
         if current.val <= insert_val <= current.next.val:
             break
         # Case 2.2: At the boundary (max -> min transition)
-        if current > current.next.val:
+        if current.val > current.next.val:
             if insert_val >= current.val or insert_val <= current.next.val:
                 break
         # Move forward
@@ -991,6 +1048,7 @@ def sum_root_to_leaf_numbers_1(root):
 
 
 def sum_root_to_leaf_numbers_2(root):
+    # https://leetcode.com/problems/sum-root-to-leaf-numbers
     stack, result = [(root, 0)], 0
     while stack:
         current, value = stack.pop()
@@ -1115,6 +1173,7 @@ def build_graph_from_binary_tree(root):
 
 
 def all_nodes_distance_k_in_binary_tree_1(root, target, k):
+    # https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree
     visited, result = {target}, []
     graph = build_graph_from_binary_tree(root)
 
@@ -1234,9 +1293,9 @@ def minimum_add_to_make_parentheses_valid_2(s):
     return right + len(stack)
 
 
-def string_to_integer_atoi(s):
+def string_to_integer_atoi_1(s):
     # https://leetcode.com/problems/string-to-integer-atoi
-    INT_MAX, INT_MIN = 2 ** 31 - 1 , -2 ** 31
+    INT_MIN, INT_MAX = -2**31, 2**31 - 1
 
     i, n = 0, len(s)
     # Step 1: Skip leading whitespaces
@@ -1254,16 +1313,41 @@ def string_to_integer_atoi(s):
     num = 0
     while i < n and s[i].isdigit():
         digit = int(s[i])
-        num = num * 10 + digit
+        # Overflow detection BEFORE adding the digit
+        # if num > INT_MAX // 10 or (num == INT_MAX // 10 and digit > INT_MAX % 10):
+        #     return INT_MAX if sign == 1 else INT_MIN
+        num = num * 10 + digit  # It might overflow
         i += 1
 
     # Step 4: Apply sign
     num *= sign
 
     # Step 5: Clamp to 32-bit integer range
-    num = max(INT_MIN, min(INT_MAX, num))
+    num = max(INT_MIN, min(INT_MAX, num))   # THis is not necessary in case of OVERFLOW detection logic
 
     return num
+
+
+def string_to_integer_atoi_2(s):
+    INT_MIN, INT_MAX = -2 ** 31, 2 ** 31 - 1
+    num, sign, started = 0, 1, False
+
+    for char in s:
+        if char == ' ' and not started:
+            continue
+        elif char in "+-" and not started:
+            sign = -1 if char == '-' else 1
+            started = True
+        elif char.isdigit():
+            started = True
+            digit = int(char)
+            if num > INT_MAX // 10 or (num == INT_MAX // 10 and digit > INT_MAX % 10):
+                return INT_MAX if sign == 1 else INT_MIN
+            num = num * 10 + digit
+        else:
+            break
+
+    return num * sign
 
 
 def add_two_numbers(l1, l2):
