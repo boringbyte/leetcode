@@ -8,6 +8,12 @@ from leetcode.CapitalOne.relevant_leetcode.Easy import ListNode
 
 def diameter_of_binary_tree(root):
     # https://leetcode.com/problems/diameter-of-binary-tree/
+    """
+    Base condition: if we reach leaf node, return 0
+    Calculate length of left and right subtrees
+    At this node, we can update the diameter by selecting max of left + right subtrees
+    When we want to return the length of the tree, we return 1 + best of left and right subtrees which is max in this case
+    """
     result = [0]
     def dfs(node):
         if not node:
@@ -146,7 +152,10 @@ def kth_missing_positive_number_1(arr, k):
 def kth_missing_positive_number_2(arr, k):
     """
     This is a binary search problem as the arr is already sorted.
-    arr[mid] - mid -> gives the number of values missing in the array till to that index
+    arr[mid] - mid - 1 -> gives the number of values missing in the array till to that index
+            arr =    [2, 3, 4, 7, 11]
+            idx =    [0, 1, 2, 3, 4 ]
+    arr[idx]-idx-1 = [1, 1, 1, 3, 6 ]  # This gives the number of missing numbers at that index
     """
     start, end = 0, len(arr)
     while start < end:
@@ -155,7 +164,7 @@ def kth_missing_positive_number_2(arr, k):
             start = mid + 1
         else:
             end = mid
-    return end + k
+    return end + k  # end are present in arr and k are missing
 
 
 class MovingAverage:
@@ -217,12 +226,10 @@ def best_time_to_buy_and_sell_stock(prices):
 def closest_binary_search_tree_value(root, target):
     # https://algo.monster/liteproblems/270
     # https://www.geeksforgeeks.org/dsa/find-closest-element-binary-search-tree/
-    difference = result = float('inf')
+    closest = float('inf')
     while root:
-        new_difference = abs(root.val - target)
-        if new_difference < difference:
-            difference = new_difference
-            result = root.val
+        if abs(root.val - target) < abs(closest - target):
+            closest = root.val
         if target < root.val:
             root = root.left
         elif target > root.val:
@@ -230,7 +237,7 @@ def closest_binary_search_tree_value(root, target):
         else:
             break
 
-    return result
+    return closest
 
 
 def add_strings(num1, num2):
