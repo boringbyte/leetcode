@@ -1371,18 +1371,27 @@ def add_two_numbers(l1, l2):
 
 class BinarySearchTreeIterator:
     # https://leetcode.com/problems/binary-search-tree-iterator/discuss/965584/Python-Stack-Clean-and-Concise-Time%3A-O(1)-space%3A-O(H)
+    """
+    We don't do the entire tree traversal at once.
+    Instead, BST iterator class keeps just enough information in the stack to know:
+        - What's the next node to return?
+        - What nodes are still left to visit later
+    Once next() is called:
+        1. Pops the top node from the stack → that’s the next smallest value.
+        2. If that node has a right child, it means there are more nodes after it on the right.
+    """
     def __init__(self, root):
         self.stack = []
-        self.push_left(root)
+        self._push_left(root)
 
-    def push_left(self, node):
+    def _push_left(self, node):
         while node:
             self.stack.append(node)
             node = node.left
 
     def next(self):
         node = self.stack.pop()
-        self.push_left(node.right)
+        self._push_left(node.right)
         return node.val
 
     def has_next(self):
@@ -1391,14 +1400,18 @@ class BinarySearchTreeIterator:
 
 def accounts_merge(accounts):
     # https://leetcode.com/problems/accounts-merge
-    graph = defaultdict(list)
-    visited = set()
-    result = []
+    """
+    Main idea is to build a bidirectional graph with email ids
+    """
+    graph = defaultdict(list)  # adjacency list representation of a graph
 
     for account in accounts:
         for i in range(2, len(account)):
             graph[account[i - 1]].append(account[i])
             graph[account[i]].append(account[i - 1])
+
+    visited = set()
+    result = []
 
     def dfs(email, emails):
         visited.add(email)
@@ -1406,7 +1419,6 @@ def accounts_merge(accounts):
         for new_email in graph[email]:
             if new_email not in visited:
                 dfs(new_email, emails)
-        return emails
 
     for account in accounts:
         name = account[0]
@@ -1436,9 +1448,9 @@ def subsets(nums):
     return result
 
 
-def remove_all_adjacent_duplicates_in_string_ii(s, k):
+def remove_all_adjacent_duplicates_in_string_ii_1(s, k):
     # https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/description/
-    stack = [['$', 0]]  # [char, freq]
+    stack = [['$', 0]]  # [char, freq] Don't use tuple here as stack[-1][1] += 1 will fail
 
     for char in s:
         if stack[-1][0] == char:
@@ -1451,6 +1463,21 @@ def remove_all_adjacent_duplicates_in_string_ii(s, k):
     return ''.join(char * count for char, count in stack)  # count of sentinel is 0
 
 
+def remove_all_adjacent_duplicates_in_string_ii_2(s, k):
+    # https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string-ii/description/
+    stack = []  # [char, freq] Don't use tuple here as stack[-1][1] += 1 will fail
+
+    for char in s:
+        if not stack or stack[-1][0] != char:
+            stack.append([char, 1])
+        else:
+            stack[-1][1] += 1
+            if stack[-1][1] == k:
+                stack.pop()
+
+    return ''.join(char * count for char, count in stack)  # count of sentinel is 0
+
+
 def kth_smallest_element_in_a_sorted_matrix(matrix, k):
     # https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/description/
     n = len(matrix)
@@ -1458,7 +1485,7 @@ def kth_smallest_element_in_a_sorted_matrix(matrix, k):
     def count_less_equal(mid):
         count, col = 0, n - 1
         for row in range(n):
-            while col >= 0 and matrix[row][col] < mid:
+            while col >= 0 and matrix[row][col] > mid:
                 col -= 1
             count += (col + 1)
         return count
@@ -1466,7 +1493,7 @@ def kth_smallest_element_in_a_sorted_matrix(matrix, k):
     low, high = matrix[0][0], matrix[-1][-1]
 
     while low < high:
-        mid = (low + high) // 2
+        mid = low + (high - low) // 2
         if count_less_equal(mid) < k:
             low = mid + 1
         else:
@@ -1489,15 +1516,15 @@ def longest_palindromic_substring(s):
     result = s[0]    # at least 1 char is palindrome
     current_max = 1
 
-    def expand_around(l, r):
+    def expand_around(left, right):
         nonlocal result, current_max
-        while l >= 0 and r < n and s[l] == s[r]:
-            new_len = r - l + 1
+        while left >= 0 and right < n and s[left] == s[right]:
+            new_len = right - left + 1
             if new_len > current_max:
                 current_max = new_len
-                result = s[l:r+1]
-            l -= 1
-            r += 1
+                result = s[left: right + 1]
+            left -= 1
+            right += 1
 
     for i in range(n):
         expand_around(i, i)       # odd-length palindromes
@@ -1524,7 +1551,7 @@ class RandomPickIndex1:
         return result
 
 
-class Solution2:
+class RandomPickIndex2:
     # Very efficient if pick() is called many times but requires extra memory.
     def __init__(self, nums):
         self.indices = defaultdict(list)
