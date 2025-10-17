@@ -2568,3 +2568,131 @@ def maximum_number_of_events_that_can_be_attended(events):
 
     return attended
 
+
+def rotate_image(matrix):
+    # https://leetcode.com/problems/rotate-image
+    """
+    Step 1: Reverse Rows or Transpose
+    Step 2: Transpose or Reverse Rows
+    """
+    n = len(matrix)
+    top, bottom = 0, n - 1
+
+    # Step 1: Reverse each row
+    while top <= bottom:
+        matrix[top], matrix[bottom] = matrix[bottom], matrix[top]
+        top += 1
+        bottom -= 1
+
+    # Step 2: Transpose. Flip along the diagonal
+    for row in range(n):
+        for col in range(row + 1, n):
+            matrix[row][col], matrix[col][row] = matrix[col][row], matrix[row][col]
+
+    return matrix
+
+
+def product_of_two_run_length_encoded_arrays(encoded1, encoded2):
+    # https://leetcode.com/problems/product-of-two-run-length-encoded-arrays
+    # https://algo.monster/liteproblems/1868
+    """
+    Input:
+    encoded1 = [[1,3],[2,3]]
+    encoded2 = [[6,3],[3,3]]
+
+    Decoded forms:
+    encoded1 → [1,1,1,2,2,2]
+    encoded2 → [6,6,6,3,3,3]
+
+    Products → [6,6,6,6,6,6] = [[6,6]]
+    """
+    result = []
+    i = j = 0
+
+    while i < len(encoded1) and j < len(encoded2):
+        val1, freq1 = encoded1[i]
+        val2, freq2 = encoded2[j]
+
+        product = val1 * val2
+        overlap = min(freq1, freq2)
+
+        if result and result[-1][0] == product:
+            result[-1][1] += overlap
+        else:
+            result.append([product, overlap])
+
+        # Decrement used frequencies
+        encoded1[i][1] -= overlap
+        encoded2[j][1] -= overlap
+
+        if encoded1[i][1] == 0:
+            i += 1
+        if encoded2[j][1] == 0:
+            j += 1
+
+    return result
+
+
+def count_nodes_equal_to_average_of_subtree(root):
+    # https://leetcode.com/problems/count-nodes-equal-to-average-of-subtree/description/
+    """
+    This is very similar to diameter of a binary tree
+    """
+    count = [0]
+
+    def dfs(node):
+        if not node:
+            return 0, 0  # (sum, count)
+
+        left_sum, left_count = dfs(node.left)
+        right_sum, right_count = dfs(node.right)
+
+        total_sum = left_sum + right_sum + node.val
+        total_count = left_count + right_count + 1
+
+        if node.val == total_sum // total_count:
+            count[0] += 1
+        return total_sum, total_count
+
+    dfs(root)
+    return count[0]
+
+
+def walls_and_gates(rooms):
+    # https://leetcode.com/problems/walls-and-gates
+    # https://medium.com/@vishnuvardhanprofessional1807/leetcode-286-walls-and-gates-python-solution-2c1ead834806
+    """
+    You’re given a 2D grid representing rooms:
+        -1 → wall or obstacle
+        0 → gate
+        INF (usually represented by 2**31 - 1) → empty room
+    Input Grid:
+        INF  -1   0   INF
+        INF  INF  INF -1
+        INF  -1   INF -1
+        0    -1   INF INF
+    We can solve this efficiently using multi-source BFS.
+        - Instead of starting from every room and searching for the nearest gate (which is slow),
+        - We start from all gates (0s) at once and expand outwards (BFS ensures shortest path).
+    """
+    if not rooms or not rooms[0]:
+        return
+
+    m, n = len(rooms), len(rooms[0])
+    queue = deque()
+
+    # Step 1: Add all gates (0s) to the queue
+    for i in range(m):
+        for j in range(n):
+            if rooms[i][j] == 0:
+                queue.append((i, j))
+
+    # Step 2: BFS from all gates simultaneously
+    directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+    while queue:
+        x, y = queue.popleft()
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < m and 0 <= ny < n and rooms[nx][ny] == 2 ** 31 - 1:
+                rooms[nx][ny] = rooms[x][y] + 1
+                queue.append((nx, ny))
