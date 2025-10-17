@@ -2171,16 +2171,16 @@ def rotting_oranges(grid):
 def diagonal_traversal_ii(nums):
     # https://leetcode.com/problems/diagonal-traverse-ii
 
-    diagonals = defaultdict(list)
+    diagonals = defaultdict(list)  # Already sorted by row as we go row by row. There is no explict sorted(diagonals.keys()) required
 
-    for i in range(len(nums)):
-        for j in range(len(nums[0])):
-            diagonals[i + j].append(nums[i][j])
+    for row in range(len(nums)):
+        for col in range(len(nums[row])):
+            diagonals[row + col].append(nums[row][col])
 
     result = []
 
-    for k in sorted(diagonals.keys()):
-        result.extend(reversed(diagonals[k]))
+    for key in diagonals.keys():
+        result.extend(reversed(diagonals[key]))
 
     return result
 
@@ -2192,12 +2192,13 @@ def zigzag_conversion(s, num_rows):
 
     rows = [''] * num_rows
     curr_row, step = 0, 1
+    first_row, last_row = 0, num_rows - 1
 
     for char in s:
         rows[curr_row] += char
-        if curr_row == 0:
+        if curr_row == first_row:
             step = 1
-        elif curr_row == num_rows - 1:
+        elif curr_row == last_row:
             step = -1
         curr_row += step
 
@@ -2321,9 +2322,11 @@ def binary_tree_level_order_traversal(root):
 
 def check_completeness_of_a_binary_tree(root):
     # https://leetcode.com/problems/check-completeness-of-a-binary-tree
-    # Do a BFS until we find the first None child.
-    # After this point, if we ever encounter a non-None node, the tree is not complete.
-    # If BFS finishes without contradiction → tree is complete.
+    """
+    Do a BFS until we find the first None child.
+    After this point, if we ever encounter a non-None node, the tree is not complete.
+    If BFS finishes without contradiction → tree is complete.
+    """
 
     queue = deque([root])
     found_null = False
@@ -2343,13 +2346,15 @@ def check_completeness_of_a_binary_tree(root):
 
 def next_greater_element_iii(n):
     # https://leetcode.com/problems/next-greater-element-iii
-    # Convert number → list of digits.
-    # Traverse from right to left, find the first decreasing digit (i).
-    # This is the "pivot" where a swap can make the number larger.
-    # From the right, find the smallest digit greater than digits[i].
-    # Swap them.
-    # Reverse the digits to the right of i → makes it the next smallest permutation.
-    # Convert back to integer. If overflow, return -1.
+    """
+    Convert number → list of digits.
+    Traverse from right to left, find the first decreasing digit (i).
+    This is the "pivot" where a swap can make the number larger.
+    From the right, find the smallest digit greater than digits[i].
+    Swap them.
+    Reverse the digits to the right of i → makes it the next smallest permutation.
+    Convert back to integer. If overflowed, return -1.
+    """
 
     digits = list(str(n))
     i = len(digits) - 2
@@ -2407,7 +2412,7 @@ def koko_eating_bananas(piles, h):
 
     while left <= right:
         mid = (left + right) // 2   # candidate speed
-        hours = sum(math.ceil(p / mid) for p in piles)
+        hours = sum(math.ceil(pile / mid) for pile in piles)
         # total hours Koko takes at speed = mid
 
         if hours <= h:
@@ -2421,15 +2426,27 @@ def koko_eating_bananas(piles, h):
     return result
 
 
-def maximum_width_fo_binary_tree(root):
+def maximum_width_of_binary_tree(root):
     # https://leetcode.com/problems/maximum-width-of-binary-tree/description/
-    # Assign an index to each node, like in a binary heap:
-    # Root index = 0.
-    # For a node at index i:
-        # Left child → 2*i.
-        # Right child → 2*i + 1.
-    # At each level:
-        # Width = rightmost_index - leftmost_index + 1.
+    """
+              1
+            /   \
+           3     2
+          / \     \
+         5   3     9
+
+    Level 1: [1] → width = 1
+    Level 2: [3,2] → width = 2
+    Level 3: [5,3,null,9] → width = 4 ✅
+
+    Assign an index to each node, like in a binary heap:
+    Root index = 0.
+    For a node at index i:
+        Left child → 2*i + 1.
+        Right child → 2*i + 2.
+    At each level:
+        Width = rightmost_index - leftmost_index + 1.
+    """
     max_width = 0
     if not root:
         return max_width
@@ -2439,25 +2456,30 @@ def maximum_width_fo_binary_tree(root):
     while queue:
         level_length = len(queue)
         _, first_index = queue[0]  # leftmost index at this level
-        for i in range(level_length):
-            current, index = queue.popleft()
-            if current.left:
-                queue.append((current.left, 2 * index))
-            if current.right:
-                queue.append((current.right, 2 * index + 1))
-            if i == level_length - 1:
-                last_index = index
+        _, last_index = queue[-1]
         max_width = max(max_width, last_index - first_index + 1)
+
+        for _ in range(level_length):
+            current, index = queue.popleft()
+            # normalize index to avoid overflow (subtract first_index)
+            norm_index = index - first_index
+            if current.left:
+                queue.append((current.left, 2 * norm_index + 1))
+            if current.right:
+                queue.append((current.right, 2 * norm_index + 2))
+
     return max_width
 
 
 def reversed_linked_list_ii(head, left, right):
     # https://leetcode.com/problems/reverse-linked-list-ii
-    # Traverse until left - 1 → keep a pointer prev (node before reversal starts).
-    # Reverse the sublist from left to right.
-    # Reconnect:
-        # prev.next should point to new head of reversed sublist.
-        # Tail of reversed sublist should connect to node after right.
+    """
+    Traverse until left - 1 → keep a pointer prev (node before reversal starts).
+    Reverse the sublist from left to right.
+    Reconnect:
+        prev.next should point to new head of reversed sublist.
+        Tail of reversed sublist should connect to node after right.
+    """
 
     if not head or left == right:
         return head
@@ -2482,20 +2504,37 @@ def reversed_linked_list_ii(head, left, right):
     return dummy.next
 
 
-def car_pooling(trips, capacity):
+def car_pooling_1(trips, capacity):
     # https://leetcode.com/problems/car-pooling
     # https://leetcode.com/problems/car-pooling/solutions/857489/python-linear-solution-using-cumulative-sums-explained
-    # trips = [[3,2,7],[3,7,9],[8,3,9]], capacity = 11. Let us represent it in the following way:
-    # # # 3 3 3 3 3 # # #  -> ignore 1st #
-    # # # # # # # # 3 3 3
-    # # # # 8 8 8 8 8 8 8
+    """
+    trips = [[3,2,7],[3,7,9],[8,3,9]], capacity = 11. Let us represent it in the following way:
+    # # 3 3 3 3 3 # # #
+    # # # # # # # 3 3 3
+    # # # 8 8 8 8 8 8 8
+    """
     m = max([i for _, _, i in trips])   # [num_passengers, start, end]. So m = farthest location we need to track.
-    times = [0] * (m + 2)               # Build a difference array. Why m+2? Because we use j+1 and k+1 indexing (1-based shift).
+    changes = [0] * (m + 2)
     for num_passengers, start, end in trips:
-        times[start + 1] += num_passengers
-        times[end + 1] -= num_passengers
+        changes[start + 1] += num_passengers
+        changes[end + 1] -= num_passengers
 
-    return max(accumulate(times)) <= capacity  #  Reconstruct actual passenger counts
+    return max(accumulate(changes)) <= capacity  #  Reconstruct actual passenger counts
+
+
+def car_pooling_2(trips, capacity):
+    changes = defaultdict(int)
+
+    for passengers, start, end in trips:
+        changes[start] += passengers
+        changes[end] -= passengers
+
+    current_passengers = 0
+    for loc in sorted(changes.keys()):
+        current_passengers += changes[loc]
+        if current_passengers > capacity:
+            return False
+    return True
 
 
 def shortest_bridge(grid):
@@ -2539,7 +2578,69 @@ def shortest_bridge(grid):
                 queue.append((nx, ny, d + 1))
 
 
+class DesignTicTacToe:
+
+    def __init__(self, n=3):
+        self.n = n
+        self.board = None
+        self.moves = None
+        self.winner = None
+        self.reset()
+
+    def reset(self):
+        self.board = [[0] * self.n for _ in range(self.n)]
+        self.moves = 0
+        self.winner = 0
+
+    def _check_winner(self, r, c, player):
+        n = self.n
+        board = self.board
+
+        # Check row
+        if all(board[r][j] == player for j in range(n)):
+            return True
+        # Check column
+        if all(board[i][c] == player for i in range(n)):
+            return True
+        # Check main diagonal
+        if r == c and all(board[i][i] == player for i in range(n)):
+            return True
+        # Check anti-diagonal
+        if r + c == n - 1 and all(board[i][n - 1 - i] == player for i in range(n)):
+            return True
+        return False
+
+    def move(self, row, col, player):
+        if self.winner:
+            raise ValueError("Game already finished.")
+        if not (0 <= row < self.n and 0 <= col < self.n):
+            raise IndexError("Move out of bounds.")
+        if self.board[row][col] != 0:
+            raise ValueError("Cell already occupied.")
+        if player not in (1, 2):
+            raise ValueError("Player must be 1 or 2.")
+
+        self.board[row][col] = player
+        self.moves += 1
+
+        if self._check_winner(row, col, player):
+            self.winner = player
+            return player
+
+        # draw if board full and no winner
+        if self.moves == self.n * self.n:
+            self.winner = -1  # use -1 to denote draw if you want
+        return 0
+
+    def __str__(self):
+        def ch(v):
+            return '.' if v == 0 else ('X' if v == 1 else 'O')
+        return '\n'.join(' '.join(ch(cell) for cell in row) for row in self.board)
+
+
 def maximum_number_of_events_that_can_be_attended(events):
+    # https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended
+    # https://leetcode.com/problems/maximum-number-of-events-that-can-be-attended/solutions/6928757/beginner-freindly-java-c-python/
     events.sort()       # Sort events by start day
     n = len(events)
     min_heap = []       # Min-heap to store end days of active events
