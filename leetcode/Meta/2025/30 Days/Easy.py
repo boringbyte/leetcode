@@ -480,11 +480,11 @@ def strobogrammatic_number(num):
     Only having 0, 1, 6, 8, 9 helps in forming a strobogrammatic number. 2, 3, 4, 5, 7 don't form valid digits when rotated.
     """
     number_map = {('0', '0'), ('1', '1'), ('6', '9'), ('8', '8'), ('9', '6')}
-    l, r = 0, len(num) - 1
-    while l <= r:
-        if (num[l], num[r]) not in number_map:
+    left, right = 0, len(num) - 1
+    while left <= right:
+        if (num[left], num[right]) not in number_map:
             return False
-        l, r = l + 1, r - 1
+        left, right = left + 1, right - 1
     return True
 
 
@@ -505,23 +505,67 @@ def remove_duplicates_from_sorted_array_1(nums):
 
 
 def remove_duplicates_from_sorted_array_2(nums):
+    """This is a much simplified version of the above solution"""
     if not nums:
         return 0
-    unique_pos, scan_pos, n = 0, 1, len(nums)
-    while scan_pos < n:
-        if nums[unique_pos] != nums[scan_pos]:
-            nums[unique_pos + 1] = nums[scan_pos]
-            unique_pos += 1
-        scan_pos += 1
-    return unique_pos + 1
+    left = 0,
+    for right in range(len(nums)):
+        if nums[left] != nums[right]:
+            left += 1
+            nums[left] = nums[right]
+    return left + 1
 
 
 def middle_of_the_linked_list(head):
     # https://leetcode.com/problems/middle-of-the-linked-list/description/
+    """
+    Finds the middle node of a singly linked list using the slow and fast pointer technique.
+
+    Approach:
+    - Initialize two pointers, `slow` and `fast`, at the head of the linked list.
+    - Move `slow` one step at a time and `fast` two steps at a time.
+    - When `fast` reaches the end of the list (or `fast.next` is None), `slow` will be at the middle node.
+    - If the list has an even number of nodes, this returns the second middle node, as per LeetCode convention.
+
+    Args:
+        head (ListNode): The head of the singly linked list.
+
+    Returns:
+        ListNode: The middle node of the linked list.
+
+    Example:
+        >>> # Linked list: 1 -> 2 -> 3 -> 4 -> 5
+        >>> middle_of_the_linked_list(head).val
+        3
+        >>> # Linked list: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+        >>> middle_of_the_linked_list(head).val
+        4
+
+    Time Complexity: O(n), where n is the number of nodes in the linked list.
+    Space Complexity: O(1), as only two pointers are used.
+    """
     slow = fast = head
     while fast and fast.next:
         slow = slow.next
         fast = fast.next.next
+    return slow
+
+
+def middle_of_linked_list_first(head):
+    """
+    Finds the first middle node of a singly linked list.
+    If the list has an even number of nodes, returns the first of the two middle nodes.
+    """
+    if not head:
+        return None
+
+    slow = head
+    fast = head.next  # start fast one step ahead
+
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+
     return slow
 
 
@@ -537,6 +581,8 @@ def move_zeros(nums):
                 temp = nums[i]
                 nums[i] = 0
                 nums[i - snow_ball_size] = temp
+                # nums[i - snow_ball_size], nums[i] = nums[i], nums[i - snow_ball_size]
+                # Above single line is also correct instead of storing in temp variable
 
 
 def maximum_difference_by_remapping_a_digit(num):
