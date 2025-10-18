@@ -664,7 +664,16 @@ def roman_to_integer(s):
     return result
 
 
-def check_if_two_string_arrays_are_equivalent(word1, word2):
+def check_if_two_string_arrays_are_equivalent_1(word1, word2):
+    # https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent/solutions/1007202/python-oneliner-explained/
+    """
+    This assumes that slices are in order
+    Complexity: time and space complexity is O(n+m), where n and m are total sums of strings in the first and in the second groups.
+    """
+    return "".join(word1) == "".join(word2)
+
+
+def check_if_two_string_arrays_are_equivalent_2(word1, word2):
     # https://leetcode.com/problems/check-if-two-string-arrays-are-equivalent/solutions/1007878/python-understanding-generators-and-yield-statement/
     """
     Create a generator to yield character for each iteration.
@@ -685,12 +694,65 @@ def check_if_two_string_arrays_are_equivalent(word1, word2):
 
 def find_peaks(mountain):
     # https://leetcode.com/problems/find-the-peaks/
+    """
+    Finds all the peak indices in a mountain array.
+
+    A peak element is an element that is strictly greater than its neighbors.
+    For an element at index i:
+        mountain[i-1] < mountain[i] > mountain[i+1]
+
+    Args:
+        mountain (List[int]): A list of integers representing the mountain array.
+
+    Returns:
+        List[int]: A list of indices of all peak elements.
+
+    Example:
+        >>> find_peaks([0, 2, 1, 3, 0])
+        [1, 3]
+        Explanation: Elements at indices 1 (2) and 3 (3) are peaks.
+
+    Time Complexity: O(n), where n is the length of the array.
+    Space Complexity: O(p), where p is the number of peaks found (for storing the result).
+    """
     n, result = len(mountain), []
 
     for i in range(1, n - 1):
         if mountain[i - 1] < mountain[i] > mountain[i + 1]:
             result.append(i)
     return result
+
+
+def find_peaks_2(mountain):
+    """
+    Finds the index of a peak element in a strict mountain array using binary search.
+
+    A mountain array increases strictly to a peak and then strictly decreases.
+    We can use the property:
+        - If mountain[mid] < mountain[mid + 1], the peak is to the right.
+        - If mountain[mid] > mountain[mid + 1], the peak is at mid or to the left.
+
+    Args:
+        mountain (List[int]): A strict mountain array.
+
+    Returns:
+        int: The index of the peak element.
+
+    Example:
+        >>> find_peaks_2([0, 2, 5, 3, 1])
+        2
+
+    Time Complexity: O(log n)
+    Space Complexity: O(1)
+    """
+    left, right = 0, len(mountain) - 1
+    while left < right:
+        mid = (left + right) // 2
+        if mountain[mid] < mountain[mid + 1]:
+            left = mid + 1
+        else:
+            right = mid
+    return left
 
 
 def average_selling_price():
@@ -719,10 +781,32 @@ class RecentCounter:
 def find_all_k_distant_indices_in_an_array(nums, key, k):
     # https://leetcode.com/problems/find-all-k-distant-indices-in-an-array
     """
-    1. Find the indices where key is present
-    2. For each key index, check around that index of distance k
-        There is problem is here if that distance falls below 0 or goes beyond the length of the nums array.
-        That's why we have max and min for lower and upper bounds respectively.
+    Finds all indices in an array that are within distance `k` from any occurrence of a given key.
+
+    Approach:
+    1. Identify all indices where `key` occurs in the array.
+    2. For each key index, add all indices within distance `k` (both left and right),
+       making sure the indices stay within array bounds using `max` and `min`.
+    3. Use a set to avoid duplicates and return the sorted list of indices.
+
+    Args:
+        nums (List[int]): The input array of integers.
+        key (int): The target value to find in the array.
+        k (int): The maximum allowed distance from a key occurrence.
+
+    Returns:
+        List[int]: Sorted list of all indices within distance `k` from any key occurrence.
+
+    Example:
+        >>> find_all_k_distant_indices_in_an_array([3,4,9,1,3,9,5], 9, 1)
+        [1, 2, 3, 4, 5]
+        Explanation: Key 9 occurs at indices 2 and 5. Indices within distance 1 are included.
+
+    Time Complexity: O(n * k)
+        - n = length of nums
+        - For each key occurrence, we may iterate up to 2*k + 1 elements.
+    Space Complexity: O(n)
+        - To store key indices and result set.
     """
     key_indices = [i for i, val in enumerate(nums) if val == key]
     result = set()
@@ -748,18 +832,44 @@ def linked_list_cycle(head):
 
 def reverse_vowels_of_a_string(s: str):
     # https://leetcode.com/problems/reverse-vowels-of-a-string/
+    """
+    Reverses only the vowels in a given string, keeping all other characters in place.
+
+    This function uses a two-pointer approach:
+    - One pointer starts from the beginning of the string (`left`) and the other from the end (`right`).
+    - Both pointers move toward each other until they find a vowel.
+    - When both pointers point to vowels, swap them and continue.
+
+    Vowels considered are: 'a', 'e', 'i', 'o', 'u' (case-insensitive).
+
+    Args:
+        s (str): The input string.
+
+    Returns:
+        str: A new string with the vowels reversed.
+
+    Example:
+        >>> reverse_vowels_of_a_string("hello")
+        'holle'
+        >>> reverse_vowels_of_a_string("leetcode")
+        'leotcede'
+
+    Time Complexity: O(n), where n is the length of the string.
+        - Each character is visited at most once by either pointer.
+    Space Complexity: O(n), for converting the string to a list to allow in-place swaps.
+    """
     vowels = "aeiou"
     s = list(s)
-    l, r = 0, len(s) - 1
+    left, right = 0, len(s) - 1
 
-    while l < r:
-        while l < r and s[l].lower() not in vowels:  # Loop through all consonants until next vowel
-            l += 1
-        while l < r and s[r].lower() not in vowels:  # Loop through all consonants until next vowel
-            r -= 1
-        s[l], s[r] = s[r], s[l]
-        l += 1
-        r -= 1
+    while left < right:
+        while left < right and s[left].lower() not in vowels:  # Loop through all consonants until next vowel
+            left += 1
+        while left < right and s[right].lower() not in vowels:  # Loop through all consonants until next vowel
+            right -= 1
+        s[left], s[right] = s[right], s[left]
+        left += 1
+        right -= 1
     s = ''.join(s)
     return s
 
