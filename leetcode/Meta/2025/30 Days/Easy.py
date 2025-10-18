@@ -9,10 +9,24 @@ from leetcode.CapitalOne.relevant_leetcode.Easy import ListNode
 def diameter_of_binary_tree(root):
     # https://leetcode.com/problems/diameter-of-binary-tree/
     """
-    Base condition: if we reach leaf node, return 0
-    Calculate length of left and right subtrees
-    At this node, we can update the diameter by selecting max of left + right subtrees
-    When we want to return the length of the tree, we return 1 + best of left and right subtrees which is max in this case
+    The diameter of a binary tree is the length of the longest path between any two nodes.
+    This path may or may not pass through the root.
+
+    Approach:
+    - Perform a depth-first search (DFS) on each node.
+    - For each node, compute:
+        - left:  the maximum depth of its left subtree
+        - right: the maximum depth of its right subtree
+    - The potential diameter passing through this node is left + right.
+    - Keep track of the global maximum diameter encountered so far.
+
+    Return value of dfs(node):
+        - Returns the height (maximum depth) of the current node's subtree,
+          which is 1 + max(left, right).
+        - This height helps the parent node compute its potential diameter.
+
+    Time Complexity:  O(n) — each node is visited once.
+    Space Complexity: O(h) — recursion stack, where h is the tree height.
     """
     result = [0]
     def dfs(node):
@@ -29,8 +43,22 @@ def diameter_of_binary_tree(root):
 def merge_sorted_array(nums1, m, nums2, n):
     # https://leetcode.com/problems/merge-sorted-array/
     """
-    Arrange from backwards of the nums1 array as it contains zeros.
-    Also, if the non-zero elements are more in nums2 then simply copy them at the end
+    Merges two sorted arrays, nums1 and nums2, into a single sorted array in-place within nums1.
+
+    nums1 has a length of m + n, where the first m elements are valid,
+    and the remaining n elements are placeholders (0s) to accommodate elements from nums2.
+
+    Approach:
+    - Start merging from the end of both arrays (nums1[m-1] and nums2[n-1]),
+      placing the larger element at the end of nums1 (index m + n - 1).
+    - Continue moving backward until one of the arrays is exhausted.
+    - If nums2 still has remaining elements, copy them to the beginning of nums1.
+      (If nums1 has remaining elements, they are already in place.)
+
+    This avoids using extra space and ensures an in-place O(m + n) merge.
+
+    Time Complexity:  O(m + n)
+    Space Complexity: O(1)
     """
     while m > 0 and n > 0:
         if nums1[m - 1] >= nums2[n - 1]:
@@ -47,35 +75,57 @@ def merge_sorted_array(nums1, m, nums2, n):
 def valid_palindrome(s):
     # https://leetcode.com/problems/valid-palindrome/
     """
-    Think of normal palindrome validation of two pointer solution.
-    Use negative conditions:
-      1. Check if a character on left and right pointers are not an alphanumeric or not.
-      2. Another is normal palindrome validation check
+    Determines whether a given string is a palindrome, considering only alphanumeric characters and ignoring cases.
+
+    Approach (Two-Pointer Technique):
+    1. Initialize two pointers — one at the start (left) and one at the end (right) of the string.
+    2. Skip characters that are not alphanumeric on both ends.
+    3. Compare lowercase versions of characters at both pointers.
+       - If they differ, return False.
+       - Otherwise, move both pointers toward the center.
+    4. If all comparisons pass, return True.
+
+    This approach uses negative conditions to simplify the checks for skipping non-alphanumeric characters.
+
+    Time Complexity:  O(n)
+    Space Complexity: O(1)
     """
-    l, r = 0, len(s)
-    while l < r:
-        if not s[l].isalnum():
-            l += 1
-        elif not s[r].isalnum():
-            r -= 1
+    left, right = 0, len(s) - 1
+    while left < right:
+        if not s[left].isalnum():
+            left += 1
+        elif not s[right].isalnum():
+            right -= 1
         else:
-            if s[l].lower() != s[r].lower():
+            if s[left].lower() != s[right].lower():
                 return False
-            l, r = l + 1, r - 1
+            left, right = left + 1, right - 1
     return True
 
 
 def valid_palindrome_ii(s):
     # https://leetcode.com/problems/valid-palindrome-ii
     """
-    1. Write a normal two pointer function for checking if a string is palindrome or not.
-    2. Use Two-pointer palindrome check — allow one mismatch by skipping either left or right character once.
+    Determines whether a string can become a palindrome after deleting at most one character.
+
+    Approach:
+    1. Define a helper function `check_palindrome(left, right)` that checks
+       whether the substring s[left:right+1] is a palindrome using the two-pointer technique.
+    2. Use two pointers (i, j) to compare characters from both ends.
+    3. If a mismatch occurs:
+         - Try skipping the left character (`check_palindrome(i + 1, j)`) OR
+         - Try skipping the right character (`check_palindrome(i, j - 1)`).
+       If either results in a palindrome, return True.
+    4. If no mismatches occur, the string is already a palindrome.
+
+    Time Complexity:  O(n)
+    Space Complexity: O(1)
     """
-    def check_palindrome(l, r):
-        while l < r:
-            if s[l] != s[r]:
+    def check_palindrome(left, right):
+        while left < right:
+            if s[left] != s[right]:
                 return False
-            l, r = l + 1, r - 1
+            left, right = left + 1, right - 1
         return True
 
     i, j = 0, len(s) - 1
@@ -119,6 +169,23 @@ def valid_word_abbreviation(word, abbr):
 
 def range_sum_of_bst(root, low, high):
     # https://leetcode.com/problems/range-sum-of-bst
+    """
+        Computes the sum of all node values in a Binary Search Tree (BST) that lie within the inclusive range [low, high].
+
+    Approach:
+    - Use Depth-First Search (DFS) traversal.
+    - At each node:
+        - If the node's value is within [low, high], add it to the result.
+        - If the node's value is greater than or equal to low,
+          recurse into the left subtree (since smaller values may still fall in range).
+        - If the node's value is less than or equal to high,
+          recurse into the right subtree (since larger values may still fall in range).
+    - This leverages the BST property to prune branches that cannot contain valid values, improving efficiency.
+
+    Time Complexity: O(n) in the worst case (unbalanced tree)
+                     O(log n) on average for balanced BSTs.
+    Space Complexity: O(h), where h is the height of the tree (recursion stack).
+    """
     result = [0]
 
     def dfs(node):
@@ -138,7 +205,19 @@ def kth_missing_positive_number_1(arr, k):
     # https://leetcode.com/problems/kth-missing-positive-number
     # https://leetcode.com/problems/kth-missing-positive-number/solutions/1004535/python-two-solutions-o-n-and-o-log-n-explained/
     """
-    This is linear search
+    Finds the k-th missing positive integer from a sorted array of distinct positive integers.
+
+    Approach (Linear Search):
+    - Convert the input array to a set for O(1) lookups.
+    - Iterate through numbers starting from 1.
+    - For each number:
+        - If it's not present in the set, it is a missing number → decrement k.
+        - When k reaches 0, return the current number (the k-th missing number).
+    - The upper bound for iteration (n = k + len(arr) + 1) ensures we search far enough
+      to include all possible missing numbers.
+
+    Time Complexity:  O(k + n) ≈ O(n)
+    Space Complexity: O(n) due to the set.
     """
     s = set(arr)
     n = k + len(arr) + 1
@@ -151,7 +230,7 @@ def kth_missing_positive_number_1(arr, k):
 
 def kth_missing_positive_number_2(arr, k):
     """
-    This is a binary search problem as the arr is already sorted.
+    This can also be solved using a binary search algorithm as the arr is already sorted.
     arr[mid] - mid - 1 -> gives the number of values missing in the array till to that index
             arr =    [2, 3, 4, 7, 11]
             idx =    [0, 1, 2, 3, 4 ]
@@ -164,12 +243,33 @@ def kth_missing_positive_number_2(arr, k):
             start = mid + 1
         else:
             end = mid
-    return end + k  # end are present in arr and k are missing
+    return end + k  # end are already present in the arr and k are missing
 
 
 class MovingAverage:
     # https://www.jointaro.com/interviews/questions/moving-average-from-data-stream/
     # https://algo.monster/liteproblems/346
+    """
+        Implements a Moving Average calculator over a sliding window of fixed size.
+
+    Each call to `next(value)`:
+      - Adds a new value to the stream.
+      - Maintains a running sum and count of elements in the window.
+      - If the window exceeds the specified size, removes the oldest element.
+      - Returns the current moving average.
+
+    This approach avoids recomputing sums repeatedly by updating incrementally.
+
+    Example:
+        m = MovingAverage(3)
+        m.next(1)  -> 1.0       # [1]
+        m.next(10) -> 5.5       # [1, 10]
+        m.next(3)  -> 4.67      # [1, 10, 3]
+        m.next(5)  -> 6.0       # [10, 3, 5]
+
+    Time Complexity:  O(1) per operation
+    Space Complexity: O(size)
+    """
 
     def __init__(self, size):
         self.size = size
@@ -182,7 +282,7 @@ class MovingAverage:
         self.current_count += 1
         self.current_total += value
 
-        if len(self.data) > self.size:
+        if self.current_count > self.size:
             self.current_count -= 1
             self.current_total -= self.data.popleft()
 
@@ -204,12 +304,14 @@ class MovingAverage2:
         if self.count == self.size:
             self.total -= self.data[self.index]
         else:
-            self.count += 1  # Count will be less thant the size only till we fill all the buffer with elements. From then, it will be equal to size
+            self.count += 1  # Count will be less than the size only till we fill all the buffer with elements. From then, it will be equal to size
 
         # Insert new value
         self.data[self.index] = value
         self.total += value
         self.index = (self.index + 1) % self.size  # Circular move. Points to the next index.
+        # If we wrote self.index = self.index % self.size without +1, the index would never advance.
+        # 0 % 3 = 0 → keeps writing to data[0] repeatedly, overwriting the same slot.
 
         return self.total / self.count
 
@@ -226,6 +328,38 @@ def best_time_to_buy_and_sell_stock(prices):
 def closest_binary_search_tree_value(root, target):
     # https://algo.monster/liteproblems/270
     # https://www.geeksforgeeks.org/dsa/find-closest-element-binary-search-tree/
+    """
+    Finds the value in a Binary Search Tree (BST) that is closest to a given target.
+
+    This function iteratively traverses the BST using the BST property:
+    - If the target is less than the current node's value, move to the left child.
+    - If the target is greater than the current node's value, move to the right child.
+    - At each step, update the closest value if the current node's value is closer to the target.
+
+    The search terminates either when the exact target is found or when all reachable nodes are visited.
+
+    Args:
+        root (TreeNode): The root node of the BST.
+        target (float or int): The target value to find the closest to.
+
+    Returns:
+        int or float: The value in the BST closest to the target.
+
+    Example:
+        >>> # BST:      4
+        >>> #          / \
+        >>> #         2   5
+        >>> #        / \
+        >>> #       1   3
+        >>> closest_binary_search_tree_value(root, 3.714)
+        4
+
+    Time Complexity: O(h), where h is the height of the BST.
+        - In a balanced BST, h ≈ log(n).
+        - In the worst case (skewed BST), h ≈ n.
+
+    Space Complexity: O(1), as the algorithm uses constant extra space and no recursion.
+    """
     closest = float('inf')
     while root:
         if abs(root.val - target) < abs(closest - target):
@@ -248,14 +382,17 @@ def add_strings(num1, num2):
     2. divmod(13, 10) returns 1, 3. 1 is for carry over and 3 is the digit
     """
 
+    def string_to_digit(val):
+        return ord(val) - ord('0')
+
     i, j = len(num1) - 1, len(num2) - 1
     carry, result = 0, []
     while i >= 0 or j >= 0 or carry:
         digit1 = digit2 = 0
         if i >= 0:
-            digit1 = int(num1[i])
+            digit1 = string_to_digit(num1[i])
         if j >= 0:
-            digit2 = int(num2[j])
+            digit2 = string_to_digit(num2[j])
         carry, digit = divmod(digit1 + digit2 + carry, 10)
         result.append(str(digit))
         i, j = i - 1, j - 1
