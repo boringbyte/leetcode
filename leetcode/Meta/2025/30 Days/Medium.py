@@ -98,6 +98,7 @@ class LRUCache3:
         prev.next, nxt.prev = nxt, prev
 
     def _add(self, node):
+        # We need to add new node right before the last node at the end of the tail as the last node is the dummy node
         prev, nxt = self.tail.prev, self.tail   # As we are adding, we get prev and next from the tail
         prev.next = nxt.prev = node
         node.prev, node.next = prev, nxt
@@ -118,14 +119,21 @@ class LRUCache3:
         self._add(node)
         self.cache[key] = node
 
-        if len(self.cache) > self.capacity:
-            lru = self.head.next
+        if len(self.cache) >= self.capacity:
+            lru = self.head.next  # Remove node from the next to the head as head node is a dummy node.
             self._remove(lru)
             del self.cache[lru.key]
 
 
 def maximum_swap(num):
     # https://leetcode.com/problems/maximum-swap/discuss/846837/Python-3-or-Greedy-Math-or-Explanations
+    """
+    To get the maximum number from swapping two digits at most once, you want to swap the leftmost smaller digit
+    with the rightmost largest possible digit that comes after it.
+    Input:  9832547610
+    Output: 9872543610
+    Swap:   3 ↔ 7
+    """
     s = list(str(num))  # num = 2736, result = 7236
     n = len(s)
 
@@ -479,6 +487,42 @@ def k_closest_points_to_origin_2(points, k):
     return [points[i] for (_, i) in heap]
 
 
+def k_closest_points_to_origin_3(points, k):
+    def euclidean_distance(point):
+        x, y = point
+        return x * x + y * y
+
+    def quick_select(left, right):
+        pivot = euclidean_distance(points[right])  # Choose pivot as rightmost element
+        low, high = left, right
+
+        # Partition based on distance
+        while low <= high:
+            while low <= high and euclidean_distance(points[low]) < pivot:  # Move low forward while points are closer than pivot
+                low += 1
+            while low <= high and euclidean_distance(points[high]) > pivot:  # Move high backward while points are farther than pivot
+                high -= 1
+
+            if low <= high:  # Swap misplaced points
+                points[low], points[high] = points[high], points[low]
+                low += 1
+                high -= 1
+
+        # After partition:
+        #   - All points in [left .. high] are closer than pivot
+        #   - All points in [low .. right] are farther than pivot
+
+        # Decide where the kth closest lies
+        if k - 1 <= high:  # kth point lies in left (closer) partition
+            return quick_select(left, high)
+        elif k - 1 >= low:  # kth point lies in right (farther) partition
+            return quick_select(low, right)
+        else:
+            return points[:k]
+
+    return quick_select(0, len(points) - 1)
+
+
 def continuous_subarray_sum(nums, k):
     # https://leetcode.com/problems/continuous-subarray-sum
     """
@@ -676,6 +720,7 @@ def basic_calculator_ii(s):
         if op == '*': stack.append(stack.pop() * value)
         if op == '/': stack.append(int(stack.pop() / value))
 
+    s = s.replace(' ', '')
     i, num, stack, sign = 0, 0, [], '+'
 
     while i < len(s):
@@ -701,7 +746,7 @@ def subarray_sum_equals_k(nums, k):
     # In this all are positive numbers only
     # In comments of https://leetcode.com/problems/subarray-sum-equals-k/discuss/102111/Python-Simple-with-Explanation
     prefix_sum, prefix_sum_counts, result = 0, defaultdict(int), 0
-    prefix_sum_counts[0] = 1
+    prefix_sum_counts[0] = 1  # Important: to count subarrays starting from index 0
 
     for num in nums:
         prefix_sum += num
