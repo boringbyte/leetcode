@@ -1,3 +1,4 @@
+import heapq
 from collections import deque, defaultdict, Counter
 from leetcode.CapitalOne.relevant_leetcode.Easy import ListNode
 
@@ -369,3 +370,322 @@ def valid_number(s):
         else:
             return False
     return met_digit
+
+
+def sliding_window_median(nums, k):
+    balance = 0
+
+    def add_num(num):
+        """Add number to one of the heaps and balance."""
+        if not max_heap or num <= -max_heap[0]:
+            heapq.heappush(max_heap, -num)
+        else:
+            heapq.heappush(min_heap, num)
+        balance_heaps()
+
+    def balance_heaps():
+        """Ensure heaps differ in size by at most one."""
+        if len(max_heap) >= len(min_heap) + 1:
+            heapq.heappush(min_heap, -heapq.heappop(max_heap))
+        elif len(min_heap) > len(max_heap):
+            heapq.heappush(max_heap, -heapq.heappop(min_heap))
+
+    def remove_num(num):
+        """Mark num for lazy removal and adjust heap sizes."""
+        delayed[num] += 1
+        nonlocal balance
+        if num <= -max_heap[0]:
+            balance -= 1  # one less in max_heap
+        else:
+            balance += 1  # one less in min_heap
+        prune(max_heap)
+        prune(min_heap)
+
+    def prune(heap):
+        """Pop elements that are marked for deletion."""
+        while heap and delayed[abs(heap[0])] > 0:
+            num = -heapq.heappop(heap) if heap is max_heap else heapq.heappop(heap)
+            delayed[num] -= 1
+
+    def get_median():
+        """Compute the current median."""
+        if k % 2 == 1:
+            return float(-max_heap[0])
+        else:
+            return (-max_heap[0] + min_heap[0]) / 2.0
+
+
+    # Initialization
+    min_heap, max_heap = [], []
+    delayed = defaultdict(int)
+    medians = []
+
+
+    # First window
+    for i in range(k):
+        add_num(nums[i])
+    medians.append(get_median())
+
+    # Sliding the window
+    for i in range(k, len(nums)):
+        add_num(nums[i])          # Add new number
+        remove_num(nums[i - k])   # Remove old number
+        balance_heaps()           # Rebalance heaps
+        medians.append(get_median())
+
+    return medians
+
+
+def valid_palindrome_iii(s, k):
+    # https://algo.monster/liteproblems/1216
+    """
+    Determines whether a given string `s` can be transformed into a palindrome
+    by deleting at most `k` characters.
+
+    This is based on finding the Longest Palindromic Subsequence (LPS) of `s`.
+    The minimum number of deletions required to make `s` a palindrome is:
+        minDeletions = len(s) - LPS
+
+    If minDeletions <= k, then it's possible to make `s` a palindrome
+    by removing at most `k` characters.
+
+    Approach:
+        - Compute the LPS using Dynamic Programming.
+        - LPS is equivalent to the Longest Common Subsequence (LCS) between
+          the string and its reverse.
+
+    Args:
+        s (str): The input string.
+        k (int): The maximum number of characters allowed to be deleted.
+
+    Returns:
+        bool: True if `s` can be made palindrome with ≤ k deletions, else False.
+
+    Example:
+        >>> valid_palindrome_iii("abcdeca", 2)
+        True
+        # Explanation: Delete 'b' and 'd' → "aceca", which is a palindrome.
+
+    Time Complexity:
+        O(n²), where n is the length of s.
+
+    Space Complexity:
+        O(n²), due to the 2D DP table.
+    """
+
+    n = len(s)
+    rev = s[::-1]
+
+    # dp[i][j] stores LCS between s[:i] and rev[:j]
+    dp = [[0] * (n + 1) for _ in range(n + 1)]
+
+    # Fill the DP table
+    for i in range(1, n + 1):
+        for j in range(1, n + 1):
+            if s[i - 1] == rev[j - 1]:
+                dp[i][j] = 1 + dp[i - 1][j - 1]
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+    lps = dp[n][n]  # Longest Palindromic Subsequence
+    return (n - lps) <= k
+
+
+def robot_room_cleaner(robot):
+    # https://algo.monster/liteproblems/489
+    """
+    Cleans all reachable cells in a room using the given Robot API.
+    The robot starts from an unknown location and can move, turn, and clean.
+
+    The room is modeled as an unknown grid of open and blocked cells.
+    The robot can only discover the environment through move() calls.
+
+    Approach:
+        - Use DFS (Depth-First Search) with backtracking.
+        - Keep track of visited cells to avoid re-cleaning or infinite loops.
+        - Maintain the robot's orientation (up, right, down, left) manually.
+        - After exploring a direction, backtrack to the previous position
+          and restore orientation.
+
+    Args:
+        robot (Robot): The control interface provided by the system.
+
+    Returns:
+        None. Cleans the entire reachable area.
+
+    Directions Mapping:
+        0: up    → (-1, 0)
+        1: right → (0, 1)
+        2: down  → (1, 0)
+        3: left  → (0, -1)
+
+    Time Complexity:
+        O(N - M), where N is the total number of cells and M is the number of blocked cells.
+
+    Space Complexity:
+        O(N - M), for recursion stack and visited set.
+    """
+
+    # Set of cleaned/visited cells
+    visited = set()
+
+    # Direction deltas: up, right, down, left
+    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+    def backtrack():
+        """Moves the robot one step backward and restores the original direction."""
+        robot.turnRight()
+        robot.turnRight()
+        robot.move()
+        robot.turnRight()
+        robot.turnRight()
+
+    def dfs(x, y, d):
+        """
+        DFS recursive exploration:
+        - Clean current cell.
+        - Try all 4 directions (up, right, down, left).
+        - Backtrack after exploring each new cell.
+        """
+        visited.add((x, y))
+        robot.clean()
+
+        # Try 4 directions
+        for i in range(4):
+            new_d = (d + i) % 4
+            dx, dy = directions[new_d]
+            nx, ny = x + dx, y + dy
+
+            # Move if possible and unvisited
+            if (nx, ny) not in visited and robot.move():
+                dfs(nx, ny, new_d)
+                backtrack()
+
+            # Turn robot to face the next direction
+            robot.turnRight()
+
+    dfs(0, 0, 0)
+
+
+class MedianFinder:
+    # https://leetcode.com/problems/find-median-from-data-stream/description/
+    """
+    A data structure that efficiently supports adding numbers and finding the median
+    of all numbers seen so far.
+
+    This is the standard solution for the LeetCode problem:
+    https://leetcode.com/problems/find-median-from-data-stream/
+
+    Approach:
+        - Maintain two heaps (priority queues):
+            1. max_heap: stores the *smaller half* of the numbers (as negative values for max behavior)
+            2. min_heap: stores the *larger half* of the numbers
+
+        - The heaps are balanced such that:
+            - Either both heaps have the same number of elements, or
+            - max_heap has one more element than min_heap
+
+        - The median is:
+            - Top of max_heap if it has more elements (odd total count)
+            - Average of tops of both heaps if total count is even
+
+    Example:
+        >>> mf = MedianFinder()
+        >>> mf.add_num(1)
+        >>> mf.add_num(2)
+        >>> mf.find_median()
+        1.5
+        >>> mf.add_num(3)
+        >>> mf.find_median()
+        2.0
+
+    Time Complexity:
+        - add_num(): O(log n)
+        - find_median(): O(1)
+
+    Space Complexity:
+        - O(n), where n is the number of inserted elements.
+    """
+    def __init__(self):
+        # min_heap → holds larger half
+        # max_heap → holds smaller half (stored as negatives)
+        self.min_heap, self.max_heap = [], []
+
+    def add_num(self, num: int) -> None:
+        """
+        Add a new number into the data structure.
+        Balances both heaps to maintain median property.
+        """
+        # Push into max_heap (as negative to simulate max-heap)
+        heapq.heappush(self.max_heap, -num)
+
+        # Ensure every element in max_heap <= every element in min_heap
+        heapq.heappush(self.min_heap, -heapq.heappop(self.max_heap))
+
+        # Balance: max_heap can have at most 1 more element than min_heap
+        if len(self.min_heap) > len(self.max_heap):
+            heapq.heappush(self.max_heap, -heapq.heappop(self.min_heap))
+
+    def find_median(self) -> float:
+        """
+        Return the median of all numbers added so far.
+        """
+        # Odd number of elements → top of max_heap
+        if len(self.max_heap) > len(self.min_heap):
+            return -self.max_heap[0]
+
+        # Even number of elements → average of both heap tops
+        return (-self.max_heap[0] + self.min_heap[0]) / 2
+
+
+def word_ladder(begin_word, end_word, word_list):
+    # https://leetcode.com/problems/word-ladder
+    """
+    Finds the shortest transformation sequence length from begin_word to end_word.
+
+    Each step can change only one letter, and the resulting word must be
+    in the provided word_list.
+
+    Example:
+        begin_word = "hit"
+        end_word = "cog"
+        word_list = ["hot","dot","dog","lot","log","cog"]
+        → Output: 5
+        Explanation: "hit" → "hot" → "dot" → "dog" → "cog"
+
+    Approach:
+        - BFS (Breadth-First Search) to ensure the shortest path.
+        - Preprocess all words into intermediate patterns like "h*t" or "ho*"
+          to quickly find neighboring words differing by one letter.
+        - Use a queue to track words and their distance levels.
+
+    Args:
+        begin_word (str): Starting word.
+        end_word (str): Target word to reach.
+        word_list (List[str]): List of allowed transformations.
+
+    Returns:
+        int: The length of the shortest transformation sequence, or 0 if none exists.
+    """
+    if end_word not in word_list or not begin_word or not end_word or not word_list or len(begin_word) != len(end_word):
+        return 0
+
+    n, hashmap = len(begin_word), defaultdict(list)
+    for word in word_list:
+        for i in range(n):
+            intermediate_word = word[:i] + '*' + word[i + 1:]
+            hashmap[intermediate_word].append(word)
+
+    queue, visited = deque([(begin_word, 1)]), {begin_word}  # This is a set
+
+    while queue:
+        current_word, level = queue.popleft()
+        for i in range(n):
+            intermediate_word = current_word[:i] + '*' + current_word[i + 1:]
+            for word in hashmap[intermediate_word]:
+                if word == end_word:
+                    return level + 1
+                if word not in visited:
+                    visited.add(word)
+                    queue.append((word, level + 1))
+    return 0

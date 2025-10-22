@@ -346,7 +346,7 @@ def kth_largest_number_in_an_array_4(nums, k):
             return nums[k]
 
     # Perform quickselect on the entire range
-    return quick_select(0, len(nums) - 1)
+    return quick_select(left=0, right=len(nums) - 1)
 
 
 def lowest_common_ancestor(root, p, q):
@@ -691,6 +691,8 @@ def shortest_path_in_binary_matrix(grid):
     # https://leetcode.com/problems/shortest-path-in-binary-matrix
     # This of shortest path in an unweighted graph -- classic BFS
     n = len(grid)
+
+    # Either the starting cell or the destination cell is blocked. We cannot either start or reach the end.
     if grid[0][0] == 1 or grid[n - 1][n - 1] == 1:
         return -1
 
