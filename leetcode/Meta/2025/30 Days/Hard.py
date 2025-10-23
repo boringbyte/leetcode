@@ -69,21 +69,21 @@ def vertical_traversal_of_a_binary_tree(root):
     if not root:
         return []
 
-    d = defaultdict(list)
+    column_dict = defaultdict(list) # (column: [(level, node.val)])
     queue = deque([(root, 0, 0)])   # (node, level, column)
 
     while queue:
         current, level, column = queue.popleft()
-        d[column].append((level, current.val))
+        column_dict[column].append((level, current.val))
         if current.left:
             queue.append((current.left, level + 1, column - 1))
         if current.right:
             queue.append((current.right, level + 1, column - 1))
 
     result = []
-    for col in sorted(d.keys()):
-        col_nodes = sorted(d[col], key=lambda x: (x[0], x[1]))  # sort by level and value
-        values = [val for level, val in col_nodes]
+    for col in sorted(column_dict.keys()):
+        level_node_value_tuples = sorted(column_dict[col], key=lambda x: (x[0], x[1]))  # sort by level and value
+        values = [val for level, val in level_node_value_tuples]
         result.append(values)
     return result
 
@@ -162,16 +162,17 @@ def merge_k_sorted_lists(lists):
         - https://leetcode.com/problems/merge-k-sorted-lists/
     """
 
-    if not lists:
-        return
-    if len(lists) == 1:
-        return lists[0]
+    if lists:
+        if len(lists) == 1:
+            return lists[0]
 
-    mid = len(lists) // 2
-    left = merge_k_sorted_lists(lists[: mid])
-    right = merge_k_sorted_lists(lists[mid: ])
+        mid = len(lists) // 2
+        left = merge_k_sorted_lists(lists[: mid])
+        right = merge_k_sorted_lists(lists[mid: ])
 
-    return merge_two_sorted_lists(left, right)
+        return merge_two_sorted_lists(left, right)
+    else:
+        return None
 
 
 def making_a_large_island_1(grid):
@@ -196,50 +197,51 @@ def making_a_large_island_1(grid):
         O(n^2) – For BFS queue, visited cells, and island area storage.
     """
     n = len(grid)
-    area = {}  # Map: island_id → area
+    area_dict = {} # {island_id: area}
     island_id = 2  # Unique IDs starting from 2 (since 0 = water, 1 = unvisited land)
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
     # --- Step 1: BFS to label islands and calculate their areas ---
-    def bfs(r, c, island_id):
+    def bfs(r, c, island_label):
         queue = deque([(r, c)])
-        grid[r][c] = island_id
-        size = 1
+        grid[r][c] = island_label
+        area = 1
 
         while queue:
             x, y = queue.popleft()
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
                 if 0 <= nx < n and 0 <= ny < n and grid[nx][ny] == 1:
-                    grid[nx][ny] = island_id
-                    size += 1
+                    grid[nx][ny] = island_label
+                    area += 1
                     queue.append((nx, ny))
-        return size
+        return area
 
     # Label all islands
     for i in range(n):
         for j in range(n):
             if grid[i][j] == 1:
-                area[island_id] = bfs(i, j, island_id)
+                area_dict[island_id] = bfs(i, j, island_id)
                 island_id += 1
 
-    # If all are 1s → return the whole grid area
-    if not area:
+    # If all are no islands then just return 1 as we can flip 1 '0' to '1'
+    if not area_dict:
         return 1
-    max_area = max(area.values())
 
     # --- Step 2: Try flipping each 0 and compute possible island size ---
+    max_area = max(area_dict.values())
+
     for i in range(n):
         for j in range(n):
-            if grid[i][j] == 0:
-                seen = set()
-                for dx, dy in directions:
-                    ni, nj = i + dx, j + dy
+            if grid[i][j] == 0:  # For each cell where there is sea, check around the adjacent cells if there is an island and get the island area
+                visited = set()  # Same island can surround in more than two cells, that's why we use set
+                for di, dj in directions:
+                    ni, nj = i + di, j + dj
                     if 0 <= ni < n and 0 <= nj < n and grid[ni][nj] > 1:
-                        seen.add(grid[ni][nj])
+                        visited.add(grid[ni][nj])
                 new_area = 1  # The flipped cell
-                for id_ in seen:
-                    new_area += area[id_]
+                for id_ in visited:
+                    new_area += area_dict[id_]
                 max_area = max(max_area, new_area)
 
     return max_area
@@ -344,11 +346,11 @@ def minimum_window_substring(s: str, t: str) -> str:
     window_count = {}           # Frequency in current window
     formed = 0                  # How many required chars are currently satisfied
 
-    l = 0
-    res = (float('inf'), 0, 0)  # (window length, left, right)
+    left = 0
+    result = (float('inf'), 0, 0)  # (window length, left, right)
 
     # Expand window
-    for r, ch in enumerate(s):
+    for right, ch in enumerate(s):
         window_count[ch] = window_count.get(ch, 0) + 1
 
         # Check if current char satisfies target count
@@ -356,18 +358,18 @@ def minimum_window_substring(s: str, t: str) -> str:
             formed += 1
 
         # Contract window while valid
-        while l <= r and formed == required:
-            if (r - l + 1) < res[0]:
-                res = (r - l + 1, l, r)
+        while left <= right and formed == required:
+            if (right - left + 1) < result[0]:
+                result = (right - left + 1, left, right)
 
             # Remove from window
-            left_ch = s[l]
+            left_ch = s[left]
             window_count[left_ch] -= 1
             if left_ch in t_count and window_count[left_ch] < t_count[left_ch]:
                 formed -= 1
-            l += 1
+            left += 1
 
-    return "" if res[0] == float('inf') else s[res[1]:res[2] + 1]
+    return "" if result[0] == float('inf') else s[result[1]: result[2] + 1]
 
 
 def valid_number(s):
@@ -1239,19 +1241,33 @@ def sliding_window_maximum(nums, k):
         O(k), for storing indices in the deque.
 
     """
-    queue, result = deque(), list()
-    for idx, num in enumerate(nums):
-        # Remove smaller elements from the back
+    """
+    if not nums or len(nums) == 0:
+        return []
+    result = []
+    for i in range(len(nums) - k + 1):
+        window = nums[i: i + k]
+        result.append(max(window))
+    return result
+    """
+    queue, result = deque(), []
+    for i, num in enumerate(nums):
+        # Step 1: Remove all smaller elements from the back of the deque
+        # Because they can never be the max if a larger number appears after them.
         while queue and nums[queue[-1]] < num:
             queue.pop()
-        queue.append(idx)
 
-        # Remove elements that are outside the window
-        if queue[0] == idx - k:
+        # Step 2: Add the current element index to the deque
+        queue.append(i)
+
+        # Step 3: Remove elements that are outside the current window
+        # If the leftmost index is i - k, it means it’s no longer in the window.
+        if queue[0] == i - k:
             queue.popleft()
 
-        # Append the maximum for the current window
-        if idx >= k - 1:
+        # Step 4: Once the window is fully formed (i >= k - 1),
+        # The element at the front of the deque is the maximum for that window.
+        if i >= k - 1:
             result.append(nums[queue[0]])
 
     return result
@@ -1294,16 +1310,16 @@ def expression_add_operators(num, target):
     result, n = [], len(num)
 
     def backtrack(sofar, total, prev, k):
-        if k > n:
+        if k > n:  # If we've reached beyond the string, stop.
             return
-        if k == n and total == target:
+        if k == n and total == target:  # If we're exactly at the end and our total equals the target, we found a valid expression and add it to result.
             result.append(sofar)
             return
         for i in range(k, n):
-            if i > k and num[k] == '0':
+            if i > k and num[k] == '0':  # skip numbers with leading zeros
                 break
             chosen = int(num[k: i + 1])
-            if k == 0:
+            if k == 0:  # Handle first number differently (no operator before it)
                 backtrack(sofar + str(chosen), total + chosen, chosen, i + 1)
             else:
                 backtrack(sofar + '+' + str(chosen), total + chosen, chosen, i + 1)
