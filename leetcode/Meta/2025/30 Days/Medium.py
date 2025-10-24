@@ -2844,3 +2844,17 @@ def walls_and_gates(rooms):
             if 0 <= nx < m and 0 <= ny < n and rooms[nx][ny] == 2 ** 31 - 1:
                 rooms[nx][ny] = rooms[x][y] + 1
                 queue.append((nx, ny))
+
+
+def jump_game(nums):
+    # https://leetcode.com/problems/jump-game/description/
+    # Greedy approach: track the farthest index you can reach
+    max_reachable = 0
+    for i, jump in enumerate(nums):
+        # If current index is beyond what we can reach, we’re stuck
+        if i > max_reachable:
+            return False
+        # Update the farthest index we can reach
+        max_reachable = max(max_reachable, i + jump)
+    # If loop finishes, we can reach the end
+    return True

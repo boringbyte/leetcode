@@ -78,7 +78,7 @@ def vertical_traversal_of_a_binary_tree(root):
         if current.left:
             queue.append((current.left, level + 1, column - 1))
         if current.right:
-            queue.append((current.right, level + 1, column - 1))
+            queue.append((current.right, level + 1, column + 1))
 
     result = []
     for col in sorted(column_dict.keys()):
@@ -89,6 +89,7 @@ def vertical_traversal_of_a_binary_tree(root):
 
 
 def merge_two_sorted_lists(list1, list2):
+    # https://leetcode.com/problems/merge-k-sorted-lists
     """
     Merges two sorted linked lists into a single sorted linked list.
 
@@ -113,19 +114,22 @@ def merge_two_sorted_lists(list1, list2):
     Space Complexity: O(1)
         - Merging is done in place using existing nodes (ignoring recursion stack).
     """
-    dummy = current = ListNode(0)
+    if list1 and list2:  # This is not necessary in this problem but same condition was used in another problem
+        dummy = current = ListNode(0)
 
-    while list1 and list2:
-        if list1.val < list2.val:
-            current.next = list1
-            list1 = list1.next
-        else:
-            current.next = list2
-            list2 = list2.next
-        current = current.next
+        while list1 and list2:
+            if list1.val < list2.val:
+                current.next = list1
+                list1 = list1.next
+            else:
+                current.next = list2
+                list2 = list2.next
+            current = current.next
 
-    current.next = list1 or list2
-    return dummy.next
+        current.next = list1 or list2
+        return dummy.next
+    else:
+        return list1 or list2
 
 
 def merge_k_sorted_lists(lists):
@@ -202,7 +206,7 @@ def making_a_large_island_1(grid):
     directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
     # --- Step 1: BFS to label islands and calculate their areas ---
-    def bfs(r, c, island_label):
+    def calculate_area_of_each_island_using_bfs(r, c, island_label):
         queue = deque([(r, c)])
         grid[r][c] = island_label
         area = 1
@@ -211,8 +215,8 @@ def making_a_large_island_1(grid):
             x, y = queue.popleft()
             for dx, dy in directions:
                 nx, ny = x + dx, y + dy
-                if 0 <= nx < n and 0 <= ny < n and grid[nx][ny] == 1:
-                    grid[nx][ny] = island_label
+                if 0 <= nx < n and 0 <= ny < n and grid[nx][ny] == 1:  # If grid cell is an island
+                    grid[nx][ny] = island_label  # then change its label
                     area += 1
                     queue.append((nx, ny))
         return area
@@ -220,8 +224,8 @@ def making_a_large_island_1(grid):
     # Label all islands
     for i in range(n):
         for j in range(n):
-            if grid[i][j] == 1:
-                area_dict[island_id] = bfs(i, j, island_id)
+            if grid[i][j] == 1:  # If grid cell is an island then, calculate its area and label it.
+                area_dict[island_id] = calculate_area_of_each_island_using_bfs(i, j, island_id)
                 island_id += 1
 
     # If all are no islands then just return 1 as we can flip 1 '0' to '1'
@@ -240,79 +244,8 @@ def making_a_large_island_1(grid):
                     if 0 <= ni < n and 0 <= nj < n and grid[ni][nj] > 1:
                         visited.add(grid[ni][nj])
                 new_area = 1  # The flipped cell
-                for id_ in visited:
-                    new_area += area_dict[id_]
-                max_area = max(max_area, new_area)
-
-    return max_area
-
-
-def making_a_large_island_2(grid):
-    """
-    https://leetcode.com/problems/making-a-large-island/
-
-    Given an n x n binary grid representing water (0) and land (1),
-    you can change at most one 0 to 1 and must return the size of the
-    largest possible island (connected 1's).
-
-    The solution labels each island with a unique ID using DFS and
-    stores their areas. Then, for each 0, it computes the potential
-    island size if that cell were turned to 1.
-
-    Args:
-        grid (List[List[int]]): n x n grid of 0s and 1s.
-
-    Returns:
-        int: The largest possible island size after flipping one 0.
-
-    Time Complexity:
-        O(n^2)
-        - Each cell is visited at most twice (once for labeling and once for checking neighbors).
-
-    Space Complexity:
-        O(n^2)
-        - For recursion stack and the area dictionary.
-
-    Example:
-        Input:
-        [[1, 0],
-         [0, 1]]
-        Output: 3
-        Explanation:
-        Change one 0 to 1 to connect the two islands -> size 3.
-    """
-    n = len(grid)
-    area = {}
-    island_id = 2  # Start from 2 to distinguish from 0 and 1
-
-    # DFS to label island and return its area
-    def dfs(r, c, id_):
-        if r < 0 or c < 0 or r >= n or c >= n or grid[r][c] != 1:
-            return 0
-        grid[r][c] = id_
-        return 1 + dfs(r + 1, c, id_) + dfs(r - 1, c, id_) + dfs(r, c + 1, id_) + dfs(r, c - 1, id_)
-
-    # Step 1: Label all islands and record their area
-    for r in range(n):
-        for c in range(n):
-            if grid[r][c] == 1:
-                area[island_id] = dfs(r, c, island_id)
-                island_id += 1
-
-    max_area = max(area.values(), default=0)
-
-    # Step 2: Try converting each 0 to 1
-    for r in range(n):
-        for c in range(n):
-            if grid[r][c] == 0:
-                seen = set()
-                new_area = 1  # This flipped 0
-                for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                    nr, nc = r + dr, c + dc
-                    if 0 <= nr < n and 0 <= nc < n and grid[nr][nc] > 1:
-                        seen.add(grid[nr][nc])
-                for id_ in seen:
-                    new_area += area[id_]
+                for island_id in visited:
+                    new_area += area_dict[island_id]
                 max_area = max(max_area, new_area)
 
     return max_area
@@ -340,25 +273,25 @@ def minimum_window_substring(s: str, t: str) -> str:
     if not s or not t:
         return ""
 
-    t_count = Counter(t)        # Frequency of required chars
-    required = len(t_count)     # Number of unique required chars
+    t_count = Counter(t)            # Frequency of required chars
+    required = len(t_count)         # Number of unique required chars
 
-    window_count = {}           # Frequency in current window
-    formed = 0                  # How many required chars are currently satisfied
+    window_count = defaultdict(int) # Frequency in current window
+    formed_chars = 0                # How many required chars are currently satisfied
 
     left = 0
     result = (float('inf'), 0, 0)  # (window length, left, right)
 
     # Expand window
     for right, ch in enumerate(s):
-        window_count[ch] = window_count.get(ch, 0) + 1
+        window_count[ch] += 1
 
         # Check if current char satisfies target count
         if ch in t_count and window_count[ch] == t_count[ch]:
-            formed += 1
+            formed_chars += 1
 
         # Contract window while valid
-        while left <= right and formed == required:
+        while left <= right and formed_chars == required:
             if (right - left + 1) < result[0]:
                 result = (right - left + 1, left, right)
 
@@ -366,7 +299,7 @@ def minimum_window_substring(s: str, t: str) -> str:
             left_ch = s[left]
             window_count[left_ch] -= 1
             if left_ch in t_count and window_count[left_ch] < t_count[left_ch]:
-                formed -= 1
+                formed_chars -= 1
             left += 1
 
     return "" if result[0] == float('inf') else s[result[1]: result[2] + 1]
@@ -375,20 +308,20 @@ def minimum_window_substring(s: str, t: str) -> str:
 def valid_number(s):
     # https://leetcode.com/problems/valid-number
     s = s.strip()
-    met_dot = met_e = met_digit = False
+    met_dot = met_e = met_digit = False                     # Set DED to False
     for i, char in enumerate(s):
-        if char in '+-':
-            if i > 0 and s[i - 1].lower() != 'e':
+        if char in '+-':                                    # Check for operator or symbol
+            if i > 0 and s[i - 1].lower() != 'e':           # return False if previous character is `e`
                 return False
-        elif char == '.':
-            if met_dot or met_e:
+        elif char == '.':                                   # Check for dot
+            if met_dot or met_e:                            # return False if already met dot or `e` (DE)
                 return False
             met_dot = True
-        elif char.lower() == 'e':
-            if met_e or not met_digit:
+        elif char.lower() == 'e':                           # Check for `e`
+            if met_e or not met_digit:                      # return False if already met `e` or not digit (ED)
                 return False
             met_e, met_digit = True, False
-        elif char in '0123456789':
+        elif char in '0123456789':                          # Check for digit
             met_digit = True
         else:
             return False
