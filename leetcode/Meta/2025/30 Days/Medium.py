@@ -1196,8 +1196,8 @@ def clone_graph_1(node):
         return node
 
     # Dictionary to map original node -> cloned node
-    visited = {node: GraphNode(val=node.val, neighbors=[])}
     queue = deque([node])
+    visited = {node: GraphNode(val=node.val, neighbors=[])}
 
     while queue:
         current = queue.popleft()
@@ -1347,15 +1347,16 @@ def palindromic_substrings(s):
 def minimum_add_to_make_parentheses_valid_1(s):
     # Check calculate_invalid function in 01-50 problems list as well
     # https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/description/
-    left, right = 0, 0
+    right, left = 0, 0
     for char in s:
-        if char == '(':
-            right += 1
-        elif right > 0:
-            right -= 1
-        else:
+        if char == "(":
             left += 1
-    return left + right
+        else:
+            if left:
+                left -= 1
+            else:
+                right += 1
+    return right + left
 
 
 def minimum_add_to_make_parentheses_valid_2(s):
@@ -1471,9 +1472,10 @@ class BinarySearchTreeIterator:
             node = node.left
 
     def next(self):
-        node = self.stack.pop()
-        self._push_left(node.right)
-        return node.val
+        if self.has_next():  # This might not be a mandatory condition
+            node = self.stack.pop()
+            self._push_left(node.right)
+            return node.val
 
     def has_next(self):
         return len(self.stack) > 0
@@ -1645,40 +1647,44 @@ class RandomPickIndex2:
 
 def three_sum(nums):
     # https://leetcode.com/problems/3sum
+    """
+    Remember to create 3 lists and 2 sets for this problem
+    """
     result = set()
-    negatives, zeros, positives = [], [], []
+    n_list, z_list, p_list = [], [], []
+    n_set, p_set = set(), set()
 
     for num in nums:
         if num < 0:
-            negatives.append(num)
+            n_list.append(num)
+            n_set.add(num)
         elif num == 0:
-            zeros.append(num)
+            z_list.append(num)
         else:
-            positives.append(num)
+            p_list.append(num)
+            p_set.add(num)
 
-    n_set, p_set = set(negatives), set(positives)
-
-    if len(zeros) >= 3:
+    if len(z_list) >= 3:
         result.add((0, 0, 0))
 
-    if zeros:
+    if z_list:
         for num in n_set:
             if -num in p_set:
                 result.add((-num, 0, num))
 
-    k = len(negatives)
+    k = len(n_list)
     for i in range(k):
         for j in range(i + 1, k):
-            target = -1 * (negatives[i] + negatives[j])
+            target = -1 * (n_list[i] + n_list[j])
             if target in p_set:
-                result.add((negatives[i], negatives[j], target))
+                result.add((n_list[i], n_list[j], target))
 
-    k = len(positives)
+    k = len(p_list)
     for i in range(k):
         for j in range(i + 1, k):
-            target = -1 * (positives[i] + positives[j])
+            target = -1 * (p_list[i] + p_list[j])
             if target in n_set:
-                result.add((positives[i], positives[j], target))
+                result.add((p_list[i], p_list[j], target))
 
     return result
 
@@ -1695,10 +1701,8 @@ def the_maze(maze, start, destination):
 
     while queue:
         x, y = queue.popleft()
-
         for dx, dy in directions:
             nx, ny = x, y
-
             # Roll until ball hits wall
             while 0 <= nx + dx < m and 0 <= ny + dy < n and maze[nx + dx][ny + dy] == 0:
                 nx += dx
@@ -1719,38 +1723,43 @@ def convert_bst_to_sorted_dll(root):
     if not root:
         return None
 
-    first, last = None, None
+    list_head, previous_node = None, None
 
     def dfs(node):
-        nonlocal first, last
+        nonlocal list_head, previous_node
         if not node:
             return
 
         dfs(node.left)
 
-        if last:  # If we’ve already visited a node before (last), connect:
-            last.right = node
-            node.left = last
+        if previous_node:  # If we’ve already visited a node before (last), connect:
+            previous_node.right = node
+            node.left = previous_node
         else:  # If this is the very first node, it becomes head.
-            first = node
-        last = node
+            list_head = node
+        previous_node = node
 
         dfs(node.right)
 
     dfs(root)
 
-    first.left = last
-    last.right = first
-    return first
+    list_head.left = previous_node
+    previous_node.right = list_head
+    return list_head
 
 
 def missing_element_in_sorted_array_1(nums, k):
     # https://algo.monster/liteproblems/1060
+    """
+    nums = [4, 7, 9, 10], k = 3
+    Starting with 4, first missing number is 5 and second is 6
+    Between 4 and 7, 2 numbers are missing.
+    """
     for i in range(1, len(nums)):
-        gap = nums[i] - nums[i - 1] - 1
-        if k <= gap:
+        missing_count = nums[i] - nums[i - 1] - 1
+        if k <= missing_count:
             return nums[i - 1] + k
-        k -= gap
+        k = k - missing_count
     return nums[-1] + k
 
 
@@ -2018,28 +2027,30 @@ def maximum_manhattan_distances_after_k_changes(s, k):
 def peak_index_in_mountain_array(arr):
     # https://leetcode.com/problems/peak-index-in-a-mountain-array/description/
     left, right = 0, len(arr) - 1
-
     while left < right:
         mid = left + (right - left) // 2
-        if arr[mid + 1] <= arr[mid]:  # This is the failing condition
-            right = mid
-        else:
+        if arr[mid] < arr[mid + 1]:
             left = mid + 1
+        else:
+            right = mid
     return left
 
 
 def sort_colors(nums):
     # https://leetcode.com/problems/sort-colors
-    red, white, blue = 0, 0, len(nums) - 1
-    while white <= blue:
-        if nums[white] == 0:  # Case: red
-            nums[white], nums[red] = nums[red], nums[white]
-            white += 1
+    """
+    Dutch Flag Sorting problem or simply remember RGB
+    """
+    red, green, blue = 0, 0, len(nums) - 1
+    while green <= blue:
+        if nums[green] == 0:  # Case: red
+            nums[green], nums[red] = nums[red], nums[green]
+            green += 1
             red += 1
-        elif nums[white] == 1:   # Case: white
-            white += 1
+        elif nums[green] == 1:   # Case: green
+            green += 1
         else:  # Case: blue (nums[white] == 2)
-            nums[white], nums[blue] = nums[blue], nums[white]
+            nums[green], nums[blue] = nums[blue], nums[green]
             blue -= 1
 
 
@@ -2132,22 +2143,22 @@ def set_matrix_zones(matrix):
 
 def subarray_product_less_than_k(nums, k):
     # https://leetcode.com/problems/subarray-product-less-than-k
-    if k <= 1:
-        return 0
-
-    product = 1
+    """
+    Conditions are:
+        1. 0 <= k <= 10**6
+        2. nums are positive
+    """
+    window_product = 1
     left = count = 0
 
     for right, num in enumerate(nums):
-        product *= num
-
-        while product >= k:
-            product //= nums[left]
+        window_product *= num
+        # Shrink the window from the left while product ≥ k
+        while left <= right and window_product >= k:
+            window_product //= nums[left]
             left += 1
-
         # All subarrays ending at `right` and starting anywhere from `left` to `right`
         count += (right - left + 1)
-
     return count
 
 
@@ -2178,6 +2189,7 @@ def unique_paths_1(m, n):
 
 
 def unique_paths_2(m, n):
+    # https://leetcode.com/problems/unique-paths
     dp = [1] * n
 
     for i in range(1, m):
@@ -2188,8 +2200,17 @@ def unique_paths_2(m, n):
 
 def longest_common_subsequence(text1, text2):
     # https://leetcode.com/problems/longest-common-subsequence
+    """
+            a   c   e
+        0   0   0   0
+   a    0   1   1   1
+   b    0   1   1   1
+   c    0   1   2   2
+   c    0   1   2   2
+   c    0   1   2   3
+    """
     m, n = len(text1), len(text2)
-    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    dp = [[0] * (n + 1) for _ in range(m + 1)]  # one extra space as 0 is not considered
 
     for i in range(1, m + 1):
         for j in range(1, n + 1):
@@ -2203,6 +2224,9 @@ def longest_common_subsequence(text1, text2):
 
 def permutations(nums):
     # https://leetcode.com/problems/permutations/
+    """
+    permutation has visited logic. -> PV
+    """
     result, n = [], len(nums)
     visited = [0] * n
 
@@ -2211,7 +2235,7 @@ def permutations(nums):
             result.append(sofar[:])
         else:
             for i in range(n):
-                if visited[i] != 0:
+                if visited[i] != 1:
                     chosen, visited[i] = nums[i], 1
                     backtrack(sofar + [chosen])
                     visited[i] = 0
@@ -2222,6 +2246,12 @@ def permutations(nums):
 
 def rotting_oranges(grid):
     # https://leetcode.com/problems/rotting-oranges
+    """
+    1. collect the locations of all the rotten oranges into a queue and count of fresh oranges
+    2. Update the fresh oranges around each rotten orange and add them to the queue for further processing
+    3. Reduce the count of fresh oranges in the process
+    4. Each level in the queue is a minute and make sure all the oranges are rotten
+    """
     m, n = len(grid), len(grid[0])
     minutes = 0
     rotten_queue, fresh_count = deque(), 0
@@ -2231,11 +2261,10 @@ def rotting_oranges(grid):
         for j in range(n):
             if grid[i][j] == 2:
                 rotten_queue.append((i, j))
-            else:
-                if grid[i][j] == 1:
-                    fresh_count += 1
+            elif grid[i][j] == 1:
+                fresh_count += 1
 
-    while rotten_queue:
+    while rotten_queue and fresh_count > 0:
         for _ in range(len(rotten_queue)):  # process one minute's worth of rotting
             x, y = rotten_queue.popleft()
 
@@ -2246,7 +2275,7 @@ def rotting_oranges(grid):
                     fresh_count -= 1
                     rotten_queue.append((nx, ny))
         minutes += 1  # finished one round of rotting
-    return max(0, minutes - 1) if fresh_count == 0 else -1
+    return minutes if fresh_count == 0 else -1
 
 
 def diagonal_traversal_ii(nums):
