@@ -758,11 +758,12 @@ def basic_calculator_ii(s):
 
 def subarray_sum_equals_k(nums, k):
     # https://leetcode.com/problems/subarray-sum-equals-k
-    # In this all are positive numbers only
+    # Numbers can be positive or negative or zero and k can also be same.
     # In comments of https://leetcode.com/problems/subarray-sum-equals-k/discuss/102111/Python-Simple-with-Explanation
     prefix_sum, prefix_sum_counts, result = 0, defaultdict(int), 0
     prefix_sum_counts[0] = 1  # Important: to count subarray starting from index 0.
     # Eg: nums = [1,2,3], k = 3, sum([1, 2]) = k, but subarray starts at index 0
+    # Eg: nums = [1, -1, 0], k = 0 answers are [1, -1], [0] and [1, -1, 0]
 
     for num in nums:
         prefix_sum += num
@@ -911,7 +912,7 @@ def copy_list_with_random_pointer(head):
         new_node = RandomPointerNode(current.val)
         new_node.next = current.next
         current.next = new_node
-        current = new_node.next
+        current = current.next.next
 
     # Step 2: Assign random pointer to the copied nodes
     current = head
@@ -925,9 +926,10 @@ def copy_list_with_random_pointer(head):
     copy_head = head.next
     while current:
         copy = current.next
-        current.next = copy.next
-        copy.next = copy.next.next if copy.next else None
+        current.next = copy.next  # restore original
         current = current.next
+        if current:  # link copied node to next copy
+            copy.next = current.next
 
     return copy_head
 
@@ -958,13 +960,13 @@ class RandomPickWeight:
         # or
         # 3. Pick a random number from uniform distribution between 0, 1
         k = random.uniform(0, 1)  # returns a floating point number
-        left, right = 0, len(self.w)
+        left, right = 0, self.n
         while left < right:
             mid = left + (right - left) // 2
-            if k <= self.w[mid]:
-                right = mid
-            else:
+            if k > self.w[mid]:
                 left = mid + 1
+            else:
+                right = mid
         return left
 
 
@@ -1001,7 +1003,7 @@ def buildings_with_an_ocean_view_1(heights):
 
 
 def buildings_with_an_ocean_view_2(heights):
-    # Using monotonic decreasing stack
+    # Using monotonic decreasing stack and the ocean is on the right side of the heights array
     stack = []
     for i, height in enumerate(heights):
         while stack and heights[stack[-1]] <= height:
@@ -1023,15 +1025,33 @@ def buildings_with_an_ocean_view_3(heights):
 def group_shifted_strings(strings):
     # https://baihuqian.github.io/2018-07-26-group-shifted-strings/
     # https://techyield.blogspot.com/2020/10/group-shifted-strings-python-solution.html
-    if len(strings) == 0:
-        return []
-    groups = defaultdict(list)
-    for word in strings:
+    """
+    word = "az"
+    | Characters | ord() difference | diff (without +26) | diff (with +26)       |
+    | ---------- | ---------------- | ------------------ | --------------------- |
+    | a → z      | 25 - 0 = -1      | (-1) % 26 = 25 ✅   | (26 + -1) % 26 = 25 ✅ |
+
+    word = "za"
+    | Characters | ord() difference | diff (without +26) | diff (with +26)       |
+    | ---------- | ---------------- | ------------------ | --------------------- |
+    | z → a      | 0 - 25 = -25     | (-25) % 26 = 1 ✅   | (26 + -25) % 26 = 1 ✅ |
+    """
+
+    def get_shift_key(word):
         key = []
         for i in range(len(word) - 1):
-            key.append((26 + ord(word[i + 1]) - ord(word[i])) % 26)
-        groups[tuple(key)].append(word)
-    return groups.values()
+            diff = (26 + ord(word[i + 1]) - ord(word[i])) % 26
+            key.append(diff)
+        return tuple(key)
+
+    if len(strings) == 0:
+        return []
+
+    groups = defaultdict(list)
+    for word in strings:
+        key = get_shift_key(word)
+        groups[key].append(word)
+    return list(groups.values())
 
 
 def course_schedule(num_courses, prerequisites):
