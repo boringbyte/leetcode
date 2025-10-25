@@ -194,7 +194,7 @@ def find_peak_element_3(nums):
     left, right = 0, len(nums) - 1
     while left < right:
         mid = left + (right - left) // 2
-        if nums[mid] <= nums[mid + 1]:
+        if nums[mid] <= nums[mid + 1]:   # The search space is not in the range of left and mid + 1
             left = mid + 1
         else:
             right = mid
@@ -352,6 +352,10 @@ def kth_largest_number_in_an_array_4(nums, k):
 def lowest_common_ancestor(root, p, q):
     # https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/
     """
+    Following are the constraints:
+        - All node.val are unique
+        - p != q
+        - p and q will exist in the tree
     Create a child parent dictionary which tracks the relationship in the reverser order of a tree
     Track the path of `p` node from it to the root node and save this path to set.
     Track the parth of `q` node from it till it doesn't encounter node in the set
@@ -378,6 +382,7 @@ def lowest_common_ancestor(root, p, q):
 
 def lowest_common_ancestor_of_binary_tree_iii(root, p, q):
     # https://zhenchaogan.gitbook.io/leetcode-solution/leetcode-1650-lowest-common-ancestor-of-a-binary-tree-iii
+    # Same constraints as above
     # Base case: if root is None, or root is one of the targets
     if root is None or root == p or root == q:
         return root
@@ -401,7 +406,7 @@ def binary_tree_vertical_order_traversal_1(root):
     if root is None:
         return
     result = []
-    queue, column_dict = deque([(root, 0)]), defaultdict(list)
+    queue, column_dict = deque([(root, 0)]), defaultdict(list)   # deque holds (node, column)
     while queue:
         current, column = queue.popleft()
         column_dict[column].append(current.val)
@@ -422,7 +427,7 @@ def binary_tree_vertical_order_traversal_2(root):
 
     def dfs(node, depth, column):
         if node:
-            column_dict[column].append((depth, node.val))
+            column_dict[column].append((depth, node.val))  # key: value -> column: [(depth, node.val)]
             dfs(node.left, depth + 1, column - 1)
             dfs(node.right, depth + 1, column + 1)
 
@@ -529,19 +534,22 @@ def continuous_subarray_sum(nums, k):
     If the subarray sum is divisible by k, then:
         (prefix_sum[j] - prefix_sum[i]) % k == 0 → prefix_sum[j] % k == prefix_sum[i] % k
     So, if two prefix sums have the same remainder when divided by k, the subarray between them has a sum divisible by k.
+
+    More such problems:
+        https://leetcode.com/problems/continuous-subarray-sum/solutions/5276981/prefix-sum-hashmap-patterns-7-problems/
     """
     remainder_index_map = {0: -1}  # Handle case where subarray starts at index 0
     prefix_sum = 0
 
-    for previous_index, num in enumerate(nums):
+    for i, num in enumerate(nums):
         prefix_sum += num
         remainder = prefix_sum % k
 
         if remainder in remainder_index_map:
-            if previous_index - remainder_index_map[remainder] >= 2:
+            if i - remainder_index_map[remainder] >= 2:
                 return True
         else:
-            remainder_index_map[remainder] = previous_index
+            remainder_index_map[remainder] = i
     return False
 
 
@@ -568,6 +576,9 @@ def power_2(x: float, n: int) -> float:
         if n is odd then, multiply result with x
         if x is even then, square the base (x) and halve the exponent (n)
     """
+    if abs(x) < 1e-40:
+        return 0
+
     if n < 0:
         x = 1 / x
         n = -n
@@ -605,28 +616,30 @@ def first_and_last_position_of_element_in_sorted_array(nums, target):
 
     n = len(nums)
 
+    # 1. Find first occurrence (lower bound)
     left, right = 0, n - 1
     while left < right:
         mid = left + (right - left) // 2
-        if target <= nums[mid]:
-            right = mid
-        else:
+        if target > nums[mid]:
             left = mid + 1
+        else:
+            right = mid
 
     if nums[left] != target:
         return result
 
     result[0] = left
 
+    # 2. Find last occurrence (upper bound)
     left, right = 0, n - 1
     while left < right:
-        mid = left + (right - left + 1) // 2
-        if target < nums[mid]:
-            right = mid + 1
+        mid = left + (right - left + 1) // 2     # bias to right
+        if target >= nums[mid]:
+            left = mid                           # Deduct 1 from the lower bound condition
         else:
-            left = mid
+            right = mid - 1                      # Deduct 1 from the lower bound condition
 
-    result[1] = right
+    result[1] = left
     return result
 
 
@@ -748,7 +761,8 @@ def subarray_sum_equals_k(nums, k):
     # In this all are positive numbers only
     # In comments of https://leetcode.com/problems/subarray-sum-equals-k/discuss/102111/Python-Simple-with-Explanation
     prefix_sum, prefix_sum_counts, result = 0, defaultdict(int), 0
-    prefix_sum_counts[0] = 1  # Important: to count subarrays starting from index 0
+    prefix_sum_counts[0] = 1  # Important: to count subarray starting from index 0.
+    # Eg: nums = [1,2,3], k = 3, sum([1, 2]) = k, but subarray starts at index 0
 
     for num in nums:
         prefix_sum += num
