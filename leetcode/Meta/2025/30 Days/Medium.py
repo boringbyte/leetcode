@@ -1860,7 +1860,8 @@ class CircularQueue:
         return self.q[(self.rear - 1 + self.k) % self.k]
 
 
-def maximum_level_sum_of_a_binary_tree(root):
+def maximum_level_sum_of_a_binary_tree_1(root):
+    # https://leetcode.com/problems/maximum-level-sum-of-a-binary-tree
     level, level_sum_dict = 0, dict()
     queue = deque([root])
 
@@ -1880,7 +1881,26 @@ def maximum_level_sum_of_a_binary_tree(root):
     return max(level_sum_dict, key=level_sum_dict.get)
 
 
+def maximum_level_sum_of_a_binary_tree_2(root):
+    # https://leetcode.com/problems/maximum-level-sum-of-a-binary-tree
+    if not root:
+        return 0
+
+    level_sum_dict = defaultdict(int)
+    queue = deque([(root, 1)])
+
+    while queue:
+        current, level = queue.popleft()
+        level_sum_dict[level] += current.val
+        if current.left:
+            queue.append((current.left, level + 1))
+        if current.right:
+            queue.append((current.right, level + 1))
+    return max(level_sum_dict, key=level_sum_dict.get)
+
+
 def decode_ways(s):
+    # https://leetcode.com/problems/decode-ways
     if not s or s[0] == "0":
         return 0
 
@@ -1899,8 +1919,10 @@ def decode_ways(s):
         if 10 <= two_digit <= 26:  # valid two digit
             dp[i] += dp[i - 2]
 
+    return dp[-1]
 
-def combinations(n, k):
+
+def combinations_1(n, k):
     # https://leetcode.com/problems/combinations
     result = []
 
@@ -1914,6 +1936,22 @@ def combinations(n, k):
             path.pop()
 
     backtrack(1, [])
+    return result
+
+
+def combinations_2(n, k):
+    # https://leetcode.com/problems/combinations
+    result = []
+
+    def backtrack(sofar, start):
+        if len(sofar) == k:
+            result.append(sofar[:])
+        else:
+            for i in range(start, n + 1):
+                chosen = i
+                backtrack(sofar + [chosen], i + 1)
+
+    backtrack(sofar=[], start=1)
     return result
 
 
@@ -1955,7 +1993,7 @@ def sum_of_subarray_minimums(arr):
     return result
 
 
-def group_anagrams(strs):
+def group_anagrams_1(strs):
     # https://leetcode.com/problems/group-anagrams/description/
     anagrams_dict = defaultdict(list)
     for word in strs:
@@ -1966,6 +2004,23 @@ def group_anagrams(strs):
     return anagrams_dict.values()
 
 
+def group_anagrams_2(strs):
+    anagram_dict = defaultdict(list)
+
+    def convert_word_to_binary_string(word):
+        key = [0] * 26
+        for char in word:
+            key[ord(char) - ord('a')] += 1
+        key = "".join([str(k) for k in key])
+        return key
+
+    for word in strs:
+        key = convert_word_to_binary_string(word)
+        anagram_dict[key].append(word)
+
+    return list(anagram_dict.values())
+
+
 def search_in_rotated_sorted_array(nums, target):
     # https://leetcode.com/problems/search-in-rotated-sorted-array/description/
     if not nums:
@@ -1973,10 +2028,8 @@ def search_in_rotated_sorted_array(nums, target):
 
     left, right = 0, len(nums) - 1
 
-    while left <= right:
-
+    while left <= right:  # First time seeing <= condition
         mid = left + (right - left) // 2
-
         if nums[mid] == target:
             return mid
         # 🔑 One side [left..mid] OR [mid..right] is always sorted
@@ -2036,7 +2089,7 @@ def peak_index_in_mountain_array(arr):
     return left
 
 
-def sort_colors(nums):
+def sort_colors_1(nums):
     # https://leetcode.com/problems/sort-colors
     """
     Dutch Flag Sorting problem or simply remember RGB
@@ -2054,15 +2107,29 @@ def sort_colors(nums):
             blue -= 1
 
 
+def sort_colors_2(nums):
+    pivot, start, end = 0, 0, len(nums) - 1
+    while start <= end:
+        if nums[start] == 0:        # Case: Red
+            nums[start], nums[pivot] = nums[pivot], nums[start]
+            start += 1
+            pivot += 1
+        elif nums[start] == 1:      # Case: Green
+            start += 1
+        else:                       # Case: Blue
+            nums[start], nums[end] = nums[end], nums[start]
+            end -= 1
+
+
 def integer_to_roman(num):
     # https://leetcode.com/problems/integer-to-roman
     # 900, 400 and other such values are taken into account because of subtractive notation rule
 
-    roman_map = {1000: "M", 900: "CM", 500: "D", 400: "CD", 100: "C", 90: "XC", 50: "L", 40: "XL",
+    int_to_roman_map = {1000: "M", 900: "CM", 500: "D", 400: "CD", 100: "C", 90: "XC", 50: "L", 40: "XL",
                  10: "X", 9: "IX", 5: "V", 4: "IV", 1: "I"}  # Decreasing order of values to symbol
 
     result = []
-    for value, symbol in roman_map.items():
+    for value, symbol in int_to_roman_map.items():
         """
         if num == 0:
             break
