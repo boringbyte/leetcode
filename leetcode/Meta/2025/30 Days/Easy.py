@@ -23,8 +23,7 @@ def diameter_of_binary_tree(root):
     - Keep track of the global maximum diameter encountered so far.
 
     Return value of dfs(node):
-        - Returns the height (maximum depth) of the current node's subtree,
-          which is 1 + max(left, right).
+        - Returns the height (maximum depth) of the current node's subtree, which is 1 + max(left, right).
         - This height helps the parent node compute its potential diameter.
 
     Time Complexity:  O(n) — each node is visited once.
@@ -325,6 +324,29 @@ def best_time_to_buy_and_sell_stock(prices):
         buy_price = min(buy_price, price)
         profit = max(profit, price - buy_price)
     return profit
+
+
+def find_cheapest_prices(departures, returns):
+    """
+    Finds the minimum total cost of a round trip where return happens after departure.
+    Similar to the 'Best Time to Buy and Sell Stock' logic but minimizing total cost.
+
+    Args:
+        departures (List[int]): Departure ticket prices by day.
+        returns (List[int]): Return ticket prices by day.
+
+    Returns:
+        int: Minimum total round-trip cost.
+    """
+    min_departure = departures[0]
+    min_total_cost = float('inf')
+
+    for i, departure in enumerate(departures, 1):
+        min_departure = min(min_departure, departure)           # Cheapest departure before this day
+        total_cost = min_departure + returns[i]                 # Round-trip cost
+        min_total_cost = min(min_total_cost, total_cost)        # Keep minimum total
+
+    return min_total_cost
 
 
 def closest_binary_search_tree_value(root, target):
@@ -828,7 +850,7 @@ def find_all_k_distant_indices_in_an_array(nums, key, k):
         - To store key indices and result set.
     """
     n = len(nums)
-    key_indices = [i for i, val in enumerate(nums) if val == key]
+    key_indices = [j for j, val in enumerate(nums) if val == key]
     result = set()
 
     for j in key_indices:
@@ -1044,7 +1066,7 @@ def find_the_kth_character_in_string_game_i(k):
 
 def contains_duplicate_ii(nums, k):
     # https://leetcode.com/problems/contains-duplicate-ii
-    num_idx_dict = dict()
+    num_idx_dict = dict()  # We should not prefix with idx and nums as only the latest numbers with indexes are present
     for i, num in enumerate(nums):
         if num in num_idx_dict and abs(i - num_idx_dict[num]) <= k:
             return True

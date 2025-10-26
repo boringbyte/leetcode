@@ -2453,7 +2453,6 @@ def repeated_string_match_2(a, b):
 
 def reverse_integer(x):
     # https://leetcode.com/problems/reverse-integer
-
     result, sign = 0, 1         # 'result' will store reversed number, 'sign' handles negative input.
 
     if x < 0:                   # If the number is negative,
@@ -2562,7 +2561,6 @@ def next_greater_element_iii(n):
 
 def house_robber_ii(nums):
     # https://leetcode.com/problems/house-robber-ii
-
     if not nums:
         return 0
     if len(nums) == 1:
@@ -2631,15 +2629,14 @@ def maximum_width_of_binary_tree(root):
     queue = deque([(root, 0)])  # (node, index)
 
     while queue:
-        level_length = len(queue)
         _, first_index = queue[0]  # leftmost index at this level
         _, last_index = queue[-1]
         max_width = max(max_width, last_index - first_index + 1)
 
-        for _ in range(level_length):
+        for _ in range(len(queue)):
             current, index = queue.popleft()
             # normalize index to avoid overflow (subtract first_index)
-            norm_index = index - first_index
+            norm_index = index - first_index  # This is not a mandatory step
             if current.left:
                 queue.append((current.left, 2 * norm_index + 1))
             if current.right:
@@ -2723,19 +2720,16 @@ def shortest_bridge(grid):
 
     def dfs(x, y):
         """Mark the first island and push its cells into BFS queue"""
-        if x < 0 or x >= n or y < 0 or y >= n:
-            return
-        if visited[x][y] or grid[x][y] == 0:
-            return
-        visited[x][y] = 1
-        queue.append((x, y, 0))  # store (x,y,steps) for BFS
-        for dx, dy in directions:
-            dfs(x + dx, y + dy)
+        if 0 <= x < n and 0 <= y < n and grid[x][y] == 1 and visited[x][y] == 0:
+            visited[x][y] = 1
+            queue.append((x, y, 0))  # store (x, y, steps) for BFS
+            for dx, dy in directions:
+                dfs(x + dx, y + dy)
 
     # Find first island and run DFS to mark it
     found = False
     for i in range(n):
-        if found:
+        if found:   # Want to run the loop only one time till we find the first island
             break
         for j in range(n):
             if grid[i][j] == 1:
@@ -2748,7 +2742,7 @@ def shortest_bridge(grid):
         x, y, d = queue.popleft()
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < n and 0 <= ny < n and not visited[nx][ny]:
+            if 0 <= nx < n and 0 <= ny < n and visited[nx][ny] == 0:
                 if grid[nx][ny] == 1:
                     return d  # reached the second island
                 visited[nx][ny] = 1
@@ -2974,6 +2968,7 @@ def walls_and_gates(rooms):
             if 0 <= nx < m and 0 <= ny < n and rooms[nx][ny] == 2 ** 31 - 1:
                 rooms[nx][ny] = rooms[x][y] + 1
                 queue.append((nx, ny))
+    return rooms
 
 
 def jump_game(nums):
