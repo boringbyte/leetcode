@@ -1,5 +1,7 @@
 import heapq
 import string
+from functools import cache
+
 import pandas as pd
 from collections import deque, Counter
 from itertools import zip_longest
@@ -246,7 +248,7 @@ def kth_missing_positive_number_2(arr, k):
     return end + k  # end are already present in the arr and k are missing
 
 
-class MovingAverage:
+class MovingAverage1:
     # https://www.jointaro.com/interviews/questions/moving-average-from-data-stream/
     # https://algo.monster/liteproblems/346
     """
@@ -295,25 +297,25 @@ class MovingAverage2:
     def __init__(self, size):
         self.size = size
         self.data = [0] * size
-        self.count = 0
-        self.total = 0
-        self.index = 0
+        self.current_count = 0
+        self.current_total = 0
+        self.current_index = 0
 
     def next(self, value):
         # Subtract the old value (only after filling window)
-        if self.count == self.size:
-            self.total -= self.data[self.index]
+        if self.current_count == self.size:
+            self.current_total -= self.data[self.current_index]
         else:
-            self.count += 1  # Count will be less than the size only till we fill all the buffer with elements. From then, it will be equal to size
+            self.current_count += 1  # Count will be less than the size only till we fill all the buffer with elements. From then, it will be equal to size
 
         # Insert new value
-        self.data[self.index] = value
-        self.total += value
-        self.index = (self.index + 1) % self.size  # Circular move. Points to the next index.
-        # If we wrote self.index = self.index % self.size without +1, the index would never advance.
+        self.data[self.current_index] = value
+        self.current_total += value
+        self.current_index = (self.current_index + 1) % self.size  # Circular move. Points to the next index.
+        # If we wrote self.current_index = self.current_index % self.size without +1, the index would never advance.
         # 0 % 3 = 0 → keeps writing to data[0] repeatedly, overwriting the same slot.
 
-        return self.total / self.count
+        return self.current_total / self.current_count
 
 
 def best_time_to_buy_and_sell_stock(prices):
@@ -508,12 +510,13 @@ def remove_duplicates_from_sorted_array_2(nums):
     """This is a much simplified version of the above solution"""
     if not nums:
         return 0
-    left = 0,
-    for right in range(len(nums)):
+    left, n = 0, len(nums)  # left points to the index where we can copy the unique element from the right index.
+    # It points to the last index where all the unique elements are present. That's why before copying, we increment the left index.
+    for right in range(1, n):  # Either can start from 0 or 1 index
         if nums[left] != nums[right]:
             left += 1
             nums[left] = nums[right]
-    return left + 1
+    return left + 1  # We need number of elements. So we return left + 1 as left is index and it starts with 0.
 
 
 def middle_of_the_linked_list(head):
@@ -569,7 +572,7 @@ def middle_of_linked_list_first(head):
     return slow
 
 
-def move_zeros(nums):
+def move_zeros_1(nums):
     # https://leetcode.com/problems/move-zeroes/description/
     snow_ball_size, n = 0, len(nums)
 
@@ -583,6 +586,16 @@ def move_zeros(nums):
                 nums[i - snow_ball_size] = temp
                 # nums[i - snow_ball_size], nums[i] = nums[i], nums[i - snow_ball_size]
                 # Above single line is also correct instead of storing in temp variable
+
+
+def move_zeros_2(nums):
+    left, n = 0, len(nums)
+    for right in range(n):
+        if nums[right] == 0:
+            left += 1
+        else:
+            if left > 0:
+                nums[right - left], nums[left] = nums[left], nums[right - left]
 
 
 def maximum_difference_by_remapping_a_digit(num):
@@ -614,12 +627,18 @@ def maximum_difference_by_remapping_a_digit(num):
 
     return int(max_num) - int(min_num)
 
-
+@cache
 def climbing_stairs_1(n):
-    """This is recursive solution"""
-    if n == 0 or n == 1:
+    """
+    Base cases:
+        n == 1: There is one way to go to step 1 and it is given in the problem
+        n == 2: There are 2 ways to go to step 2 and it is given in the problem
+    """
+    if n == 1:
         return 1
-    return climbing_stairs_1(n - 1) + climbing_stairs_2(n - 2)
+    if n == 2:
+        return 2
+    return climbing_stairs_1(n - 1) + climbing_stairs_1(n - 2)
 
 
 def climbing_stairs_2(n):
@@ -808,12 +827,15 @@ def find_all_k_distant_indices_in_an_array(nums, key, k):
     Space Complexity: O(n)
         - To store key indices and result set.
     """
+    n = len(nums)
     key_indices = [i for i, val in enumerate(nums) if val == key]
     result = set()
 
     for j in key_indices:
         # Add all indices within distance k of j
-        for i in range(max(0, j - k), min(len(nums), j + k + 1)):
+        window_start = max(0, j - k)
+        window_end = min(j + k + 1, n)
+        for i in range(window_start, window_end):
             result.add(i)
 
     return sorted(result)
@@ -858,7 +880,7 @@ def reverse_vowels_of_a_string(s: str):
         - Each character is visited at most once by either pointer.
     Space Complexity: O(n), for converting the string to a list to allow in-place swaps.
     """
-    vowels = "aeiou"
+    vowels = set("aeiou")
     s = list(s)
     left, right = 0, len(s) - 1
 
@@ -892,9 +914,9 @@ def palindrome_number(x):
     if x < 0:
         return False
 
-    div = 1
-    while x // div >= 10:
-        div *= 10  # Gets a number such that for 1221 we get div as 1000
+    div = 1                 # 1 or 10 we get the same div value
+    while x // div >= 10:   # >= or >, we get the same div value
+        div *= 10           # Gets a number such that for 1221 we get div as 1000
 
     while x:
         left, rem = divmod(x, div)

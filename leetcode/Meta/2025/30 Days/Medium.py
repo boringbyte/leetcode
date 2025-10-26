@@ -1820,7 +1820,7 @@ def minimize_the_maximum_diff_of_paris(nums, p):
 
 
 class CircularQueue:
-
+     # https://leetcode.com/problems/design-circular-queue
     def __init__(self, k):
         self.q = [0] * k
         self.k = k
@@ -1849,12 +1849,12 @@ class CircularQueue:
         self.size -= 1
         return True
 
-    def Front(self):
+    def front(self):
         if self.is_empty():
             return -1
         return self.q[self.front]
 
-    def Rear(self):
+    def rear(self):
         if self.is_empty():
             return -1
         return self.q[(self.rear - 1 + self.k) % self.k]

@@ -851,7 +851,7 @@ def maximum_depth_of_binary_tree2(root):
 def construct_binary_tree_from_preorder_and_inorder_traversal1(preorder, inorder):
     # https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/discuss/34579/Python-short-recursive-solution.
     if inorder:
-        index = inorder.index(preorder.pop(0))
+        index = inorder.current_index(preorder.pop(0))
         node = TreeNode(inorder[index])
         node.left = construct_binary_tree_from_preorder_and_inorder_traversal1(preorder, inorder[:index])
         node.right = construct_binary_tree_from_preorder_and_inorder_traversal1(preorder, inorder[index + 1:])
