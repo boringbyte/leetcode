@@ -647,6 +647,51 @@ def word_ladder(begin_word, end_word, word_list):
     return 0
 
 
+def word_ladder_ii(begin_word, end_word, word_list):
+    n = len(begin_word)
+    word_set = set(word_list)
+    hashmap = defaultdict(list)
+
+    for word in word_set:
+        for i in range(n):
+            intermediate_word = word[:i] + "*" + word[i + 1:]
+            hashmap[intermediate_word].append(word)
+
+    # Step 1: BFS to find shortest distances
+    queue = deque([begin_word])
+    distances = {begin_word: 0}
+    parents = defaultdict(list)
+
+    while queue:
+        current = queue.popleft()
+        current_level = distances[current]
+        for i in range(n):
+            intermediate_word = current[:i] + "*" + current[i + 1:]
+            for neighbor in hashmap[intermediate_word]:
+                if neighbor not in distances:
+                    distances[neighbor] = current_level + 1
+                    queue.append(neighbor)
+                if distances[neighbor] == current_level + 1:
+                    parents[neighbor].append(current)
+
+    # Step 2: Backtrack to build all shortest paths
+    result = []
+    if end_word not in parents and end_word != begin_word:
+        return []
+
+    def backtrack(word, path):
+        if word == begin_word:
+            result.append(path[::-1])
+            return
+        for parent in parents[word]:
+            backtrack(parent, path + [parent])
+
+    if end_word in distances:
+        backtrack(end_word, [end_word])
+
+    return result
+
+
 def shortest_distance_from_all_buildings(grid):
     # https://leetcode.com/problems/shortest-distance-from-all-buildings
     # https://algo.monster/liteproblems/317
