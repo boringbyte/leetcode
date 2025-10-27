@@ -147,7 +147,7 @@ def maximum_swap(num):
     # i=2 → compare 3 vs 6 → 3 < 6 → smallest needs to be updated with i and largest with max_idx
     # i=1 → compare 7 vs 6 → 7 > 6 → update max_idx = 1
     # i=0 → compare 2 vs 7 → 2 < 7 → smallest needs to be updated with i and largest with max_idx
-    # So the last (smallest, largest) = (0,1) → swap 2 and 7 → 7236.
+    # So the last (smallest, largest) = (0, 1) → swap 2 and 7 → 7236.
     for i in range(n - 2, -1, -1):
         if s[i] > s[max_idx]:
             max_idx = i
@@ -587,8 +587,8 @@ def power_2(x: float, n: int) -> float:
     while n > 0:
         if n % 2 == 1:  # if n is odd
             result *= x
-        x *= x  # square the base
-        n //= 2  # halve the exponent
+        x *= x          # square the base
+        n //= 2         # halve the exponent
     return result
 
 
@@ -634,7 +634,7 @@ def first_and_last_position_of_element_in_sorted_array(nums, target):
     left, right = 0, n - 1
     while left < right:
         mid = left + (right - left + 1) // 2     # bias to right
-        if target >= nums[mid]:
+        if target >= nums[mid]:                  # Change condition from > to >=
             left = mid                           # Deduct 1 from the lower bound condition
         else:
             right = mid - 1                      # Deduct 1 from the lower bound condition
@@ -735,7 +735,7 @@ def basic_calculator_ii(s):
         if op == '*': stack.append(stack.pop() * value)
         if op == '/': stack.append(int(stack.pop() / value))
 
-    s = s.replace(' ', '')
+    s = s.strip()
     i, num, stack, sign = 0, 0, [], '+'
 
     while i < len(s):
@@ -1117,29 +1117,29 @@ def insert_into_a_sorted_circular_linked_list(head, insert_val):
 def sum_root_to_leaf_numbers_1(root):
     # https://leetcode.com/problems/sum-root-to-leaf-numbers/discuss/1556417/C%2B%2BPython-Recursive-and-Iterative-DFS-%2B-BFS-%2B-Morris-Traversal-O(1)-or-Beats-100
 
-    def dfs(node, value):
+    def dfs(node, num):
         if not node:
             return 0
-        value = value * 10 + node.val
+        num = num * 10 + node.val
         if not node.left and not node.right:
-            return value
-        return dfs(node.left, value) + dfs(node.right, value)
+            return num
+        return dfs(node.left, num) + dfs(node.right, num)
 
     return dfs(root, 0)
 
 
 def sum_root_to_leaf_numbers_2(root):
     # https://leetcode.com/problems/sum-root-to-leaf-numbers
-    stack, result = [(root, 0)], 0
+    stack, result = [(root, 0)], 0  # (node, num)
     while stack:
-        current, value = stack.pop()
-        value = value * 10 + current.val
+        current, num = stack.pop()
+        num = num * 10 + current.val
         if not current.left and not current.right:
-            result += value
+            result += num
         if current.left:
-            stack.append((current.left, value))
+            stack.append((current.left, num))
         if current.right:
-            stack.append((current.right, value))
+            stack.append((current.right, num))
     return result
 
 
@@ -1331,11 +1331,11 @@ def palindromic_substrings(s):
     # Each index can be the center of:
     # 1) An odd-length palindrome (centered at i)
     # 2) An even-length palindrome (centered between i and i+1)
-    def count_palindromic(s, l, r):
-        while l >= 0 and r < n and s[l] == s[r]:
-            result[0] = result[0] + 1
-            l -= 1  # expanding from the center towards left
-            r += 1  # expanding from the center towards right
+    def count_palindromic(s, left, right):
+        while left >= 0 and right < n and s[left] == s[right]:
+            result[0] += 1
+            left -= 1  # expanding from the center towards left
+            right += 1  # expanding from the center towards right
 
     for i in range(n):
         count_palindromic(s, i, i)       # odd-length palindromes
@@ -1526,6 +1526,11 @@ def subsets(nums):
             sofar.append(nums[i])  # Choose
             backtrack(sofar, i + 1, end)  # Explore
             sofar.pop()  # Unchoose
+
+        # This is also correct
+        # for i in range(start, end):
+        #     chosen = nums[i]
+        #     backtrack(sofar + [chosen], i + 1, end)
 
     backtrack(sofar=[], start=0, end=n)
     return result
