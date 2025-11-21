@@ -1,5 +1,6 @@
 from leetcode.utils import ListNode
 
+
 def two_sum(nums, target):
     # https://leetcode.com/problems/two-sum
     diff_dict = {num: i for i, num in enumerate(nums)}
@@ -48,7 +49,38 @@ def longest_substring_without_repeating_characters(s):
 
 def median_of_two_sorted_arrays(nums1, nums2):
     # https://leetcode.com/problems/median-of-two-sorted-arrays
-    pass
+    if len(nums1) > len(nums2):
+        median_of_two_sorted_arrays(nums2, nums1)
+
+    m, n = len(nums1), len(nums2)
+    low, high = 0, m
+
+    while low <= high:
+        i = (low + high) // 2
+        j = (m + n + 1) // 2 - i
+
+        # Edge values (treat out-of-bounds as +- infinity)
+        left1  = nums1[i - 1] if i > 0 else float('-inf')
+        right1 = nums1[i]     if i < m else float('inf')
+
+        left2  = nums2[j - 1] if j > 0 else float('-inf')
+        right2 = nums2[j]     if j < n else float('inf')
+
+        # Found correct partition
+        if left1 <= right2 and left2 <= right1:
+            # Odd total length → median = max of left
+            if (m + n) % 2 == 1:
+                return max(left1, left2)
+            # Even length → avg of max(left) + min(right)
+            return (max(left1, left2) + min(right1, right2)) / 2
+
+        # Need to move partition left
+        elif left1 > right2:
+            high = i - 1
+
+        # Need to move partition right
+        else:
+            low = i + 1
 
 
 def longest_palindromic_substring(s):
@@ -160,21 +192,3 @@ def three_sum(nums):
                 result.add((p_list[i], p_list[j], target))
 
     return [list(t) for t in result]
-
-
-def letter_combinations_of_a_phone_number(digits):
-    # https://leetcode.com/problems/letter-combinations-of-a-phone-number
-    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
-    result, n = [], len(digits)
-
-    def backtrack(sofar, k):
-        if len(sofar) == n:
-            result.append(sofar)
-        else:
-            for i in range(k, n):
-                letters = mapping[digits[i]]
-                for chosen in letters:
-                    backtrack(sofar + chosen, i + 1)
-
-    backtrack(sofar='', k=0)
-    return result if digits else []
