@@ -39,3 +39,42 @@ def best_time_to_buy_and_sell_stock(prices):
         current_profit = max(0, current_profit + diff)  # Either start fresh or extend the previous subarray.
         max_profit = max(max_profit, current_profit)
     return max_profit
+
+
+def binary_tree_maximum_path_sum(root):
+    # https://leetcode.com/problems/binary-tree-maximum-path-sum
+    """
+    There is at least 1 node in the root. So base condition is not necessary.
+
+    """
+    result = [float('-inf')]
+
+    def dfs(node):
+        if not node:
+            return 0
+
+        # Recursively compute max contribution from left and right
+        left, right = max(dfs(node.left), 0),  max(dfs(node.right), 0)  # Ignore negative paths
+        result[0] = max(result[0], left + right + node.val)
+        return max(left + node.val, right + node.val) # Return max path SLOPING down from this node
+
+    dfs(root)
+    return result[0]
+
+
+def valid_palindrome(s):
+    # https://leetcode.com/problems/valid-palindrome
+    s = s.strip()
+    left, right = 0, len(s) - 1
+
+    while left < right:
+        if not s[left].isalnum():
+            left += 1
+        elif not s[right].isalnum():
+            right -= 1
+        else:
+            if s[left].lower() != s[right].lower():
+                return False
+            left += 1
+            right -= 1
+    return True
