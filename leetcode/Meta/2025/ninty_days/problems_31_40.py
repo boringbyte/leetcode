@@ -27,3 +27,15 @@ def pascals_triangle(num_rows):
     return result
 
 
+def best_time_to_buy_and_sell_stock(prices):
+    # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/
+    """
+    This is an application of Kadane's algorithm.
+    To apply kadane's algorithm, convert the stock prices to daily stock price differences
+    """
+    max_profit = current_profit = 0
+    diffs = [b - a for a, b in zip(prices, prices[1:])]
+    for diff in diffs:
+        current_profit = max(0, current_profit + diff)  # Either start fresh or extend the previous subarray.
+        max_profit = max(max_profit, current_profit)
+    return max_profit
