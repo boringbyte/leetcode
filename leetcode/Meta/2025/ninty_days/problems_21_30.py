@@ -115,9 +115,35 @@ def simplify_path(path):
 
 def sort_colors(nums):
     # https://leetcode.com/problems/sort-colors
+    """
+    This problem is not about sorting. It is about partitioning into 3 groups in one scan.
+    [ all 0s | all 1s | all 2s ]
 
-    pass
+    low: boundary between 0-region and 1-region
+    mid: current element
+    high: boundary between 2-region and unexplored region
 
+    [ 0s | 1s | ??? | 2s ]
+       ↑     ↑        ↑
+      low   mid      high
+
+    if nums[mid] which means current element.
+    1. If nums[mid] == 0 then, move it to the front region. Swap it with nums[low], expand both regions.
+    2. If nums[mid] == 1 then, it is already in the correct region. Just move mid forward.
+    3. If nums[mid] == 2 then, move it to the back region. Swap it with nums[high], shirk high.
+        But don't advance mid, because the number swapped in must be rechecked.
+    """
+    low, mid, high = 0, 0, len(nums) - 1
+    while mid <= high:
+        if nums[mid] == 0:
+            nums[low], nums[mid] = nums[mid], nums[low]
+            low += 1
+            mid += 1
+        elif nums[mid] == 1:
+            mid += 1
+        else:
+            nums[high], nums[mid] = nums[mid], nums[high]
+            high -= 1
 
 
 def subsets(nums):
