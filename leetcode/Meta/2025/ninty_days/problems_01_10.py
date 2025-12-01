@@ -23,7 +23,7 @@ def add_two_numbers(l1, l2):
             if l2:
                 carry += l2.val
                 l2 = l2.next
-            carry, digit =divmod(carry, 10)
+            carry, digit = divmod(carry, 10)
             current.next = ListNode(digit)
             current = current.next
         return head.next
@@ -33,13 +33,13 @@ def add_two_numbers(l1, l2):
 
 def longest_substring_without_repeating_characters(s):
     # https://leetcode.com/problems/longest-substring-without-repeating-characters
-    n = len(s)
-    result = right = 0
-    seen_dict = {}
-    if n <= 1:
-        return n
+    if len(s) <= 1:
+        return len(s)
 
-    for left, char in enumerate(s):
+    result = left = 0
+    seen_dict = {}
+
+    for right, char in enumerate(s):
         if char in seen_dict:
             left = max(left, seen_dict[char] + 1)
         result = max(result, left - right + 1)
