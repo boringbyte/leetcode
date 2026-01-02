@@ -185,22 +185,33 @@ def longest_common_prefix(strs):
 
 def three_sum(nums):
     # https://leetcode.com/problems/3sum
+    """
+    Need to find numbers that satisfy following 4 conditions:
+        1. All the 3 numbers are zero
+        2. 1 is zero, 1 is positive and 1 is negative
+        3. 2 are negative and 1 is positive
+        4. 2 are positive and 1 is negative
+    """
     result = set()
 
     n_list = [n for n in nums if n < 0]
-    p_list = [n for n in nums if n > 0]
     z_list = [n for n in nums if n == 0]
+    p_list = [n for n in nums if n > 0]
     n_set, p_set = set(n_list), set(p_list)
 
+    # Condition 1:
     if len(z_list) >= 3:
         result.add((0, 0, 0))
 
+    # Condition 2:
     if z_list:
         for num in p_set:
             if -num in n_set:
                 result.add((-num, 0, num))
 
     k = len(n_list)
+
+    # Condition 3:
     for i in range(k):
         for j in range(i + 1, k):
             target = -1 * (n_list[i] + n_list[j])
@@ -208,6 +219,8 @@ def three_sum(nums):
                 result.add((n_list[i], n_list[j], target))
 
     k = len(p_list)
+
+    # Condition 4:
     for i in range(k):
         for j in range(i + 1, k):
             target = -1 * (p_list[i] + p_list[j])
