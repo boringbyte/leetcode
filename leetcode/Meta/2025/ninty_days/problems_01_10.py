@@ -173,13 +173,13 @@ def palindrome_number(x):
 
 def longest_common_prefix(strs):
     # https://leetcode.com/problems/longest-common-prefix
-    if not strs:
+    if not strs:  # This condition might not be necessary as there is at least 1 string in strs list
         return ''
     shortest = min(strs, key=len)
     for i, char in enumerate(shortest):
         for word in strs:
             if word[i] != char:
-                return shortest[:i]
+                return shortest[:i]  # [:i] handles when there is no match like strs = ["dog", "racecar", "car"]
     return shortest
 
 
@@ -228,3 +228,23 @@ def three_sum(nums):
                 result.add((p_list[i], p_list[j], target))
 
     return [list(t) for t in result]
+
+
+def letter_combinations_of_a_phone_number(digits):
+    # https://leetcode.com/problems/letter-combinations-of-a-phone-number
+    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
+    result, n = [], len(digits)
+
+    def backtrack(sofar, k):
+        if len(sofar) == n:
+            result.append(sofar)
+        else:
+            for i in range(k, n):
+                letters = mapping[digits[i]]
+                for chosen in letters:
+                    # As sofar is a string, a new copy is sent to recursive function,
+                    # and we don't have to explicitly remove chosen from the sofar string.
+                    backtrack(sofar + chosen, i + 1)
+
+    backtrack(sofar='', k=0)
+    return result if digits else []

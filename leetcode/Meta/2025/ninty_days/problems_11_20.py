@@ -2,24 +2,6 @@ from leetcode.utils import ListNode
 from collections import defaultdict
 
 
-def letter_combinations_of_a_phone_number(digits):
-    # https://leetcode.com/problems/letter-combinations-of-a-phone-number
-    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
-    result, n = [], len(digits)
-
-    def backtrack(sofar, k):
-        if len(sofar) == n:
-            result.append(sofar)
-        else:
-            for i in range(k, n):
-                letters = mapping[digits[i]]
-                for chosen in letters:
-                    backtrack(sofar + chosen, i + 1)
-
-    backtrack(sofar='', k=0)
-    return result if digits else []
-
-
 def valid_parentheses(s):
     # https://leetcode.com/problems/valid-parentheses
     hashmap = {"(": ")", "[": "]", "{": "}"}
