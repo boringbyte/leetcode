@@ -47,10 +47,33 @@ def longest_substring_without_repeating_characters(s):
     return result
 
 
-def median_of_two_sorted_arrays(nums1, nums2):
+def median_of_two_sorted_arrays_1(nums1, nums2):
+    # https://leetcode.com/problems/median-of-two-sorted-arrays/solutions/4070500/99journey-from-brute-force-to-most-optim-z3k8/
+    # This is a two pointer solution which is less efficient
+    n, m = len(nums1), len(nums2)
+    total_len = n + m
+    i, j = 0, 0
+    prev, curr = 0, 0
+
+    for _ in range(total_len // 2 + 1):
+        prev = curr
+        if i < n and (j >= m or nums1[i] <= nums2[j]):
+            curr = nums1[i]
+            i += 1
+        else:
+            curr = nums2[j]
+            j += 1
+
+    if total_len % 2 == 1:
+        return float(curr)
+    else:
+        return (prev + curr) / 2.0
+
+
+def median_of_two_sorted_arrays_2(nums1, nums2):
     # https://leetcode.com/problems/median-of-two-sorted-arrays
     if len(nums1) > len(nums2):
-        median_of_two_sorted_arrays(nums2, nums1)
+        median_of_two_sorted_arrays_2(nums2, nums1)
 
     m, n = len(nums1), len(nums2)
     low, high = 0, m
