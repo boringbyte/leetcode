@@ -109,8 +109,8 @@ def median_of_two_sorted_arrays_2(nums1, nums2):
 def longest_palindromic_substring(s):
     # https://leetcode.com/problems/longest-palindromic-substring
     n = len(s)
-    result = s[0]
-    max_length = 1
+    result = s[0]   # 's' at least contains 1 character
+    max_length = 1  # As 's' at least contains 1 character, maximum length is 1
 
     def expand_around(left, right):
         nonlocal result, max_length
@@ -123,8 +123,8 @@ def longest_palindromic_substring(s):
             right += 1
 
     for i in range(n):
-        expand_around(i, i)     # odd-length palindromes
-        expand_around(i, i + 1) # even-length palindromes
+        expand_around(left=i, right=i)     # odd-length palindromes
+        expand_around(left=i, right=i + 1) # even-length palindromes
 
     return result
 
@@ -138,9 +138,9 @@ def string_to_integer(s):
         if char == " " and not started:
             continue
         elif char in "+-" and not started:
+            started = True
             if char == "-":
                 sign = -1
-            started = True
         elif char.isdigit():
             started = True
             digit = int(char)
@@ -164,9 +164,9 @@ def palindrome_number(x):
     reverse = 0
     original = x
     while x > 0:
-        digit = x % 10
-        reverse = reverse * 10 + digit
-        x = x // 10
+        last_digit = x % 10     # Access the last digit
+        reverse = reverse * 10 + last_digit
+        x = x // 10             # Delete the last digit from x
 
     return original == reverse
 
