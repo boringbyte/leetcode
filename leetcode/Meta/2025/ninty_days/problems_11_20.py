@@ -49,7 +49,7 @@ def merge_k_sorted_lists(lists):
         right = merge_k_sorted_lists(lists[mid:])
         return merge_two_sorted_lists(left, right)
     else:
-        return None   # Is it really None. For [] output should be []
+        return None   # Is it really None. For [] output should be [].
 
 
 def remove_duplicates_from_sorted_array(nums):
@@ -100,6 +100,17 @@ def next_permutation(nums):
 
 def search_in_rotated_sorted_array(nums, target):
     # https://leetcode.com/problems/search-in-rotated-sorted-array
+    """
+    Key idea:
+    - Even though the array is rotated, at least ONE HALF is always sorted.
+    - At every step, decide:
+        1) Which half is sorted?
+        2) Is the target inside that sorted half?
+        3) If yes → shrink toward it, else → go to the other half.
+
+    Time Complexity: O(log n)
+    Space Complexity: O(1)
+    """
     left, right = 0, len(nums) - 1
 
     while left <= right:
@@ -152,7 +163,25 @@ def find_first_and_last_position_of_element_in_sorted_array(nums, target):
 
 def trapping_rain_water(height):
     # https://leetcode.com/problems/trapping-rain-water
-    pass
+    # Dynamic Programming Version
+    # This condition might be unnecessary as per the provided constraints in the problem.
+    if height is None or len(height) == 0:
+        return 0
+
+    n = len(height)
+    left, right = [0] * n, [0] * n
+    left[0], right[-1] = max(0, height[0]), max(0, height[-1])
+    for i in range(1, n):
+        left[i] = max(height[i], left[i - 1])
+
+    for i in range(n - 2, -1, -1):
+        right[i] = max(height[i], right[i + 1])
+
+    result = 0
+    for i in range(n):
+        result += min(left[i], right[i]) - height[i]
+
+    return result
 
 
 def multiply_strings(num1, num2):
