@@ -4,24 +4,24 @@ from collections import defaultdict
 
 def valid_parentheses(s):
     # https://leetcode.com/problems/valid-parentheses
-    hashmap = {"(": ")", "[": "]", "{": "}"}
-    stack = []
-
     if len(s) % 2:
         return False
 
+    mapping = {"(": ")", "[": "]", "{": "}"}
+    stack = []
+
     for char in s:
-        if char in hashmap:
+        if char in mapping:
             stack.append(char)
         else:
-            if stack and hashmap[stack[-1]] == char:
+            if stack and mapping[stack[-1]] == char:
                 stack.pop()
             else:
                 return False
     return len(stack) == 0
 
 
-def merge_two_sorted(list1, list2):
+def merge_two_sorted_lists(list1, list2):
     if list1 and list2:
         current = head = ListNode()
         while list1 and list2:
@@ -47,9 +47,9 @@ def merge_k_sorted_lists(lists):
         mid = len(lists) // 2
         left = merge_k_sorted_lists(lists[:mid])
         right = merge_k_sorted_lists(lists[mid:])
-        return merge_two_sorted(left, right)
+        return merge_two_sorted_lists(left, right)
     else:
-        return None
+        return None   # Is it really None. For [] output should be []
 
 
 def remove_duplicates_from_sorted_array(nums):
