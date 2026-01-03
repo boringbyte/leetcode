@@ -214,11 +214,11 @@ def group_anagrams(strs):
     def convert_word_to_binary_string(word):
         counts = [0] * 26
         for char in word:
-            counts[ord(char) - ord('a')] += 1
-        return tuple(counts)
+            counts[ord(char) - ord("a")] += 1
+        return "".join(map(str, counts)) # or tuple(counts)
 
-    for word in strs:
-        key = convert_word_to_binary_string(word)
-        anagram_dict[key].append(word)
+    for s in strs:
+        key = convert_word_to_binary_string(s)
+        anagram_dict[key].append(s)
 
     return list(anagram_dict.values())
