@@ -235,16 +235,16 @@ def letter_combinations_of_a_phone_number(digits):
     mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
     result, n = [], len(digits)
 
-    def backtrack(sofar, k):
+    def backtrack(sofar, start):
         if len(sofar) == n:
             result.append(sofar)
         else:
-            for i in range(k, n):
+            for i in range(start, n):
                 letters = mapping[digits[i]]
                 for chosen in letters:
                     # As sofar is a string, a new copy is sent to recursive function,
                     # and we don't have to explicitly remove chosen from the sofar string.
                     backtrack(sofar + chosen, i + 1)
 
-    backtrack(sofar='', k=0)
+    backtrack(sofar='', start=0)
     return result if digits else []

@@ -1,3 +1,4 @@
+import string
 from collections import defaultdict, deque
 
 
@@ -74,11 +75,7 @@ def interval_list_intersections(first_list, second_list):
     - The overlap (if any) is the max of the starts and the min of the ends.
     - If start <= end, we found an intersection.
 
-    Move forward the interval that ends first,
-    because it cannot overlap with anything further.
-
-    Like two timelines moving together:
-    once one interval finishes, advance it.
+    Move forward the interval that ends first, because it cannot overlap with anything further.
     """
     i = j = 0
     result = []
@@ -101,6 +98,13 @@ def interval_list_intersections(first_list, second_list):
 
 def vertical_order_traversal_of_a_binary_tree(root):
     # https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree
+    """
+    As the expected output is based on vertical traversal, group nodes based on column.
+    Final ordering rules:
+        1. Read columns from left to right.
+        2. Within each column, sort nodes by row (top to bottom).
+        3. If rows are equal, sort by node value.
+    """
     column_dict = defaultdict(list)
     row = col = 0
     queue = deque([(root, row, col)])
@@ -123,9 +127,42 @@ def vertical_order_traversal_of_a_binary_tree(root):
     return result
 
 
-def valid_number():
+def valid_number(s):
     # https://leetcode.com/problems/valid-number
-    pass
+    """
+    Check if a string is a valid number.
+
+    Rules:
+    1. Optional sign (+/-) at the start or immediately after 'e'.
+    2. At most one decimal point (.) and it must be before 'e'.
+    3. 'e' can appear at most once and must follow a number; it requires digits after it.
+    4. Only digits, signs, '.', and 'e' are allowed.
+    5. At least one digit must appear (either before or after 'e').
+
+    Approach:
+    - Scan left to right, tracking if we've seen a dot, 'e', and a digit.
+    - Reject invalid positions of signs, dots, or 'e'.
+    - Return True only if we have at least one valid digit at the end.
+    """
+    s = s.strip()
+    met_dot = met_e = met_digit = False
+    for i, char in enumerate(s):
+        if char in '+-':
+            if i > 0 and s[i - 1].lower() != 'e':
+                return False
+        elif char == '.':
+            if met_dot or met_e:
+                return False
+            met_dot = True
+        elif char.lower() == 'e':
+            if met_e or not met_digit:
+                return False
+            met_e, met_digit = True, False
+        elif char in string.digits:
+            met_digit = True
+        else:
+            return False
+    return met_digit
 
 
 def climbing_stairs(n):
@@ -205,6 +242,8 @@ def subsets(nums):
 
         for i in range(start, n):
             chosen = nums[i]
+            # As sofar is a list, a new copy is sent to recursive function,
+            # and we don't have to explicitly remove chosen from the sofar list as we not append to sofar list.
             backtrack(sofar + [chosen], i + 1)
 
     backtrack(sofar=[], start=0)
