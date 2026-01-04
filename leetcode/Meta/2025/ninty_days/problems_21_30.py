@@ -31,13 +31,13 @@ def maximum_subarray(nums):
     # https://leetcode.com/problems/maximum-subarray
     """
     This is a classic Kadane Algorithm.
-    As I walk through the array, I'm carrying a running sum.
-    If my sum ever becomes negative, it is harmful to keep it. I should drop it and start fresh.
+    As I walk through the array, I'm keep a running sum.
+    If my sum ever goes negative, it is harmful to keep it, so I drop it and start fresh from the current number.
     """
-    result = current_sum = nums[0]
+    result = running_sum = nums[0]
     for num in nums[1:]:
-        current_sum = max(num, current_sum + num)  # Either start fresh or extend the previous subarray.
-        result = max(result, current_sum)
+        running_sum = max(num, running_sum + num)  # Either start fresh or extend the previous subarray.
+        result = max(result, running_sum)
     return result
 
 
