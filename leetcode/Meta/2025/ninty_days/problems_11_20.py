@@ -134,9 +134,8 @@ def next_permutation(nums):
 def search_in_rotated_sorted_array(nums, target):
     # https://leetcode.com/problems/search-in-rotated-sorted-array
     """
-    Key idea:
-    - Even though the array is rotated, at least ONE HALF is always sorted.
-    - At every step, decide:
+    Even though the array is rotated, at least ONE HALF is always sorted.
+    At every step, decide:
         1) Which half is sorted?
         2) Is the target inside that sorted half?
         3) If yes → shrink toward it, else → go to the other half.
@@ -169,8 +168,8 @@ def find_first_and_last_position_of_element_in_sorted_array(nums, target):
     if not nums:
         return result
 
-    n = len(nums)
-    left, right = 0, n - 1
+    left, right = 0, len(nums) - 1
+
     while left < right:
         mid = left + (right - left) // 2
         if target > nums[mid]:
@@ -180,15 +179,18 @@ def find_first_and_last_position_of_element_in_sorted_array(nums, target):
 
     if nums[left] != target:
         return result
+
     result[0] = left
 
-    left, right = 0, n - 1
+    left, right = 0, len(nums) - 1
+
     while left < right:
         mid = left + (right - left + 1) // 2
         if target >= nums[mid]:
             left = mid
         else:
             right = mid - 1
+
     result[1] = left
 
     return result
