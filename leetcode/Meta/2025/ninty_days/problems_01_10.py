@@ -1,6 +1,30 @@
 from leetcode.utils import ListNode
 
 
+def two_sum_brute_force(nums, target):
+    # https://leetcode.com/problems/two-sum
+    n = len(nums)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if nums[i] + nums[j] == target:
+                return [i, j]
+
+
+def two_sum_no_extra_memory(nums, target):
+    # https://leetcode.com/problems/two-sum
+    nums = sorted(nums)
+    left, right = 0, len(nums) - 1
+
+    while left < right:
+        total = nums[left] + nums[right]
+        if total == target:
+            return [left, right]
+        elif total < target:
+            left += 1
+        else:
+            right -= 1
+
+
 def two_sum(nums, target):
     # https://leetcode.com/problems/two-sum
     diff_dict = {num: i for i, num in enumerate(nums)}
@@ -33,41 +57,68 @@ def add_two_numbers(l1, l2):
 
 def longest_substring_without_repeating_characters(s):
     # https://leetcode.com/problems/longest-substring-without-repeating-characters
+    """
+    Imagine cycling along a path (the string) with a stretchable rope between two bikes:
+        - The front bike ('right') moves forward, exploring new territory.
+        - The rear bike ('left') follows, keeping the rope taut without repeats.
+        - You carry a map (dictionary) that marks where you last saw each character.
+
+    How the ride works:
+        1. The front bike ('right') cycles forward, encountering each character.
+        2. If you encounter a character you've seen before (it's on your map):
+           - Check if it's within your current rope span (window).
+           - If yes, the rear bike ('left') must jump to just past that character's last position.
+        3. Update your map with the current position of the character.
+        4. Measure the current rope length (right - left + 1) and remember the longest stretch.
+
+    Time complexity: O(n) - each character is visited at most twice
+    Space complexity: O(min(n, charset_size)) for the dictionary.
+    """
     if len(s) <= 1:
         return len(s)
 
     result = left = 0
-    seen_dict = {}
+    last_seen_dict = {}
 
     for right, char in enumerate(s):
-        if char in seen_dict:
-            left = max(left, seen_dict[char] + 1)
-        result = max(result, left - right + 1)
-        seen_dict[char] = right
+        if char in last_seen_dict and last_seen_dict[char] >= left:
+            left = last_seen_dict[char] + 1
+        last_seen_dict[char] = right
+        result = max(result, right - left + 1)
     return result
 
 
 def median_of_two_sorted_arrays_1(nums1, nums2):
     # https://leetcode.com/problems/median-of-two-sorted-arrays/solutions/4070500/99journey-from-brute-force-to-most-optim-z3k8/
-    # This is a two pointer solution which is less efficient
+    """
+    This is a two pointer solution which is less efficient
+    Imagine two marching bands (arrays) walking towards each other in perfect height order (sorted).
+    Two marching bands: nums1 and nums2, each already in height order
+    Your clipboard: Tracks only the last two people you've seen (prev and curr)
+    Goal: Find the middle height(s) of the combined 10,000-person parade without lining them all up
+    """
     n, m = len(nums1), len(nums2)
     total_len = n + m
-    i, j = 0, 0
-    prev, curr = 0, 0
+    i, j = 0, 0                 # Two pointers - one for each band
+    prev, curr = 0, 0           # Your clipboard - last two heights recorded
 
+    # Only walk halfway through the combined parade + 1
     for _ in range(total_len // 2 + 1):
-        prev = curr
+        prev = curr             # Move "current" to "previous" slot
+
+        # Choose the shorter person at the front of either band
         if i < n and (j >= m or nums1[i] <= nums2[j]):
-            curr = nums1[i]
-            i += 1
+            curr = nums1[i]     # Record this height
+            i += 1              # That person joins the parade
         else:
             curr = nums2[j]
             j += 1
 
-    if total_len % 2 == 1:
-        return float(curr)
-    else:
-        return (prev + curr) / 2.0
+    # Now decide based on total number of marchers
+    if total_len % 2 == 1:          # Odd number -> single middle person
+        return float(curr)          # Last person you recorded IS the median
+    else:                           # Even number -> average of two middle people
+        return (prev + curr) / 2.0  # Average your last two recordings
 
 
 def median_of_two_sorted_arrays_2(nums1, nums2):
@@ -187,10 +238,12 @@ def three_sum(nums):
     # https://leetcode.com/problems/3sum
     """
     Need to find numbers that satisfy following 4 conditions:
-        1. All the 3 numbers are zero
+        1. At least 3 numbers are zero
         2. 1 is zero, 1 is positive and 1 is negative
         3. 2 are negative and 1 is positive
         4. 2 are positive and 1 is negative
+    When checking for 1 number conditions, take them from set.
+    When checking for 2 number conditions, take them from list.
     """
     result = set()
 
@@ -238,12 +291,13 @@ def letter_combinations_of_a_phone_number(digits):
     def backtrack(sofar, start):
         if len(sofar) == n:
             result.append(sofar)
+            # Strings are immutable, so each `sofar` is already a separate copy. No need for `.copy()` or `[:]` like we would with lists.
         else:
             for i in range(start, n):
                 letters = mapping[digits[i]]
                 for chosen in letters:
-                    # As sofar is a string, a new copy is sent to recursive function,
-                    # and we don't have to explicitly remove chosen from the sofar string.
+                    # `sofar + chosen` creates a NEW string. This means the recursive call gets its own copy.
+                    # When recursion unwinds, we don't need to "undo" the append (unlike with lists where we'd need `.pop()`).
                     backtrack(sofar + chosen, i + 1)
 
     backtrack(sofar='', start=0)
