@@ -67,7 +67,36 @@ def merge_intervals(intervals):
 
 def interval_list_intersections(first_list, second_list):
     # https://leetcode.com/problems/interval-list-intersections
-    pass
+    """
+    Walk through both interval lists using two pointers.
+
+    At each step:
+    - The overlap (if any) is the max of the starts and the min of the ends.
+    - If start <= end, we found an intersection.
+
+    Move forward the interval that ends first,
+    because it cannot overlap with anything further.
+
+    Like two timelines moving together:
+    once one interval finishes, advance it.
+    """
+    i = j = 0
+    result = []
+
+    while i < len(first_list) and j < len(second_list):
+        start = max(first_list[i][0], second_list[j][0])
+        end = min(first_list[i][1], second_list[j][1])
+
+        if start <= end:
+            result.append([start, end])
+
+        # Advance the pointer with the smaller end time
+        if first_list[i][1] < second_list[j][1]:
+            i += 1
+        else:
+            j += 1
+
+    return result
 
 
 def vertical_order_traversal_of_a_binary_tree(root):
