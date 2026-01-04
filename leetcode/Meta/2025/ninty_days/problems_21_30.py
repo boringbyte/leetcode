@@ -3,6 +3,15 @@ from collections import defaultdict, deque
 
 def power_x_n(x, n):
     # https://leetcode.com/problems/powx-n
+    """
+    Condition 1: Think if x is very small then, just return 0
+    Next conditions on n:
+        - If n is negative, flip x to 1/x and make n positive.
+        - If n is zero, the result is 1.
+        - Otherwise, compute power(x, n // 2) once
+            - Square it if n is even,
+            - multiply by x only if n is odd.
+    """
     if abs(x) < 1e-40:
         return 0
 
