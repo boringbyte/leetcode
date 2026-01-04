@@ -43,6 +43,18 @@ def maximum_subarray(nums):
 
 def merge_intervals(intervals):
     # https://leetcode.com/problems/merge-intervals
+    """
+    Interval merging strategy:
+
+    1. Always sort intervals by start time first.
+    2. Keep a result bucket that stores merged intervals.
+    3. For each new interval:
+       - Compare its start with the end of the last interval in result.
+       - If they overlap (last_end >= current_start), merge by extending the end to max(last_end, current_end).
+       - Otherwise, no overlap → add the interval as a new entry.
+
+    Think of it as extending the last block if possible; otherwise, start a new block.
+    """
     intervals = sorted(intervals, key=lambda x: x[0])
     result = [intervals[0]]
     for start, end in intervals[1:]:
