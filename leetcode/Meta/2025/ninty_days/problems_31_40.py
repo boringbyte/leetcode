@@ -4,7 +4,6 @@ from collections import deque, defaultdict
 
 def merge_sorted_array(nums1, nums2, m, n):
     # https://leetcode.com/problems/merge-sorted-array
-
     while m > 0 and n > 0:
         if nums1[m - 1] >= nums2[n - 1]:
             nums1[m + n - 1] = nums1[m - 1]
@@ -32,13 +31,71 @@ def pascals_triangle(num_rows):
 def best_time_to_buy_and_sell_stock(prices):
     # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/
     """
-    This is an application of Kadane's algorithm.
-    To apply kadane's algorithm, convert the stock prices to daily stock price differences
+    Mountain Trekking Analogy:
+    Imagine stock prices as daily mountain altitudes. Each day you're at a new altitude.
+    GOAL: Find the best single climb - buy in a valley (low), sell at a later peak (high).
+    The Secret: Track your CLIMBING STREAKS, not just valleys and peaks!
+
+    How the Hiker Thinks:
+    --------------------
+    Instead of memorizing every altitude, the hiker tracks:
+    1. Current climbing streak: How much altitude I've gained in my current climb
+    2. Best climb ever: The most altitude I've gained in any single climb
+
+    At Each Day's Climb (price difference):
+    ---------------------------------------
+    The hiker checks: "How does today's climb affect my current streak?"
+
+    Today's climb = Today's altitude - Yesterday's altitude
+    - Uphill (positive): Good for my streak!
+    - Downhill (negative): Bad for my streak...
+
+    Decision Rule:
+    "If today's climb would make my current streak negative, I'm better off starting a fresh climb from here."
+
+    Then: "Is this my best climb ever?"
+
+    Hiker's Logbook (Example Trek):
+    -------------------------------
+    Altitudes (stock prices): [7, 1, 5, 3, 6, 4]
+
+    Day 1: Altitude 7 → No climb yet (no previous day)
+    Day 2: Altitude 1 → Climb = 1-7 = -6 (downhill!)
+              Streak: max(0, 0 - 6) = 0 → Abandon climb, stay at base camp
+              Best climb ever: 0
+
+    Day 3: Altitude 5 → Climb = 5-1 = +4 (uphill!)
+              Streak: max(0, 0 + 4) = 4 → Start new climb, gained 4 units
+              Best climb ever: max(0, 4) = 4
+
+    Day 4: Altitude 3 → Climb = 3-5 = -2 (downhill)
+              Streak: max(0, 4 - 2) = 2 → Continue climb (now 2 units total)
+              Best climb ever: max(4, 2) = 4
+
+    Day 5: Altitude 6 → Climb = 6-3 = +3 (uphill!)
+              Streak: max(0, 2 + 3) = 5 → Continue climb (now 5 units total)
+              Best climb ever: max(4, 5) = 5
+
+    Day 6: Altitude 4 → Climb = 4-6 = -2 (downhill)
+              Streak: max(0, 5 - 2) = 3 → Continue climb (now 3 units total)
+              Best climb ever: max(5, 3) = 5
+
+    Best climb found: 5 units altitude gain
+    Translation: Buy at altitude 1, sell at altitude 6 = profit of 5
+
+    Why This Works for Stocks:
+    --------------------------
+    Every profitable buy-sell pair = a continuous uphill climb
+    The maximum profit = the longest continuous uphill climb in the mountain
+    By tracking climbing streaks, we find the best time to buy (start of climb) and sell (end of climb) automatically!
+
+    Time: O(n) - one trek through the mountain
+    Space: O(1) - only a logbook (2 variables)
     """
     max_profit = current_profit = 0
-    diffs = [b - a for a, b in zip(prices, prices[1:])]
-    for diff in diffs:
-        current_profit = max(0, current_profit + diff)  # Either start fresh or extend the previous subarray.
+    price_diffs = [b - a for a, b in zip(prices, prices[1:])]
+    for price_diff in price_diffs:
+        current_profit = max(0, current_profit + price_diff)  # Either start fresh or extend the previous subarray.
         max_profit = max(max_profit, current_profit)
     return max_profit
 
@@ -46,8 +103,58 @@ def best_time_to_buy_and_sell_stock(prices):
 def binary_tree_maximum_path_sum(root):
     # https://leetcode.com/problems/binary-tree-maximum-path-sum
     """
-    There is at least 1 node in the root. So base condition is not necessary.
+    Spy Network Analogy:
+    Imagine each node in the tree is a spy handler who can:
+      1. Pass information UP to their boss (parent)
+      2. Combine information from their LEFT and RIGHT subordinates
 
+    Rules:
+      - Each spy (node) has a value (positive = intel, negative = risk)
+      - A spy can choose to ignore risky subordinates (max(0, ...))
+      - A path is a chain of spies passing intel upward
+
+    How it works:
+
+    1. At each spy (node):
+       - Ask LEFT subordinate: "What's the best intel you can send me?"
+         (If negative, we ignore it - set to 0)
+       - Ask RIGHT subordinate: Same question
+
+       Example:
+         Current spy value: 5
+         Left subordinate reports: 3 (intel)  -> We accept
+         Right subordinate reports: -2 (risk) -> We ignore (use 0)
+
+    2. This spy could be the CENTER of the best network:
+       - Combine left intel + right intel + own value
+       - Update global maximum if better
+
+       Example continued:
+         Best network with this spy as center = 3 + 0 + 5 = 8
+         Global maximum becomes max(previous, 8)
+
+    3. What does this spy report UP to boss?
+       - Can only send ONE chain upward (left OR right, not both)
+       - Choose: max(left, right) + own value
+
+       Example continued:
+         Report upward: max(3, 0) + 5 = 8
+         "Boss, the best intel chain through me is worth 8"
+
+    Key Insight:
+      - The global best might NOT go through the boss (root)
+      - It could be a local network centered at any spy
+      - We return the value of the BEST spy network found
+
+    Time: O(n) - visit each spy once
+    Space: O(h) - recursion stack for tree height
+
+    Example Tree: [-10,9,20,null,null,15,7]
+            -10
+           /   \
+          9    20   ← Best network: 15+20+7=42
+              /  \
+             15   7
     """
     result = [float('-inf')]
 
@@ -55,10 +162,9 @@ def binary_tree_maximum_path_sum(root):
         if not node:
             return 0
 
-        # Recursively compute max contribution from left and right
-        left, right = max(dfs(node.left), 0),  max(dfs(node.right), 0)  # Ignore negative paths
+        left, right = max(dfs(node.left), 0),  max(dfs(node.right), 0)
         result[0] = max(result[0], left + right + node.val)
-        return max(left + node.val, right + node.val) # Return max path SLOPING down from this node
+        return max(left + node.val, right + node.val)
 
     dfs(root)
     return result[0]
