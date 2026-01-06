@@ -1,5 +1,6 @@
 from functools import cache
 from collections import deque, defaultdict
+from leetcode.utils import CloneNode, RandomNode
 
 
 def merge_sorted_array(nums1, nums2, m, n):
@@ -190,22 +191,25 @@ def valid_palindrome(s):
 
 def word_ladder(begin_word, end_word, word_list):
     # https://leetcode.com/problems/word-ladder
+    # All these conditions might not be necessary due to provided constraints in the problem.
     if not begin_word or not end_word or not word_list or len(begin_word) != len(end_word) or begin_word not in word_list or end_word not in word_list:
         return 0
 
     n = len(begin_word)
-    hashmap = defaultdict(list)
+    mapping = defaultdict(list)
+
     for word in word_list:
         for i in range(n):
             intermediate_word = word[:i] + "*" + word[i + 1:]
-            hashmap[intermediate_word].append(word)
+            mapping[intermediate_word].append(word)
 
     queue, visited = deque([(begin_word, 1)]), {begin_word}
+
     while queue:
         current_word, level = queue.popleft()
         for i in range(n):
             intermediate_word = current_word[:i] + "*" + current_word[i + 1:]
-            for word in hashmap[intermediate_word]:
+            for word in mapping[intermediate_word]:
                 if word == end_word:
                     return level + 1
                 if word not in visited:
@@ -216,49 +220,374 @@ def word_ladder(begin_word, end_word, word_list):
 
 def sum_root_to_leaf_numbers(root):
     # https://leetcode.com/problems/sum-root-to-leaf-numbers
+    """
+    Treasure Map Analogy:
+    Imagine each node is a treasure room containing a digit (0-9).
+    Each root-to-leaf path is a unique treasure map code.
+    Your mission: Sum up ALL treasure codes in the castle!
+
+    How It Works:
+    ------------
+    1. Start at the entrance (root) with an empty code (0).
+
+    2. At each room (node):
+       - Append this room's digit to your current code
+         code = code * 10 + room.digit
+         *Why ×10? Each step left in the castle multiplies the code by 10!*
+
+       - Check if this is a dead-end room (leaf):
+         If NO exits (no left/right rooms): Add this code to treasure chest
+
+       - If there are exits (left/right rooms):
+         Make copies of your current map and send explorers down each path
+
+    3. Use a stack (backpack) to track:
+       - Current room
+       - Code built so far
+
+    Time Complexity: O(n) - visit each room once
+    Space Complexity: O(h) - stack height = tree height
+    """
+    if not root:
+        return 0
+
     stack, result = [(root, 0)], 0
+
     while stack:
         current, val = stack.pop()
         val = val * 10 + current.val
+
         if current.left is None and current.right is None:
             result += val
+
         if current.left:
             stack.append((current.left, val))
         if current.right:
             stack.append((current.right, val))
+
     return result
+
+
+def clone_graph(node):
+    # https://leetcode.com/problems/clone-graph
+    """
+    Ghost Army Analogy:
+    Imagine you have an army of ghost soldiers (original graph) who:
+      1. Have unique ID numbers (node.val)
+      2. Know their fellow soldiers (neighbors)
+
+    Your mission: Create an IDENTICAL ghost army (clone) where:
+      - Each original soldier gets a clone with same ID
+      - Each clone knows the clones of the original's neighbors
+
+    The Challenge: Soldiers are interconnected in complex ways (cycles)!
+
+    How the Ghost General Works:
+    ---------------------------
+    1. Keep a "Clone Registry" (hash map) to track:
+       Original Soldier → Clone Soldier
+
+    2. Use a "Summoning Queue" (BFS queue) to process soldiers:
+       - Start with the first soldier (node)
+       - Create their clone, add to registry
+       - Queue them up for neighbor processing
+
+    3. For each soldier in the queue:
+       - Look at their original neighbor list
+       - For each neighbor:
+           * If neighbor not cloned yet → Create clone, register, queue it
+           * Connect current clone to neighbor's clone
+
+    4. Return the clone of the first soldier (the army commander)
+
+    Why BFS? Because we need to process soldiers level by level to
+    ensure all connections are properly cloned.
+
+    Example Ghost Army:
+    -------------------
+    Original:        Clone:
+      1 --- 2         1'--- 2'
+      |     |         |     |
+      4 --- 3         4'--- 3'
+
+    Steps:
+    1. Start with soldier 1
+       Clone 1' (registry: {1: 1'})
+       Queue: [1]
+
+    2. Process soldier 1:
+       Neighbors: 2, 4
+       - Clone 2' (registry: {1: 1', 2: 2'}, queue: [1, 2])
+       - Clone 4' (registry: {1: 1', 2: 2', 4: 4'}, queue: [1, 2, 4])
+       Connect: 1'.neighbors = [2', 4']
+
+    3. Process soldier 2:
+       Neighbors: 1, 3
+       - 1 already cloned → get 1' from registry
+       - Clone 3' (registry: {1: 1', 2: 2', 4: 4', 3: 3'}, queue: [1, 2, 4, 3])
+       Connect: 2'.neighbors = [1', 3']
+
+    4. Process soldier 4:
+       Neighbors: 1, 3
+       - Both already cloned (1' and 3')
+       Connect: 4'.neighbors = [1', 3']
+
+    5. Process soldier 3:
+       Neighbors: 2, 4
+       - Both already cloned (2' and 4')
+       Connect: 3'.neighbors = [2', 4']
+
+    Done! Return 1' (clone commander)
+
+    Time: O(V + E) - visit each soldier and each connection once
+    Space: O(V) - for the clone registry
+    """
+
+    if not node:
+        return None
+
+    # Clone Registry: Original Soldier → Clone Soldier
+    clone_registry = {}
+
+    # Create the first clone (army commander)
+    clone_registry[node] = CloneNode(node.val, [])
+
+    # Summoning Queue: Soldiers waiting to have their neighbors processed
+    queue = deque([node])
+
+    while queue:
+        original = queue.popleft()
+        clone = clone_registry[original]
+
+        # Process each neighbor of the original soldier
+        for neighbor in original.neighbors:
+            if neighbor not in clone_registry:
+                # First time seeing this soldier → create their clone
+                clone_registry[neighbor] = CloneNode(neighbor.val, [])
+                queue.append(neighbor)
+
+            # Connect the clone to the neighbor's clone
+            clone.neighbors.append(clone_registry[neighbor])
+
+    return clone_registry[node]
+
+
+def copy_list_with_random_pointer(head):
+    """
+    Secret Agent Clone Network Analogy:
+    Imagine a network of secret agents where:
+      - Each agent has an ID (val)
+      - A "next" contact (next agent in the chain)
+      - A "secret" random contact (random pointer to any agent or null)
+
+    Your mission: Create an IDENTICAL clone network without disturbing the original!
+
+    The Challenge: Random pointers create a web, not just a chain!
+
+    How the Agency Clones Agents:
+    ---------------------------
+    1. The "Twin Insertion" Phase (Weaving):
+       For each original agent, create a clone and insert it RIGHT AFTER the original.
+
+       Original: A → B → C → null
+       After:    A → A' → B → B' → C → C' → null
+
+    2. The "Secret Connection" Phase:
+       For each original agent A, set A'.random to:
+       - A.random.next (the clone of A's random contact)
+       - null if A.random is null
+
+    3. The "Network Split" Phase:
+       Unweave the interleaved list into two separate networks:
+       Original: A → B → C → null
+       Clone:    A' → B' → C' → null
+
+    Visual Example:
+    ---------------
+    Original:
+        A(1) → B(2) → C(3) → null
+        |      |      |
+        C      A      B   (random pointers)
+
+    Step 1: Twin Insertion
+        A → A' → B → B' → C → C' → null
+
+    Step 2: Set Random Pointers
+        For A: A'.random = A.random.next = C'
+        For B: B'.random = B.random.next = A'
+        For C: C'.random = C.random.next = B'
+
+    Step 3: Split Networks
+        Original: A → B → C → null
+        Clone:    A' → B' → C' → null
+        (with correct random pointers in clone)
+
+    Why This Works:
+    --------------
+    By placing clones next to originals, we create a direct mapping:
+      Original → Clone is just: original.next (in the interleaved list)
+
+    So: clone.random = original.random.next
+
+    Time: O(n) - three passes through the list
+    Space: O(1) - no extra dictionary, only modifies the list structure temporarily
+    """
+
+    if not head:
+        return None
+
+    # Step 1: Twin Insertion (Weave clones into the list)
+    current = head
+    while current:
+        # Create clone
+        clone = RandomNode(current.val)
+
+        # Insert clone right after original
+        clone.next = current.next
+        current.next = clone
+
+        # Move to next original
+        current = clone.next
+
+    # Step 2: Set Random Pointers in clones
+    current = head
+    while current:
+        clone = current.next
+
+        # Set clone's random pointer
+        if current.random:
+            clone.random = current.random.next
+        else:
+            clone.random = None
+
+        # Move to next original
+        current = clone.next
+
+    # Step 3: Split the interleaved list
+    current = head
+    clone_head = head.next  # Save head of clone list
+
+    while current:
+        clone = current.next
+
+        # Restore original's next pointer
+        current.next = clone.next
+
+        # Set clone's next pointer
+        if clone.next:
+            clone.next = clone.next.next
+        else:
+            clone.next = None
+
+        # Move to next original
+        current = current.next
+
+    return clone_head
 
 
 def word_break(s, word_dict):
     # https://leetcode.com/problems/word-break/description/
     """
-    queue = deque([0])
-    visited = {0}
-    word_set = set(word_dict)
-    n =  len(s)
+    Puzzle Piece Assembly Line Analogy:
+    Imagine you have a conveyor belt with letters (string s) and a box of puzzle pieces (word_dict).
+    Each puzzle piece is a word that can fit onto the conveyor belt if it matches the letters.
 
-    while len(queue) > 0:
-        current = queue.popleft()
-        for i in range(current + 1, n + 1):
-            if i in visited:
-                continue
-            if s[current: i] in word_set:
-                if i == n:
-                    return True
-                queue.append(i)
-                visited.add(i)
-    return False
+    GOAL: Determine if you can completely cover the conveyor belt using available pieces.
+
+    How the Assembly Line Works:
+    --------------------------
+    1. The belt has positions 0 to n (n = length of belt/string)
+    2. You start at position 0 (beginning of belt)
+    3. At each position, you try placing puzzle pieces from your box
+    4. If a piece fits, you mark where it ends and continue from there
+    5. If you reach the end of the belt (position n), SUCCESS!
+
+    The Challenge: Some positions might be dead ends!
+    So we use a MEMORY system to remember which positions worked.
+
+    Visual Example:
+    ---------------
+    Belt: "applepenapple"
+    Pieces: ["apple", "pen"]
+
+    Start at position 0:
+      Try "apple" (fits! covers positions 0-4)
+      Now at position 5:
+        Try "pen" (fits! covers positions 5-7)
+        Now at position 8:
+          Try "apple" (fits! covers positions 8-12)
+          Now at position 13 (END!) → SUCCESS!
+
+    But what if we had other options?
+    We need to backtrack and try different piece arrangements!
+
+    How Recursion with Memoization Works:
+    ------------------------------------
+    We keep a memory (cache) that remembers:
+      "From position X, can we reach the end?"
+
+    At each position:
+      1. Check memory: Have we solved this position before?
+      2. Try every possible piece starting at current position
+      3. If piece fits, recursively check if we can complete from the NEXT position
+      4. If ANY path works, return True and store in memory
+      5. If NO path works, return False and store in memory
+
+    Time Complexity: O(n^3) in worst case (n positions × n substring checks × recursion)
+    But with memoization, we avoid repeating work, making it much faster!
+
+    Alternative DP Approach (Assembly Line Version):
+    -----------------------------------------------
+    Instead of recursion, we can use a DP array where dp[i] = True
+    if the belt can be covered up to position i.
+
+    But this recursive approach is more intuitive for the analogy!
     """
-    word_set, n = set(word_dict), len(s)
+    word_set = set(word_dict)  # Convert to set for O(1) lookups
+    n = len(s)
 
-    @cache
-    def backtrack(k):
-        if k == n:
+    @cache  # Python's built-in memoization decorator
+    def backtrack(start):
+        """
+        Returns: Can we cover the belt from position 'start' to the end?
+
+        Think: "From this point on the conveyor belt, can we place
+                puzzle pieces to reach the end?"
+        """
+        # Base case: We've reached the end of the belt!
+        if start == n:
             return True
-        for i in range(k, n):
-            chosen = s[k: i + 1]
-            if chosen in word_set and backtrack(i + 1):
-                return True
+
+        # Try placing pieces starting at current position
+        for i in range(start, n):
+            # Cut a piece from 'start' to 'i' (inclusive)
+            chosen_piece = s[start:i + 1]
+
+            # Check if this piece is in our box
+            if chosen_piece in word_set:
+                # Recursively check: Can we cover the REST of the belt?
+                if backtrack(i + 1):  # Move to position after this piece
+                    return True
+
+        # No piece starting at 'start' leads to a complete covering
         return False
 
-    return backtrack(k=0)
+    return backtrack(start=0)
+
+    # Another solution
+    # queue = deque([0])
+    # visited = {0}
+    # word_set = set(word_dict)
+    # n =  len(s)
+    #
+    # while len(queue) > 0:
+    #     current = queue.popleft()
+    #     for i in range(current + 1, n + 1):
+    #         if i in visited:
+    #             continue
+    #         if s[current: i] in word_set:
+    #             if i == n:
+    #                 return True
+    #             queue.append(i)
+    #             visited.add(i)
+    # return False
