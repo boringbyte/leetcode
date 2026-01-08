@@ -1,5 +1,6 @@
+import random
 from collections import deque
-from leetcode.utils import DLLNode
+from leetcode.utils import DLLNode, TreeNode
 
 
 class LRUCache1:
@@ -259,3 +260,124 @@ class BinarySearchIterator:
 
     def has_next(self):
         return len(self.stack) > 0
+
+
+def binary_tree_right_side_view(root: TreeNode):
+    # https://leetcode.com/problems/binary-tree-right-side-view
+    result = []
+
+    if not root:
+        return result
+
+    queue = deque([root])
+
+    while queue:
+        for i in range(len(queue)):
+            current = queue.popleft()
+            if i == 0:
+                result.append(current.val)
+
+            if current.right:
+                queue.append(current.right)
+            if current.left:
+                queue.append(current.left)
+
+    return result
+
+
+def number_of_islands(grid):
+    # https://leetcode.com/problems/number-of-islands
+    m, n = len(grid), len(grid[0])
+    directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+    result = 0
+
+    def dfs(x, y):
+        if 0 <= x < m and 0 <= y < n and grid[x][y] == "1":
+            grid[x][y] = 0
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dx
+                dfs(nx, ny)
+
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == "1":
+                dfs(i, j)
+                result += 1
+
+    return result
+
+
+def course_schedule(num_courses, pre_reqs):
+    # https://leetcode.com/problems/course-schedule
+    """
+    - Course numbers start from 0 and end with num_courses - 1.
+    - You need graph and in_degree
+    """
+    graph = [[] for _ in range(num_courses)]
+    in_degree = [0] * num_courses
+    for curr, prev in pre_reqs:
+        graph[prev].append(curr)
+        in_degree[curr] += 1
+
+    queue = deque([v for v in range(num_courses) if in_degree[v] == 0])
+    taken = 0
+
+    while queue:
+        curr_course = queue.popleft()
+        taken += 1
+        for next_course in graph[curr_course]:
+            in_degree[next_course] -= 1
+            if in_degree[next_course] == 0:
+                queue.append(next_course)
+
+    return taken == num_courses
+
+
+def kth_largest_element_simplified(nums, k):
+    # https://leetcode.com/problems/kth-largest-element-in-an-array
+    """
+    Treasure Hunter's QuickSelect (Simplified):
+
+    1. Choose random guide pile (better for avoiding worst case)
+    2. Partition into smaller piles (left) and larger piles (right)
+    3. Recursively search only the relevant section
+
+    Memory Hook: "Pick, Partition, Prune"
+    """
+
+    def quick_select(arr, k_smallest):
+        """Find kth smallest element (0-based)"""
+        if len(arr) == 1:
+            return arr[0]
+
+        # Pick random guide
+        guide_idx = random.randint(0, len(arr) - 1)
+        guide = arr[guide_idx]
+
+        # Partition into three piles:
+        smaller = [x for x in arr if x < guide]
+        equal = [x for x in arr if x == guide]
+        larger = [x for x in arr if x > guide]
+
+        # Prune search space:
+        if k_smallest < len(smaller):
+            return quick_select(smaller, k_smallest)
+        elif k_smallest < len(smaller) + len(equal):
+            return guide  # Guide is the kth smallest
+        else:
+            return quick_select(larger, k_smallest - len(smaller) - len(equal))
+
+    # Convert kth largest to kth smallest
+    k = len(nums) - k
+    return quick_select(nums, k)
+
+
+def contains_duplicate_ii(nums, k):
+    # https://leetcode.com/problems/contains-duplicate-ii
+    seen = dict()
+
+    for i, num in enumerate(nums):
+        if num in seen and abs(i - seen[num]) <= k:
+            return True
+        seen[num] = i
+    return False
