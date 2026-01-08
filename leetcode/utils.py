@@ -16,3 +16,18 @@ class RandomNode:
         self.val = int(x)
         self.next = next
         self.random = random
+
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
+class DLLNode:
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
