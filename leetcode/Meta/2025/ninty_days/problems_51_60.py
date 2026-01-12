@@ -138,29 +138,30 @@ def alien_dictionary(words):
         return ""
 
     # Step 1: Collect all unique letters
-    all_letters = set()
+    all_unique_letters = set()
     for word in words:
-        all_letters.update(word)
+        all_unique_letters.update(word)
 
     # Step 2: Build graph from adjacent word comparisons
     graph = defaultdict(set)            # letter -> set of letters that come after it
     in_degree = Counter()               # letter -> how many letters come before it
 
     # Initialize in_degree for all letters
-    for letter in all_letters:
+    for letter in all_unique_letters:
         in_degree[letter] = 0
 
     # Compare adjacent words to find ordering clues
     for word1, word2 in zip(words, words[1:]):
         for char1, char2 in zip(word1, word2):
             if char1 != char2:
-                if char2 not in graph[char1]:
+                if char2 not in graph[char1]:  # graph[char1] returns a set
                     graph[char1].add(char2)
                     in_degree[char2] += 1
                 break
         else:   # Check that second word isn't a prefix of first word.
             if len(word1) > len(word2):
                 return ""
+
     # Step 3: Kahn's Algorithm for topological sort
     queue = deque()
 
@@ -182,7 +183,7 @@ def alien_dictionary(words):
                 queue.append(neighbor)
 
     # Step 4: Check for cycle (if result doesn't contain all letters)
-    if len(result) != len(all_letters):
+    if len(result) != len(all_unique_letters):
         return ""  # Cycle detected or insufficient clues
 
     return "".join(result)
@@ -217,20 +218,21 @@ def closest_binary_search_tree_value(root, target):
 
 
 def expression_add_operators(num, target):
-    # https://leetcode.com/problems/expression-add-operators
+    # https://leetcode.com/problems/expression-add-operators/description/
     result, n = [], len(num)
 
     def backtrack(sofar, total, prev, k):
-        if k > n:
-            return
-        if k == n and total == target:
-            result.append(sofar)
+        if k == n:
+            if total == target:  # If we're exactly at the end and our total equals the target, we found a valid expression and add it to result.
+                result.append(sofar)
             return
         for i in range(k, n):
+            # Skip numbers with leading zeros (except the number 0 itself)
+            # Example: "105" -> can form "1+05" is invalid, "10+5" is valid
             if i > k and num[k] == '0':
                 break
             chosen = int(num[k: i + 1])
-            if k == 0:
+            if k == 0:  # Special case: first number has no operator before it
                 backtrack(sofar + str(chosen), total + chosen, chosen, i + 1)
             else:
                 backtrack(sofar + '+' + str(chosen), total + chosen, chosen, i + 1)
@@ -257,6 +259,7 @@ def move_zeros(nums):
 
 def binary_tree_vertical_order_traversal_1(root):
     # https://algo.monster/liteproblems/314
+    # https://leetcode.com/problems/binary-tree-vertical-order-traversal
     # In BFS, we automatically follow order with respect to the level. So there is no need to track it using another variable.
     if root is None:
         return
