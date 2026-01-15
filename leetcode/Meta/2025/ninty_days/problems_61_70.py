@@ -186,40 +186,33 @@ def minimum_remove_to_make_valid_parentheses(s):
     return "".join(s)
 
 
-class RandomPickWeight:
-    # https://leetcode.com/problems/random-pick-with-weight
-    def __init__(self, w):
-        self.w = w
-        self.total = sum(self.w)
-        self.n = len(self.w)
+class RandomPickIndex1:
+    # https://leetcode.com/problems/random-pick-index/discuss/88153/Python-reservoir-sampling-solution.
+    # This is reservoir sampling problem
+    # Space-efficient but slower if pick() is called many times (must scan array each time).
+    def __init__(self, nums):
+        self.nums = nums
 
-        # 1. Normalize the weights. Now self.w contains probabilities that sum up to 1.
-        # Example: w = [1, 3, 2] → self.w = [1/6, 3/6, 2/6] = [0.166, 0.5, 0.333].
-        for i in range(self.n):
-            self.w[i] = self.w[i] / self.total
+    def pick(self, target):
+        result, count = None, 0
+        for i, num in enumerate(self.nums):
+            if num == target:
+                count += 1
+                # pick current index with probability 1/count
+                if random.randint(1, count) == 1:
+                    result = i
+        return result
 
-        # 2. Convert to Cumulative Distribution Function (CDF) → self.w = [0.166, 0.666, 1.0].
-        # This means:
-        #   Index 0 covers [0, 0.166]
-        #   Index 1 covers (0.166, 0.666]
-        #   Index 2 covers (0.666, 1.0]
-        for i in range(1, self.n):
-            self.w[i] += self.w[i - 1]
 
-    def pick_index(self):
-        # k = random.random()
-        # return bisect.bisect_left(self.w, k)
-        # or
-        # 3. Pick a random number from uniform distribution between 0, 1
-        k = random.uniform(0, 1)  # returns a floating point number
-        left, right = 0, self.n
-        while left < right:
-            mid = left + (right - left) // 2
-            if k > self.w[mid]:
-                left = mid + 1
-            else:
-                right = mid
-        return left
+class RandomPickIndex2:
+    # Very efficient if pick() is called many times but requires extra memory.
+    def __init__(self, nums):
+        self.indices = defaultdict(list)
+        for i, num in enumerate(nums):
+            self.indices[num].append(i)
+
+    def pick(self, target: int) -> int:
+        return random.choice(self.indices[target])
 
 
 def valid_word_abbreviation(word, abbr):
