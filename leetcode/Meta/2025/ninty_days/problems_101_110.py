@@ -116,3 +116,90 @@ def shortest_bridge(grid):
                 visited.add((nx, ny))
                 queue.append((nx, ny, distance + 1))
     return 0
+
+
+def missing_ranges(nums, lower, upper):
+    # https://leetcode.com/problems/missing-ranges
+    # https://medium.com/@sanu.here1993/leet-code-163-missing-ranges-f799bdd2ba53
+    # https://algo.monster/liteproblems/163
+    nums = [lower - 1] + nums + [upper + 1]
+    result = []
+
+    for i in range(len(nums) - 1):
+        gap = nums[i + 1] - nums[i]
+        if gap == 2:
+            result.append([nums[i] + 1, nums[i] + 1])
+        elif gap > 2:
+            result.append([nums[i] + 1, nums[i + 1] - 1])
+
+    return result
+
+
+def group_shifted_string(strings):
+    # https://leetcode.com/problems/group-shifted-strings/description/
+    # https://baihuqian.github.io/2018-07-26-group-shifted-strings/
+    # https://techyield.blogspot.com/2020/10/group-shifted-strings-python-solution.html
+    def get_shift_key(word):
+        key = []
+        for i in range(len(word) - 1):
+            diff = (26 + ord(word[i + 1]) - ord(word[i])) % 26
+            key.append(diff)
+        return tuple(key)
+
+    if len(strings) == 0:
+        return []
+
+    groups = defaultdict(list)
+
+    for word in strings:
+        key = get_shift_key(word)
+        groups[key].append(word)
+
+    return list(groups.values())
+
+
+def remove_all_adjacent_duplicates_in_string(s):
+    # https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string
+    stack = []
+
+    for char in s:
+        if not stack:
+            stack.append(char)
+        else:
+            if stack[-1] == char:
+                stack.pop()
+            else:
+                stack.append(char)
+    return "".join(stack)
+
+
+def longest_increasing_path_in_a_matrix(matrix):
+    # https://leetcode.com/problems/longest-increasing-path-in-a-matrix
+    pass
+
+
+def spiral_matrix(matrix):
+    # https://leetcode.com/problems/spiral-matrix
+    result = []
+
+    if not matrix:
+        return result
+
+    while matrix:
+        top_layer = matrix.pop(0)           # Pop the top layer
+        result.extend(top_layer)
+
+        if matrix and matrix[0]:            # If matrix is still there and there is at least 1 row
+            for row in matrix:
+                result.append(row.pop())    # Pop the last element from each row
+
+        if matrix:
+            bottom_layer = matrix.pop()     # Pop the last layer
+            bottom_layer = bottom_layer[::-1]
+            result.extend(bottom_layer)
+
+        if matrix and matrix[0]:
+            for row in matrix[::-1]:
+                result.append(row.pop(0))   # Pop the first element from each row
+
+    return result
