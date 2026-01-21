@@ -1,3 +1,4 @@
+import math
 from collections import defaultdict, deque
 
 from leetcode.utils import ListNode
@@ -39,9 +40,22 @@ def diagonal_traversal_ii(nums):
     return result
 
 
-def koko_eating_bananas(piles: h):
+def koko_eating_bananas(piles, h):
     # https://leetcode.com/problems/koko-eating-bananas
-    pass
+    k = 1
+    left, right = 1, max(piles)
+
+    while left <= right:
+        mid = left + (right - left) // 2
+        total_hours = sum(math.ceil(pile / mid) for pile in piles)
+
+        if total_hours > h:
+            left = mid + 1
+        else:
+            right = mid - 1
+            k = mid
+
+    return k
 
 
 def all_nodes_distance_k_in_binary_tree(root, target, k):
