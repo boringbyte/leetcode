@@ -1,7 +1,8 @@
+import heapq
 from collections import deque
 from unittest import result
 
-from leetcode.utils import ListNode
+from leetcode.utils import ListNode, TreeNode
 
 
 def odd_even_linked_list(head):
@@ -126,3 +127,97 @@ def reverse_word_in_a_string(s):
 
     s = s[:k]
     return "".join(s)
+
+
+def find_kth_smallest_element_in_a_sorted_matrix(matrix, k):
+    # https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix
+    # https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/solutions/1322101/cjavapython-maxheap-minheap-binary-searc-3hgs/
+    m, n = len(matrix), len(matrix[0])
+    max_heap = []
+
+    for row in range(m):
+        for col in range(n):
+            heapq.heappush(max_heap, -matrix[row][col])
+            if len(max_heap) > k:
+                heapq.heappop(max_heap)
+
+    return -heapq.heappop(max_heap)
+
+
+class MedianFinder:
+    # https://leetcode.com/problems/find-median-from-data-stream
+
+    def __init__(self):
+        pass
+
+    def add_num(self, num):
+        pass
+
+    def find_median(self):
+        pass
+
+
+def construct_binary_tree_from_string(s):
+    # https://leetcode.com/problems/construct-binary-tree-from-string
+    # https://algo.monster/liteproblems/536
+    # https://github.com/doocs/leetcode/blob/main/solution/0500-0599/0536.Construct%20Binary%20Tree%20from%20String/README_EN.md
+    def dfs(s):
+        if not s:
+            return None
+
+        first_open_parenthesis_index = s.find("(")
+        if first_open_parenthesis_index == -1:
+            return TreeNode(int(s))                                     # No parenthesis found, so it is a leaf node
+
+        node_value = int(s[:first_open_parenthesis_index])              # Everything before the parentheses
+        node = TreeNode(node_value)
+
+        start_index = first_open_parenthesis_index
+        parentheses_count = 0
+
+        for current_index in range(first_open_parenthesis_index, len(s)):
+            current_char = s[current_index]
+
+            if current_char == "(":
+                parentheses_count += 1
+            elif current_char == ")":
+                parentheses_count -= 1
+
+            if parentheses_count == 0:
+                if start_index == first_open_parenthesis_index:
+                    node.left = TreeNode(int(s[start_index + 1 : current_index]))
+                    start_index = current_index + 1
+                else:
+                    node.right = TreeNode(int(s[start_index + 1 : current_index]))
+
+        return node
+
+    return dfs(s)
+
+
+
+def merge_two_sorted_lists(list1, list2):
+    # https://leetcode.com/problems/merge-two-sorted-lists
+    if list1 and list2:
+        head = current = ListNode()
+
+        while list1 and list2:
+            if list1.val < list2.val:
+                current.next = list1
+                list1 = list1.next
+            else:
+                current.next = list2
+                list2 = list2.next
+            current = current.next
+
+            if list1 or list2:
+                current.next = list1 or list2
+
+        return head.next
+    else:
+        return list1 or list2
+
+
+def basic_calculator(s):
+    # https://leetcode.com/problems/basic-calculator
+    pass
