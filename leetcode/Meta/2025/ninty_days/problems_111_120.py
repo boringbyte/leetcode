@@ -208,9 +208,10 @@ def merge_two_sorted_lists(list1, list2):
             else:
                 current.next = list2
                 list2 = list2.next
+
             current = current.next
 
-            if list1 or list2:
+            if list1 or list2:                          # This check is not mandatory
                 current.next = list1 or list2
 
         return head.next

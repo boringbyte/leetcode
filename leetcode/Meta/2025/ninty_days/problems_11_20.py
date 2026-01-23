@@ -24,6 +24,7 @@ def valid_parentheses(s):
 def merge_two_sorted_lists(list1, list2):
     if list1 and list2:
         current = head = ListNode()
+
         while list1 and list2:
             if list1.val < list2.val:
                 current.next = ListNode(list1.val)
@@ -31,9 +32,12 @@ def merge_two_sorted_lists(list1, list2):
             else:
                 current.next = ListNode(list2.val)
                 list2 = list2.next
+
             current = current.next
 
-        current.next = list1 or list2
+        if list1 or list2:                      # This check is not mandatory
+            current.next = list1 or list2
+
         return head.next
     else:
         return list1 or list2
@@ -49,7 +53,7 @@ def merge_k_sorted_lists(lists):
         right = merge_k_sorted_lists(lists[mid:])
         return merge_two_sorted_lists(left, right)
     else:
-        return None   # Is it really None. For [] output should be [].
+        return None   # None as these are not actual lists but ListNodes. None might be indication of empty ListNode
 
 
 def remove_duplicates_from_sorted_array(nums):
@@ -165,6 +169,7 @@ def search_in_rotated_sorted_array(nums, target):
 def find_first_and_last_position_of_element_in_sorted_array(nums, target):
     # https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/description/
     result = [-1, -1]
+
     if not nums:
         return result
 
@@ -222,7 +227,7 @@ def trapping_rain_water(height):
 
 def multiply_strings(num1, num2):
     # https://leetcode.com/problems/multiply-strings
-    if num1 == "0" or num2 == "0":
+    if num1 == "0" or num2 == "0":                      # Base condition: If one of the numbers is "0" then return 0
         return 0
 
     m, n = len(num1), len(num2)
@@ -236,10 +241,10 @@ def multiply_strings(num1, num2):
 
             carry, digit = divmod(result[i + j], 10)    # Handle carrying over (like carrying the 1 from 12)
             result[i + j] = digit                       # Store the ones digit in current position
-            result[i + j + 1] += carry                  # Carry over to next column
+            result[i + j + 1] += carry                  # Carry over to next column as we are doing in the reverse order
 
     # Remove leading zeros (extra blank spaces we didn't use)
-    while result[-1] == 0:
+    while result[-1] == 0:                              # Check from the end of the list as our result is in reverse order
         result.pop()
 
     return "".join(map(str, result[::-1]))

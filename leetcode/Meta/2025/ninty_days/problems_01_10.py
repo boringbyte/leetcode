@@ -46,6 +46,10 @@ def two_sum(nums, target):
 
 def add_two_numbers(l1, l2):
     # https://leetcode.com/problems/add-two-numbers
+    """
+    As we are adding two numbers and there is a "carry" variable it is easier to go with "while l1 or l2 or carry"
+    instead of "while l1 and l2" similar to merging two lists problems.
+    """
     if l1 and l2:
         carry = 0
         head = current = ListNode()
@@ -94,6 +98,7 @@ def longest_substring_without_repeating_characters(s):
             left = last_seen_dict[char] + 1
         last_seen_dict[char] = right
         result = max(result, right - left + 1)
+
     return result
 
 
