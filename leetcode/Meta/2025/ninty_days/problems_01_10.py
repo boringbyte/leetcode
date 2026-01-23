@@ -3,15 +3,19 @@ from leetcode.utils import ListNode
 
 def two_sum_brute_force(nums, target):
     # https://leetcode.com/problems/two-sum
+    """This has O(n**2) complexity"""
     n = len(nums)
+
     for i in range(n):
         for j in range(i + 1, n):
             if nums[i] + nums[j] == target:
                 return [i, j]
+    return None
 
 
-def two_sum_no_extra_memory(nums, target):
+def two_sum_two_pointer(nums, target):
     # https://leetcode.com/problems/two-sum
+    """This has O(n log n) complexity"""
     nums = sorted(nums)
     left, right = 0, len(nums) - 1
 
@@ -23,16 +27,21 @@ def two_sum_no_extra_memory(nums, target):
             left += 1
         else:
             right -= 1
+    return None
 
 
 def two_sum(nums, target):
     # https://leetcode.com/problems/two-sum
+    """This has O(n) complexity"""
     diff_dict = {num: i for i, num in enumerate(nums)}
+
     for i, num in enumerate(nums):
         diff = target - num
         j = diff_dict[diff]
         if diff in diff_dict and i != j:
             return [i, j]
+
+    return None
 
 
 def add_two_numbers(l1, l2):
@@ -59,15 +68,15 @@ def longest_substring_without_repeating_characters(s):
     # https://leetcode.com/problems/longest-substring-without-repeating-characters
     """
     Imagine cycling along a path (the string) with a stretchable rope between two bikes:
-        - The front bike ('right') moves forward, exploring new territory.
-        - The rear bike ('left') follows, keeping the rope taut without repeats.
+        - The front bike ("right") moves forward, exploring new territory.
+        - The rear bike ("left") follows, keeping the rope taut without repeats.
         - You carry a map (dictionary) that marks where you last saw each character.
 
     How the ride works:
-        1. The front bike ('right') cycles forward, encountering each character.
+        1. The front bike ("right") cycles forward, encountering each character.
         2. If you encounter a character you've seen before (it's on your map):
            - Check if it's within your current rope span (window).
-           - If yes, the rear bike ('left') must jump to just past that character's last position.
+           - If yes, the rear bike ("left") must jump to just past that character's last position.
         3. Update your map with the current position of the character.
         4. Measure the current rope length (right - left + 1) and remember the longest stretch.
 
@@ -94,22 +103,23 @@ def median_of_two_sorted_arrays_1(nums1, nums2):
     This is a two pointer solution which is less efficient
     Imagine two marching bands (arrays) walking towards each other in perfect height order (sorted).
     Two marching bands: nums1 and nums2, each already in height order
-    Your clipboard: Tracks only the last two people you've seen (prev and curr)
+    Your clipboard: Tracks only the last two people you"ve seen (prev and curr)
     Goal: Find the middle height(s) of the combined 10,000-person parade without lining them all up
     """
     n, m = len(nums1), len(nums2)
     total_len = n + m
-    i, j = 0, 0                 # Two pointers - one for each band
-    prev, curr = 0, 0           # Your clipboard - last two heights recorded
+    i, j = 0, 0                     # Two pointers - one for each band
+    prev, curr = 0, 0               # Your clipboard - last two heights recorded
 
     # Only walk halfway through the combined parade + 1
     for _ in range(total_len // 2 + 1):
-        prev = curr             # Move "current" to "previous" slot
+        prev = curr                 # Move "current" to "previous" slot
 
         # Choose the shorter person at the front of either band
+        # Second pointer crosses second array size or if the first number is smaller than the second number
         if i < n and (j >= m or nums1[i] <= nums2[j]):
-            curr = nums1[i]     # Record this height
-            i += 1              # That person joins the parade
+            curr = nums1[i]         # Record this height
+            i += 1                  # That person joins the parade
         else:
             curr = nums2[j]
             j += 1
@@ -134,11 +144,11 @@ def median_of_two_sorted_arrays_2(nums1, nums2):
         j = (m + n + 1) // 2 - i
 
         # Edge values (treat out-of-bounds as +- infinity)
-        left1  = nums1[i - 1] if i > 0 else float('-inf')
-        right1 = nums1[i]     if i < m else float('inf')
+        left1  = nums1[i - 1] if i > 0 else float("-inf")
+        right1 = nums1[i]     if i < m else float("inf")
 
-        left2  = nums2[j - 1] if j > 0 else float('-inf')
-        right2 = nums2[j]     if j < n else float('inf')
+        left2  = nums2[j - 1] if j > 0 else float("-inf")
+        right2 = nums2[j]     if j < n else float("inf")
 
         # Found correct partition
         if left1 <= right2 and left2 <= right1:
@@ -155,13 +165,14 @@ def median_of_two_sorted_arrays_2(nums1, nums2):
         # Need to move partition right
         else:
             low = i + 1
+    return None
 
 
 def longest_palindromic_substring(s):
     # https://leetcode.com/problems/longest-palindromic-substring
     n = len(s)
-    result = s[0]   # 's' at least contains 1 character
-    max_length = 1  # As 's' at least contains 1 character, maximum length is 1
+    result = s[0]   # "s" at least contains 1 character
+    max_length = 1  # As "s" at least contains 1 character, maximum length is 1
 
     def expand_around(left, right):
         nonlocal result, max_length
@@ -182,18 +193,27 @@ def longest_palindromic_substring(s):
 
 def string_to_integer(s):
     # https://leetcode.com/problems/string-to-integer-atoi
+    """
+    There are three possible characters to consider in the string s:
+        1. Space. 2. Sign 3. Digit
+    Consider num_started variable as proxy for Digit checking. There are 3 conditions to check:
+        1. Space and not num_started (digit)
+        2. Sign and not num_started (digit)
+        3. Digit
+        4. Everything else: break
+    """
     INT_MIN, INT_MAX = -2 ** 31, 2 ** 31 - 1
-    num, sign, started = 0, 1, False
+    num, sign, num_started = 0, 1, False
 
     for char in s:
-        if char == " " and not started:
+        if char == " " and not num_started:
             continue
-        elif char in "+-" and not started:
-            started = True
+        elif char in "+-" and not num_started:
+            num_started = True
             if char == "-":
                 sign = -1
         elif char.isdigit():
-            started = True
+            num_started = True
             digit = int(char)
             if num > INT_MAX // 10 or (num == INT_MAX // 10 and digit > INT_MAX % 10):
                 if sign == 1:
@@ -214,7 +234,8 @@ def palindrome_number(x):
 
     reverse = 0
     original = x
-    while x > 0:
+
+    while x > 0:                # Can be "while x" as well
         last_digit = x % 10     # Access the last digit
         reverse = reverse * 10 + last_digit
         x = x // 10             # Delete the last digit from x
@@ -225,7 +246,7 @@ def palindrome_number(x):
 def longest_common_prefix(strs):
     # https://leetcode.com/problems/longest-common-prefix
     if not strs:  # This condition might not be necessary as there is at least 1 string in strs list
-        return ''
+        return ""
     shortest = min(strs, key=len)
     for i, char in enumerate(shortest):
         for word in strs:
@@ -285,7 +306,7 @@ def three_sum(nums):
 
 def letter_combinations_of_a_phone_number(digits):
     # https://leetcode.com/problems/letter-combinations-of-a-phone-number
-    mapping = {'2': 'abc', '3': 'def', '4': 'ghi', '5': 'jkl', '6': 'mno', '7': 'pqrs', '8': 'tuv', '9': 'wxyz'}
+    mapping = {"2": "abc", "3": "def", "4": "ghi", "5": "jkl", "6": "mno", "7": "pqrs", "8": "tuv", "9": "wxyz"}
     result, n = [], len(digits)
 
     def backtrack(sofar, start):
@@ -297,8 +318,8 @@ def letter_combinations_of_a_phone_number(digits):
                 letters = mapping[digits[i]]
                 for chosen in letters:
                     # `sofar + chosen` creates a NEW string. This means the recursive call gets its own copy.
-                    # When recursion unwinds, we don't need to "undo" the append (unlike with lists where we'd need `.pop()`).
+                    # When recursion unwinds, we don't need to "undo" the "append" (unlike with lists where we'd need `.pop()`).
                     backtrack(sofar + chosen, i + 1)
 
-    backtrack(sofar='', start=0)
+    backtrack(sofar="", start=0)
     return result if digits else []
