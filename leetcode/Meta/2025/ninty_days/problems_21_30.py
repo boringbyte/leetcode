@@ -28,12 +28,21 @@ def power_x_n(x, n):
             return a * a * x
 
 
-def maximum_subarray(nums):
+def maximum_subarray_sum(nums):
     # https://leetcode.com/problems/maximum-subarray
     """
-    This is a classic Kadane Algorithm.
-    As I walk through the array, I'm keep a running sum.
-    If my sum ever goes negative, it is harmful to keep it, so I drop it and start fresh from the current number.
+    Classic Kadane's Algorithm.
+
+    Think of walking through the array with a bag of numbers.
+    At each step, you decide:
+        - Do I keep what’s in my bag and add this number?
+        - Or is the bag hurting me, so I drop it and start a new bag with this number?
+
+    The running_sum represents the best subarray sum ending at the current position.
+    The result tracks the best subarray sum seen anywhere so far.
+
+    If adding the current number makes things worse than starting fresh,
+    we reset the running_sum to the current number.
     """
     result = running_sum = nums[0]
     for num in nums[1:]:
@@ -106,9 +115,7 @@ def vertical_order_traversal_of_a_binary_tree(root):
         3. If rows are equal, sort by node value.
     """
     column_dict = defaultdict(list)
-    row = col = 0
-    queue = deque([(root, row, col)])
-    result = []
+    queue = deque([(root, 0, 0)])               # (node, row, col)
 
     while queue:
         current, row, col = queue.popleft()
@@ -118,10 +125,12 @@ def vertical_order_traversal_of_a_binary_tree(root):
         if current.right:
             queue.append((current.right, row + 1, col + 1))
 
-    for col_key in sorted(column_dict.keys()):
+    result = []
+
+    for col_key in sorted(column_dict.keys()):                              # Sort per column first
         row_val_pairs = column_dict[col_key]
-        row_val_pairs = sorted(row_val_pairs, key=lambda x: (x[0], x[1]))
-        values = [val for row, val in row_val_pairs]
+        row_val_pairs = sorted(row_val_pairs, key=lambda x: (x[0], x[1]))   # Sort per row second and then value third
+        values = [val for row, val in row_val_pairs]                        # Create list for only values
         result.append(values)
 
     return result
@@ -187,6 +196,7 @@ def climbing_stairs(n):
 
 
 def simplify_path(path):
+    # https://leetcode.com/problems/simplify-path
     stack = []
     components = path.split('/')
     for component in components:
@@ -235,16 +245,68 @@ def sort_colors(nums):
 
 def subsets(nums):
     # https://leetcode.com/problems/subsets
+    """
+    start=0
+    []
+    ├── take 1 → [1]
+    │   ├── take 2 → [1,2]
+    │   │   └── take 3 → [1,2,3]
+    │   └── take 3 → [1,3]
+    ├── take 2 → [2]
+    │   └── take 3 → [2,3]
+    └── take 3 → [3]
+    """
     result, n = [], len(nums)
 
     def backtrack(sofar, start):
         result.append(sofar[:])
 
+        # We only move forward using start and each index is visited at most once per path and order doesn't matter
         for i in range(start, n):
             chosen = nums[i]
             # As sofar is a list, a new copy is sent to recursive function,
-            # and we don't have to explicitly remove chosen from the sofar list as we not append to sofar list.
+            # and we don't have to explicitly remove chosen from the sofar list as we are not appending to sofar list.
             backtrack(sofar + [chosen], i + 1)
 
     backtrack(sofar=[], start=0)
+    return result
+
+
+def permutations(nums):
+    # https://leetcode.com/problems/permutations
+    """
+    level 0
+    []
+    ├── 1 → [1]
+    │   ├── 2 → [1,2]
+    │   │   └── 3 → [1,2,3]
+    │   └── 3 → [1,3]
+    │       └── 2 → [1,3,2]
+    ├── 2 → [2]
+    │   ├── 1 → [2,1]
+    │   │   └── 3 → [2,1,3]
+    │   └── 3 → [2,3]
+    │       └── 1 → [2,3,1]
+    └── 3 → [3]
+        ├── 1 → [3,1]
+        │   └── 2 → [3,1,2]
+        └── 2 → [3,2]
+            └── 1 → [3,2,1]
+    """
+    result, n = [], len(nums)
+    visited = [0] * n
+
+    def backtrack(sofar):
+        if len(sofar) == n:
+            result.append(sofar[:])
+        else:
+            # There is no start pointer, and we are allowed to pick from the entire array at each level
+            # Without visited, we'd reuse the same element multiple times
+            for i in range(n):
+                if visited[i] == 0:
+                    chosen, visited[i] = nums[i], 1
+                    backtrack(sofar + [chosen])
+                    visited[i] = 0
+
+    backtrack(sofar=[])
     return result
