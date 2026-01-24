@@ -39,16 +39,16 @@ def maximum_subarray_sum(nums):
         - Or is the bag hurting me, so I drop it and start a new bag with this number?
 
     The running_sum represents the best subarray sum ending at the current position.
-    The result tracks the best subarray sum seen anywhere so far.
+    The maximum_sum tracks the best subarray sum seen anywhere so far.
 
     If adding the current number makes things worse than starting fresh,
     we reset the running_sum to the current number.
     """
-    result = running_sum = nums[0]
+    maximum_sum = running_sum = nums[0]
     for num in nums[1:]:
         running_sum = max(num, running_sum + num)  # Either start fresh or extend the previous subarray.
-        result = max(result, running_sum)
-    return result
+        maximum_sum = max(maximum_sum, running_sum)
+    return maximum_sum
 
 
 def merge_intervals(intervals):

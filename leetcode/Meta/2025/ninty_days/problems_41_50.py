@@ -1,12 +1,10 @@
 import random
-from collections import deque
+from collections import deque, defaultdict
 from leetcode.utils import DLLNode, TreeNode
 
 
 class LRUCache1:
-    """
-    This solution is by using dictionary and in python 3.6 and above dict is ordered by default.
-    """
+    """This solution is by using dictionary and in python 3.6 and above, dict is ordered by default."""
     def __init__(self, capacity):
         self.capacity = capacity
         self.cache = {}
@@ -111,7 +109,7 @@ def shortest_path_in_binary_matrix(grid):
 
     directions = [(-1, 0), (-1, 1), (1, 1), (0, 1), (1, -1), (-1, 0), (-1, -1)]
     queue = deque([(0, 0, 1)])  # (row, col, distance)
-    visited = set([(0, 0)])
+    visited = {(0, 0)}          # This is a set with (row, col) tuple
 
     while queue:
         x, y, distance = queue.popleft()
@@ -234,8 +232,8 @@ def find_peak_element(nums):
 class BinarySearchIterator:
     # https://leetcode.com/problems/binary-search-tree-iterator/
     """
-    You need to put left and right side plates in a cylinder stack with opening at the top
-    Think like you are blind person with left arm cut off and you have stacks of plates on left and right side
+    You need to put left and right side plates in a cylinder stack with an opening at the top.
+    Think like a blind person with left arm cut off, and you have stacks of plates on left and right side.
     - First you need to put plates from left side in the cylinder using your mechanical arm (which is _push_left method)
     - When ever someone asks plate from the cylinder stack,
         - You take the plate first
@@ -264,6 +262,10 @@ class BinarySearchIterator:
 
 def binary_tree_right_side_view(root: TreeNode):
     # https://leetcode.com/problems/binary-tree-right-side-view
+    # Always remember for binary trees.
+    # If there is a level wise operation, use 2 loops:
+    #   - 1st loop is with "while"
+    #   - 2nd loop is with "for"
     result = []
 
     if not root:
@@ -289,14 +291,15 @@ def number_of_islands(grid):
     # https://leetcode.com/problems/number-of-islands
     m, n = len(grid), len(grid[0])
     directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
-    result = 0
 
     def dfs(x, y):
-        if 0 <= x < m and 0 <= y < n and grid[x][y] == "1":
-            grid[x][y] = 0
+        if 0 <= x < m and 0 <= y < n and grid[x][y] == "1": # Find a valid piece of land "1"
+            grid[x][y] = 0                                  # Set it to water "0" so that we don't recount it again
             for dx, dy in directions:
                 nx, ny = x + dx, y + dx
                 dfs(nx, ny)
+
+    result = 0
 
     for i in range(m):
         for j in range(n):
@@ -307,19 +310,32 @@ def number_of_islands(grid):
     return result
 
 
-def course_schedule(num_courses, pre_reqs):
+def course_schedule(num_courses, pre_requisites):
     # https://leetcode.com/problems/course-schedule
     """
-    - Course numbers start from 0 and end with num_courses - 1.
-    - You need graph and in_degree
+    Solves the Course Schedule problem using topological sorting (Kahn's Algorithm).
+
+    - Each course is a node labeled from 0 to num_courses - 1.
+    - A prerequisite pair (curr, prev) means:
+        prev → curr (you must take `prev` before `curr`).
+
+    We build:
+    - A graph (adjacency list) mapping each course to the courses that depend on it.
+    - An in_degree array where in_degree[i] is the number of prerequisites for course i.
+
+    Strategy:
+    - Start with all courses that have in_degree 0 (no prerequisites).
+    - Repeatedly take such courses, and reduce the in_degree of their neighbors.
+    - If all courses can be taken, the schedule is possible.
     """
-    graph = [[] for _ in range(num_courses)]
+    graph = defaultdict(list)
     in_degree = [0] * num_courses
-    for curr, prev in pre_reqs:
+
+    for curr, prev in pre_requisites:
         graph[prev].append(curr)
         in_degree[curr] += 1
 
-    queue = deque([v for v in range(num_courses) if in_degree[v] == 0])
+    queue = deque([course_id for course_id in range(num_courses) if in_degree[course_id] == 0])
     taken = 0
 
     while queue:
@@ -374,10 +390,11 @@ def kth_largest_element_simplified(nums, k):
 
 def contains_duplicate_ii(nums, k):
     # https://leetcode.com/problems/contains-duplicate-ii
-    seen = dict()
+    seen = dict()  # {num: i}
 
     for i, num in enumerate(nums):
         if num in seen and abs(i - seen[num]) <= k:
             return True
         seen[num] = i
+
     return False

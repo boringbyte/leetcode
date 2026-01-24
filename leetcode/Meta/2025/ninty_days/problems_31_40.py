@@ -26,78 +26,18 @@ def pascals_triangle(num_rows):
         right = row + [0]
         row = [x + y for x, y in zip(left, right)]
         result.append(row)
+
     return result
 
 
 def best_time_to_buy_and_sell_stock(prices):
     # https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/
-    """
-    Mountain Trekking Analogy:
-    Imagine stock prices as daily mountain altitudes. Each day you're at a new altitude.
-    GOAL: Find the best single climb - buy in a valley (low), sell at a later peak (high).
-    The Secret: Track your CLIMBING STREAKS, not just valleys and peaks!
-
-    How the Hiker Thinks:
-    --------------------
-    Instead of memorizing every altitude, the hiker tracks:
-    1. Current climbing streak: How much altitude I've gained in my current climb
-    2. Best climb ever: The most altitude I've gained in any single climb
-
-    At Each Day's Climb (price difference):
-    ---------------------------------------
-    The hiker checks: "How does today's climb affect my current streak?"
-
-    Today's climb = Today's altitude - Yesterday's altitude
-    - Uphill (positive): Good for my streak!
-    - Downhill (negative): Bad for my streak...
-
-    Decision Rule:
-    "If today's climb would make my current streak negative, I'm better off starting a fresh climb from here."
-
-    Then: "Is this my best climb ever?"
-
-    Hiker's Logbook (Example Trek):
-    -------------------------------
-    Altitudes (stock prices): [7, 1, 5, 3, 6, 4]
-
-    Day 1: Altitude 7 → No climb yet (no previous day)
-    Day 2: Altitude 1 → Climb = 1-7 = -6 (downhill!)
-              Streak: max(0, 0 - 6) = 0 → Abandon climb, stay at base camp
-              Best climb ever: 0
-
-    Day 3: Altitude 5 → Climb = 5-1 = +4 (uphill!)
-              Streak: max(0, 0 + 4) = 4 → Start new climb, gained 4 units
-              Best climb ever: max(0, 4) = 4
-
-    Day 4: Altitude 3 → Climb = 3-5 = -2 (downhill)
-              Streak: max(0, 4 - 2) = 2 → Continue climb (now 2 units total)
-              Best climb ever: max(4, 2) = 4
-
-    Day 5: Altitude 6 → Climb = 6-3 = +3 (uphill!)
-              Streak: max(0, 2 + 3) = 5 → Continue climb (now 5 units total)
-              Best climb ever: max(4, 5) = 5
-
-    Day 6: Altitude 4 → Climb = 4-6 = -2 (downhill)
-              Streak: max(0, 5 - 2) = 3 → Continue climb (now 3 units total)
-              Best climb ever: max(5, 3) = 5
-
-    Best climb found: 5 units altitude gain
-    Translation: Buy at altitude 1, sell at altitude 6 = profit of 5
-
-    Why This Works for Stocks:
-    --------------------------
-    Every profitable buy-sell pair = a continuous uphill climb
-    The maximum profit = the longest continuous uphill climb in the mountain
-    By tracking climbing streaks, we find the best time to buy (start of climb) and sell (end of climb) automatically!
-
-    Time: O(n) - one trek through the mountain
-    Space: O(1) - only a logbook (2 variables)
-    """
-    max_profit = current_profit = 0
+    """This is also similar to Kadane's algorithm and maximum subarray sum problem"""
+    max_profit = running_profit = 0
     price_diffs = [b - a for a, b in zip(prices, prices[1:])]
     for price_diff in price_diffs:
-        current_profit = max(0, current_profit + price_diff)  # Either start fresh or extend the previous subarray.
-        max_profit = max(max_profit, current_profit)
+        running_profit = max(0, running_profit + price_diff)  # Either start fresh or extend the previous subarray.
+        max_profit = max(max_profit, running_profit)
     return max_profit
 
 
@@ -157,18 +97,19 @@ def binary_tree_maximum_path_sum(root):
               /  \
              15   7
     """
-    result = [float('-inf')]
+    result = float('-inf')
 
     def dfs(node):
+        nonlocal result
         if not node:
             return 0
 
         left, right = max(dfs(node.left), 0),  max(dfs(node.right), 0)
-        result[0] = max(result[0], left + right + node.val)
+        result = max(result, left + right + node.val)
         return max(left + node.val, right + node.val)
 
     dfs(root)
-    return result[0]
+    return result
 
 
 def valid_palindrome(s):
@@ -191,12 +132,28 @@ def valid_palindrome(s):
 
 def word_ladder(begin_word, end_word, word_list):
     # https://leetcode.com/problems/word-ladder
-    # All these conditions might not be necessary due to provided constraints in the problem.
-    if not begin_word or not end_word or not word_list or len(begin_word) != len(end_word) or begin_word not in word_list or end_word not in word_list:
+    """
+    mapping dictionary for
+    word_list = ['hot', 'dot', 'dog', 'lot', 'log', 'cog']
+
+    {'*ot': ['hot', 'dot', 'lot'],
+     'h*t': ['hot'],
+     'ho*': ['hot'],
+     'd*t': ['dot'],
+     'do*': ['dot', 'dog'],
+     '*og': ['dog', 'log', 'cog'],
+     'd*g': ['dog'],
+     'l*t': ['lot'],
+     'lo*': ['lot', 'log'],
+     'l*g': ['log'],
+     'c*g': ['cog'],
+     'co*': ['cog']}
+    """
+    if begin_word not in word_list or end_word not in word_list:
         return 0
 
     n = len(begin_word)
-    mapping = defaultdict(list)
+    mapping = defaultdict(list)     # {"h*t": ["hot", "hit"], "ho*": ["hot"]}
 
     for word in word_list:
         for i in range(n):
@@ -231,9 +188,9 @@ def sum_root_to_leaf_numbers(root):
     1. Start at the entrance (root) with an empty code (0).
 
     2. At each room (node):
-       - Append this room's digit to your current code
+       - Append this room's digit to your current `code`
          code = code * 10 + room.digit
-         *Why ×10? Each step left in the castle multiplies the code by 10!*
+         - Why x10? Each step left in the castle multiplies the code by 10!*
 
        - Check if this is a dead-end room (leaf):
          If NO exits (no left/right rooms): Add this code to treasure chest
@@ -247,6 +204,29 @@ def sum_root_to_leaf_numbers(root):
 
     Time Complexity: O(n) - visit each room once
     Space Complexity: O(h) - stack height = tree height
+
+    Recursive Solution:
+    if not root:
+        return 0
+
+    result = 0
+
+    def dfs(node, val):
+        nonlocal result
+
+        val = val * 10 + node.digit
+
+        if not node.left and not node.right:
+            result += val
+            return
+
+        if node.left:
+            dfs(node.left, val)
+        if node.right:
+            dfs(node.right, val)
+
+    dfs(root, 0)
+    return result
     """
     if not root:
         return 0
@@ -574,20 +554,23 @@ def word_break(s, word_dict):
 
     return backtrack(start=0)
 
+    """    
     # Another solution
-    # queue = deque([0])
-    # visited = {0}
-    # word_set = set(word_dict)
-    # n =  len(s)
-    #
-    # while len(queue) > 0:
-    #     current = queue.popleft()
-    #     for i in range(current + 1, n + 1):
-    #         if i in visited:
-    #             continue
-    #         if s[current: i] in word_set:
-    #             if i == n:
-    #                 return True
-    #             queue.append(i)
-    #             visited.add(i)
-    # return False
+
+    queue = deque([0])
+    visited = {0}
+    word_set = set(word_dict)
+    n =  len(s)
+
+    while len(queue) > 0:
+        current = queue.popleft()
+        for i in range(current + 1, n + 1):
+            if i in visited:
+                continue
+            if s[current: i] in word_set:
+                if i == n:
+                    return True
+                queue.append(i)
+                visited.add(i)
+    return False
+    """
