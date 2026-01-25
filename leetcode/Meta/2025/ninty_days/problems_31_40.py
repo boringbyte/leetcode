@@ -265,7 +265,7 @@ def clone_graph(node):
     How the Ghost General Works:
     ---------------------------
     1. Keep a "Clone Registry" (hash map) to track:
-       Original Soldier → Clone Soldier
+       Original Soldier -> Clone Soldier
 
     2. Use a "Summoning Queue" (BFS queue) to process soldiers:
        - Start with the first soldier (node)
@@ -275,7 +275,7 @@ def clone_graph(node):
     3. For each soldier in the queue:
        - Look at their original neighbor list
        - For each neighbor:
-           * If neighbor not cloned yet → Create clone, register, queue it
+           * If neighbor not cloned yet -> Create clone, register, queue it
            * Connect current clone to neighbor's clone
 
     4. Return the clone of the first soldier (the army commander)
@@ -303,7 +303,7 @@ def clone_graph(node):
 
     3. Process soldier 2:
        Neighbors: 1, 3
-       - 1 already cloned → get 1' from registry
+       - 1 already cloned -> get 1' from registry
        - Clone 3' (registry: {1: 1', 2: 2', 4: 4', 3: 3'}, queue: [1, 2, 4, 3])
        Connect: 2'.neighbors = [1', 3']
 
@@ -326,13 +326,10 @@ def clone_graph(node):
     if not node:
         return None
 
-    # Clone Registry: Original Soldier → Clone Soldier
-    clone_registry = {}
+    # Step 1: Clone Registry: Original Soldier -> Clone Soldier and Create the first clone (army commander)
+    clone_registry = {node: CloneNode(node.val, [])}
 
-    # Create the first clone (army commander)
-    clone_registry[node] = CloneNode(node.val, [])
-
-    # Summoning Queue: Soldiers waiting to have their neighbors processed
+    # Step 2: Summoning Queue: Soldiers waiting to have their neighbors processed
     queue = deque([node])
 
     while queue:
@@ -342,9 +339,9 @@ def clone_graph(node):
         # Process each neighbor of the original soldier
         for neighbor in original.neighbors:
             if neighbor not in clone_registry:
-                # First time seeing this soldier → create their clone
-                clone_registry[neighbor] = CloneNode(neighbor.val, [])
-                queue.append(neighbor)
+                # First time seeing this soldier -> create their clone
+                clone_registry[neighbor] = CloneNode(neighbor.val, [])      # same as step 1
+                queue.append(neighbor)                                               # same as step 2
 
             # Connect the clone to the neighbor's clone
             clone.neighbors.append(clone_registry[neighbor])
@@ -353,44 +350,35 @@ def clone_graph(node):
 
 
 def copy_list_with_random_pointer(head):
+    # https://leetcode.com/problems/copy-list-with-random-pointer
     """
-    Secret Agent Clone Network Analogy:
-    Imagine a network of secret agents where:
-      - Each agent has an ID (val)
-      - A "next" contact (next agent in the chain)
-      - A "secret" random contact (random pointer to any agent or null)
-
-    Your mission: Create an IDENTICAL clone network without disturbing the original!
-
-    The Challenge: Random pointers create a web, not just a chain!
-
-    How the Agency Clones Agents:
+    How the Agency Clones Nodes:
     ---------------------------
     1. The "Twin Insertion" Phase (Weaving):
-       For each original agent, create a clone and insert it RIGHT AFTER the original.
+       For each original node, create a clone and insert it RIGHT AFTER the original.
 
-       Original: A → B → C → null
-       After:    A → A' → B → B' → C → C' → null
+       Original: A -> B -> C -> null
+       After:    A -> A' -> B -> B' -> C -> C' -> null
 
     2. The "Secret Connection" Phase:
-       For each original agent A, set A'.random to:
+       For each original node A, set A'.random to:
        - A.random.next (the clone of A's random contact)
        - null if A.random is null
 
     3. The "Network Split" Phase:
        Unweave the interleaved list into two separate networks:
-       Original: A → B → C → null
-       Clone:    A' → B' → C' → null
+       Original: A -> B -> C -> null
+       Clone:    A' -> B' -> C' -> null
 
     Visual Example:
     ---------------
     Original:
-        A(1) → B(2) → C(3) → null
+        A(1) -> B(2) -> C(3) -> null
         |      |      |
         C      A      B   (random pointers)
 
     Step 1: Twin Insertion
-        A → A' → B → B' → C → C' → null
+        A -> A' -> B -> B' -> C -> C' -> null
 
     Step 2: Set Random Pointers
         For A: A'.random = A.random.next = C'
@@ -398,14 +386,14 @@ def copy_list_with_random_pointer(head):
         For C: C'.random = C.random.next = B'
 
     Step 3: Split Networks
-        Original: A → B → C → null
-        Clone:    A' → B' → C' → null
+        Original: A -> B -> C -> null
+        Clone:    A' -> B' -> C' -> null
         (with correct random pointers in clone)
 
     Why This Works:
     --------------
     By placing clones next to originals, we create a direct mapping:
-      Original → Clone is just: original.next (in the interleaved list)
+      Original -> Clone is just: original.next (in the interleaved list)
 
     So: clone.random = original.random.next
 
@@ -466,103 +454,33 @@ def copy_list_with_random_pointer(head):
 
 
 def word_break(s, word_dict):
-    # https://leetcode.com/problems/word-break/description/
-    """
-    Puzzle Piece Assembly Line Analogy:
-    Imagine you have a conveyor belt with letters (string s) and a box of puzzle pieces (word_dict).
-    Each puzzle piece is a word that can fit onto the conveyor belt if it matches the letters.
-
-    GOAL: Determine if you can completely cover the conveyor belt using available pieces.
-
-    How the Assembly Line Works:
-    --------------------------
-    1. The belt has positions 0 to n (n = length of belt/string)
-    2. You start at position 0 (beginning of belt)
-    3. At each position, you try placing puzzle pieces from your box
-    4. If a piece fits, you mark where it ends and continue from there
-    5. If you reach the end of the belt (position n), SUCCESS!
-
-    The Challenge: Some positions might be dead ends!
-    So we use a MEMORY system to remember which positions worked.
-
-    Visual Example:
-    ---------------
-    Belt: "applepenapple"
-    Pieces: ["apple", "pen"]
-
-    Start at position 0:
-      Try "apple" (fits! covers positions 0-4)
-      Now at position 5:
-        Try "pen" (fits! covers positions 5-7)
-        Now at position 8:
-          Try "apple" (fits! covers positions 8-12)
-          Now at position 13 (END!) → SUCCESS!
-
-    But what if we had other options?
-    We need to backtrack and try different piece arrangements!
-
-    How Recursion with Memoization Works:
-    ------------------------------------
-    We keep a memory (cache) that remembers:
-      "From position X, can we reach the end?"
-
-    At each position:
-      1. Check memory: Have we solved this position before?
-      2. Try every possible piece starting at current position
-      3. If piece fits, recursively check if we can complete from the NEXT position
-      4. If ANY path works, return True and store in memory
-      5. If NO path works, return False and store in memory
-
-    Time Complexity: O(n^3) in worst case (n positions × n substring checks × recursion)
-    But with memoization, we avoid repeating work, making it much faster!
-
-    Alternative DP Approach (Assembly Line Version):
-    -----------------------------------------------
-    Instead of recursion, we can use a DP array where dp[i] = True
-    if the belt can be covered up to position i.
-
-    But this recursive approach is more intuitive for the analogy!
-    """
+    # https://leetcode.com/problems/word-break
     word_set = set(word_dict)  # Convert to set for O(1) lookups
     n = len(s)
 
-    @cache  # Python's built-in memoization decorator
+    @cache
     def backtrack(start):
-        """
-        Returns: Can we cover the belt from position 'start' to the end?
-
-        Think: "From this point on the conveyor belt, can we place
-                puzzle pieces to reach the end?"
-        """
-        # Base case: We've reached the end of the belt!
         if start == n:
             return True
 
-        # Try placing pieces starting at current position
         for i in range(start, n):
-            # Cut a piece from 'start' to 'i' (inclusive)
             chosen_piece = s[start:i + 1]
+            if chosen_piece in word_set and backtrack(i + 1):
+                return True
 
-            # Check if this piece is in our box
-            if chosen_piece in word_set:
-                # Recursively check: Can we cover the REST of the belt?
-                if backtrack(i + 1):  # Move to position after this piece
-                    return True
-
-        # No piece starting at 'start' leads to a complete covering
         return False
 
     return backtrack(start=0)
 
     """    
-    # Another solution
-
-    queue = deque([0])
-    visited = {0}
+    # BFS solution
     word_set = set(word_dict)
     n =  len(s)
+    
+    queue = deque([0])
+    visited = {0}
 
-    while len(queue) > 0:
+    while queue:
         current = queue.popleft()
         for i in range(current + 1, n + 1):
             if i in visited:
