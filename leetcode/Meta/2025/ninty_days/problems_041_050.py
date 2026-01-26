@@ -390,11 +390,16 @@ def kth_largest_element_simplified(nums, k):
 
 def contains_duplicate_ii(nums, k):
     # https://leetcode.com/problems/contains-duplicate-ii
-    seen = dict()  # {num: i}
+    """
+    For each number, the only index that can possibly form a valid pair with the current index is the most recent one.
+    This is because of the condition <= k
+    Checking anything other than the last index is wasted effort.
+    """
+    seen_dict = dict()              # {num: i}
 
     for i, num in enumerate(nums):
-        if num in seen and abs(i - seen[num]) <= k:
+        if num in seen_dict and abs(i - seen_dict[num]) <= k:
             return True
-        seen[num] = i
+        seen_dict[num] = i          # This is because we only need the last index
 
     return False

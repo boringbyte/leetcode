@@ -10,7 +10,6 @@ def two_sum_brute_force(nums, target):
         for j in range(i + 1, n):
             if nums[i] + nums[j] == target:
                 return [i, j]
-    return None
 
 
 def two_sum_two_pointer(nums, target):
@@ -27,7 +26,6 @@ def two_sum_two_pointer(nums, target):
             left += 1
         else:
             right -= 1
-    return None
 
 
 def two_sum(nums, target):
@@ -40,8 +38,6 @@ def two_sum(nums, target):
         j = diff_dict[diff]
         if diff in diff_dict and i != j:
             return [i, j]
-
-    return None
 
 
 def add_two_numbers(l1, l2):
