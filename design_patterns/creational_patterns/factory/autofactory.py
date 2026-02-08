@@ -17,6 +17,6 @@ class AutoFactory(object):
 
     def create_instance(self, carname):
         if carname in self.autos:
-            return self.autos[carname]()
+            return self.autos[carname](carname)
         else:
             return autos.NullCar(carname)

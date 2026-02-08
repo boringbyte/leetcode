@@ -1,20 +1,19 @@
-import abc
+from abc import ABC, abstractmethod
 
 
-class AbstractAuto(abc.ABC):
+class AbstractAuto(ABC):
+
+    def __init__(self, name):
+        self._name = name
 
     @property
     def name(self):
         return self._name
 
-    @name.setter
-    def name(self, name):
-        self._name = name
-
-    @abc.abstractmethod
+    @abstractmethod
     def start(self):
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def stop(self):
         pass
