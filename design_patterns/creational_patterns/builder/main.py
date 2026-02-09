@@ -4,7 +4,7 @@ from mycomputer_builder import MyComputerBuilder
 from builder import Builder
 from director import Director
 
-computer = Computer(case='Coolermaster',
+computer = Computer(case='CoolerMaster',
                     mainboard='MSI',
                     cpu='Intel Core i9',
                     memory='2 X 16GB',
@@ -19,6 +19,7 @@ if __name__ == '__main__':
     3. Initializer might grow over a period of time.
     """
     computer.display()
+    print("\n")
 
     """
     This is 2nd attempt
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     builder.build_computer()
     computer = builder.get_computer()
     computer.display()
+    print("\n")
 
     """
     This is 3rd update
@@ -40,6 +42,7 @@ if __name__ == '__main__':
     builder.build_computer()
     computer = builder.get_computer()
     computer.display()
+    print("\n")
 
     """
     This is 4th attempt

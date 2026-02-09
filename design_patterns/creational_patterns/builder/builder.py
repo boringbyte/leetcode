@@ -15,7 +15,7 @@ class Builder(AbstractBuilder):
         pass
 
     def install_video_card(self):
-        self._computer.video_card = ''
+        self._computer.video_card = 'GeForce GTX 3070'
 
     def install_hard_drive(self):
         self._computer.hard_drive = 'Seagate 2TB'

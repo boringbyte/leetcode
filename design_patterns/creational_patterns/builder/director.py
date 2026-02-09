@@ -1,4 +1,4 @@
-class Director(object):
+class Director:
 
     def __init__(self, builder):
         self._builder = builder
