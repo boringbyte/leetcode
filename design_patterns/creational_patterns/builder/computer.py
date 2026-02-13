@@ -1,4 +1,4 @@
-class Computer(object):
+class Computer:
 
     def __init__(self, case, mainboard, cpu, memory, hard_drive, video_card):
         self.case = case

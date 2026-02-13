@@ -1,4 +1,4 @@
-class Computer(object):
+class Computer:
     case: str
     mainboard: str
     cpu: str
@@ -16,7 +16,7 @@ class Computer(object):
         print(f'\t{"Video Card":>10}: {self.video_card}')
 
 
-class MyComputerBuilder(object):
+class MyComputerBuilder:
 
     def get_computer(self):
         return self._computer

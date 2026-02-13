@@ -1,4 +1,4 @@
-class Computer(object):
+class Computer:
     case: str
     mainboard: str
     cpu: str
@@ -16,14 +16,17 @@ class Computer(object):
         print(f'\t{"Video Card":>10}: {self.video_card}')
 
 
-class MyComputer(object):
+class MyComputer:
+
+    def __init__(self):
+        self._computer = None
 
     def get_computer(self):
         return self._computer
 
     def build_computer(self):
         computer = self._computer = Computer()
-        computer.case = 'Coolermaster'
+        computer.case = 'CoolerMaster'
         computer.mainboard = 'MSI'
         computer.cpu = 'Intel Core i9'
         computer.memory = '2 X 16GB'
